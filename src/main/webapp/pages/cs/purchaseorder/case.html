@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>Case Details</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="../../../css/themes/default/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../../../css/themes/icon.css">
+        <link rel="stylesheet" href="../../../css/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="../../../css/bootstrap/bootstrap.grid.min.css">
+        <link rel="stylesheet" href="http://easyautocomplete.com/dist/easy-autocomplete.min.css">
+        <link rel="stylesheet" type="text/css" href="../../../css/style.css">
+        <script type="text/javascript" src="../../../js/jquery.min.js"></script>
+        <script type="text/javascript" src="../../../js/jquery.easyui.min.js"></script>
+        <script type="text/javascript" src="http://easyautocomplete.com/dist/jquery.easy-autocomplete.min.js"></script>
+        <script type="text/javascript" src="../../../js/app.js"></script>
+    </head>
+    <body>
+        <div id="editSaleOrderDialog" path="/lexor_cs/api/case_service"></div>
+        <div id="editReturnDialog"  path="/lexor_cs/api/case_return"></div>
+        <div class="easyui-dialog" id="editContactDialog" title="Edit contact" style="width:400px;height:400px;display: none"
+             accesskey="" data-options="iconCls:'icon-save',resizable:true">
+            <form>
+                <div class="form-group">
+                    <label>
+                        Mobile Phone:
+                    </label>
+                    <div class="col-sm-12">       
+                        <input style="width:100%" id="editMobilePhone" name="editMobilePhone">
+                    </div>                        
+                </div>
+                <div class="form-group">
+                    <label>
+                        Business Phone:
+                    </label>
+                    <div class="col-sm-12">       
+                        <input style="width:100%" id="editBusinessPhone" name="editBusinessPhone">
+                    </div>                        
+                </div>
+                <div class="form-group">
+                    <label>
+                        Email:
+                    </label>
+                    <div class="col-sm-12">       
+                        <input style="width:100%" class="easyui-textbox" data-options="validType:'email', validateOnCreate:false">
+                    </div>                        
+                </div>
+                <div class="form-group">
+                    <label>
+                        Case priority:
+                    </label>
+                    <div class="col-sm-12">     
+                        <select id="editCasePriority" class="easyui-combobox" name="editCasePriority"  data-options="valueField:'id',textField:'text'" name="casePriority" style="width:100%">
+                            <option value="1">Low </option>
+                            <option value="2">Normal</option>
+                            <option value="3">High</option>
+                            <option value="4">Critical</option>
+                        </select>                       
+                    </div> 
+                </div>
+                <div class="form-group">
+                    <label>
+                        Customer Service Rep:
+                    </label>
+                    <div class="col-sm-12">     
+                        <select class="easyui-combobox" id="editDepartment" style="width:100%">
+                            <option value="1">Auto Rotation </option>
+                            <option value="2">Customer Service Rep 1 </option>
+                            <option value="3">Customer Service Rep 2 </option>
+                            <option value="4">Customer Service Rep 3 </option>
+                            <option value="5">Customer Service Rep 4 </option>
+                        </select>                       
+                    </div> 
+                </div>
+                <div class="form-group">
+                    <label>
+                        Service Type
+                    </label>
+                    <div class="checkbox-type">
+                        <input class="easyui-checkbox" labelPosition="after" name="BuyPart" value="Apple" label="BuyPart">
+                    </div>
+                    <div class="checkbox-type">
+                        <input class="easyui-checkbox" labelPosition="after" name="Service" value="Service" label="Service">
+                    </div>
+                    <div class="checkbox-type">
+                        <input class="easyui-checkbox" labelPosition="after" name="Return" value="Return" label="Return">
+                    </div>
+                </div>
+                <hr>
+                <div class="form-group">
+                    <div class="col-sm-12">  
+                        <a id="editUser" href="javascript:void(0)" class="easyui-linkbutton  float-right submit" data-options="iconCls:'icon-save'">Save</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 case-info">
+                    <a href="#" class="case-info__status">Case: {name}-{status}</a>
+                    <a href="javascript:void(0)" onclick="window.print();" class="easyui-linkbutton float-right">Print</a>
+                    <a href="javascript:void(0);" id="editReturn" class="easyui-linkbutton float-right">Create Return</a>
+                    <a href="javascript:void(0);" id="editSaleOrder" class="easyui-linkbutton float-right">Create Service</a>
+                    <a href="#" class="easyui-linkbutton float-right">Create Buy Part</a>  
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="easyui-layout" style="width:600px;height:410px;">
+                        <div class="height-400 case-detail" data-options="region:'north',title:'Contact information'" style="width:400px">
+                            <label>Contact ID:12345</label>
+                            <ul style="width:600px;" id="userInformation">
+                                <li>First Name : </li>
+                                <li>Last Name : </li>
+                                <li>Mobile Phone : </li>
+                                <li>Business Phone : </li>
+                                <li>Email : </li> 
+                            </ul>
+                            <label>Salon Information</label>
+                            <ul style="width:600px;">
+                                <li>Salon Name : Salon A</li>
+                                <li>Salon Address : USA </li>
+                                <li>Suite Number : 1 </li>
+             
+                            </ul>
+                            <hr>
+                            <div class="col-sm-12">
+                                <a href="javascript:void(0)" id="editCase" class="easyui-linkbutton float-right submit">Edit</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="container-fluid">
+            <div class="easyui-tabs" style="width:100%;">
+                <div title="Case Information" style="padding:20px;display:none;">
+                    <form>
+                        <div class="form-group">
+                            <label class="type-bold">
+                                Type
+                            </label>
+                            <div class="checkbox-type">
+                                <input class="easyui-checkbox" id="buyPartCount" labelPosition="after" name="BuyPart" value="BuyPart" label="BuyPart"> <strong class="buyPartCount"></strong>
+                            </div>
+                            <div class="checkbox-type">
+                                <input class="easyui-checkbox" id="serviceCount" labelPosition="after" name="Service" value="Service" label="Service"> <strong class="serviceCount"></strong>
+                            </div>
+                            <div class="checkbox-type">
+                                <input class="easyui-checkbox" id="returnCount" labelPosition="after" name="Return" value="Return" label="Return"> <strong class="returnCount"></strong>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="type-bold">Customer Service Rep: </label>
+                            <div class="col-sm-12"><input disabled="true" class="easyui-textbox" value="Customer Service"/></div>
+                        </div>
+                        <div class="form-group">
+                            <label class="type-bold">Priority:  </label>
+                            <div class="col-sm-12"><input disabled="true" id="casePriorityText" class="easyui-textbox col-sm-12" value="Low"/></div>
+                        </div>
+                    </form>
+                </div>
+                <div title="Transactions" style="overflow:auto;padding:20px;display:none;">
+                    <table id="transactionDataGrid" class="easyui-datagrid" pagination="true">
+                        <thead>
+                            <tr>
+                                <th data-options="field:'doc_number', fixed:true, width: 100">Doc#</th>
+                                <th data-options="field:'case_status',sortable:true, fixed:true, width: 200">Type</th>
+                                <th data-options="field:'name', fixed:true, width: 230">Status</th>
+                                <th data-options="field:'mobile_phone', fixed:true, width: 150">Address</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                </div>
+                <div title="Send Message" style="overflow:auto;padding:20px;display:none;">
+                    <form>
+                        <div class="form-group">   
+                            <div class="col-sm-12">
+                                <input style="width:300px" class="easyui-textbox" data-options="prompt:'Send to', required:true, validType:'email', validateOnCreate:false">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input style="width:300px" class="easyui-textbox" data-options="prompt:'Subject', required:true, validateOnCreate:false">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input style="width:600px" class="easyui-textbox" data-options="prompt:'Message', required:true, validateOnCreate:false, multiline:true, height:100">
+                            </div>
+                        </div>      
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <a href="javascript:void(0)" id="sendMail" class="easyui-linkbutton float-right submit">Send message</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div title="Activity" style="overflow:auto;padding:20px;display:none;">
+                </div>
+                <div title="Log History"  style="overflow:auto;padding:20px;display:none;">
+                        <div class="row">
+                            <div class="col-sm-12">
+                                <input style="width:600px" class="easyui-textbox" disabled="true" data-options="multiline:true, height:100">
+                            </div>
+                        </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
