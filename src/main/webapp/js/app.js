@@ -7,6 +7,10 @@ casePriority = {
     3: "High",
     4: "Critical"
 };
+transactionType = {     
+    1: "Processing",
+    2: "Closed",
+};
 $(document).ready(function () {
     reInitUser();
     loadCase();
@@ -24,20 +28,31 @@ $(document).ready(function () {
     });
     
     $("#editSaleOrder").on("click", function () {
-        registerCaseTransactionDialog('editSaleOrderDialog', 'Service');
+        registerCaseTransactionDialog('editSaleOrderDialog', 'Service', $(this).attr("path"));
     });
     
     $("#editReturn").on("click", function () {
-        registerCaseTransactionDialog('editReturnDialog', 'Return');
+        registerCaseTransactionDialog('editSaleOrderDialog', 'Return', $(this).attr("path"));
     });
     
     $("#editCase").on("click", function () {
-        console.log(defaultUser);
         $("#editMobilePhone").textbox({value : defaultUser.mobile_phone, required:true, validateOnCreate:false, width:337});
         $("#editBusinessPhone").textbox({value : defaultUser.business_phone, required:true, validateOnCreate:false, width:337});
         $('#editContactDialog').window('open');
     });
     
+    $("#editUser").on("click", function() {
+        var users = JSON.parse(localStorage.getItem("users"));
+        var user = users.find(x => x.doc_number == $.urlParam("user_id"));
+        var index = users.indexOf(user);
+        user.mobile_phone = $("#editMobilePhone").val();
+        user.business_phone = $("#editBusinessPhone").val();         
+        users.fill(user, index, index++); 
+        
+        localStorage.setItem("users", JSON.stringify(users));
+        getUserInfo();
+        $('#editContactDialog').window('close');
+    });
 });
 
 function reInitUser() {
@@ -57,7 +72,7 @@ function reInitUser() {
     }
 }
 
-function registerCaseTransactionDialog(dialogElement, title) {
+function registerCaseTransactionDialog(dialogElement, title, path) {
     var element = $('#' + dialogElement);
     element.dialog({
         title: title,
@@ -70,7 +85,7 @@ function registerCaseTransactionDialog(dialogElement, title) {
         onLoad: function() {
             registerAddSaleOrder();
             registerCaseSeviceAutoComplete();
-            registerSaveCaseService(element.attr("path"), dialogElement, title);
+            registerSaveCaseService(path, dialogElement, title);
         }
     });
 }
@@ -132,12 +147,12 @@ function createCase(customerId, priority = 1) {
         url: '/lexor_cs/api/case',
         data: JSON.stringify({
             "customerID": customerId, 
-            "status": 0, 
+            "status": 2, 
             "caseType": 0,
             "casePriority": parseInt(priority)
         }),
         success: function(caseId) {
-            window.location.href = '/lexor_cs/pages/cs/purchaseorder/case.html?case_id=' + caseId + "&user_uid" + customerId
+            window.location.href = '/lexor_cs/pages/cs/purchaseorder/case.html?case_id=' + caseId + "&user_id=" + customerId
         },
         contentType: 'application/json'
    });
@@ -175,7 +190,11 @@ function createCaseService(caseId, path, dialog, title) {
                     $('#' + dialog).window('close');
                 });
             }
+            createTransaction(caseId, title, "Address");
+            createActivity(caseId, "Create " + title);
             getCount('case_service', 'serviceCount');
+            loadTransaction(caseId);
+            loadActivity(caseId);
         },
         contentType: 'application/json'
    });
@@ -212,7 +231,7 @@ function createUser(docNumber) {
     
     users.push({
         doc_number: docNumber,
-        case_status: 1, 
+        case_status: 2, 
         name: "Customer " + docNumber,
         mobile_phone: $("[name='mobilePhone']").val(),
         business_phone: $("[name='businessPhone']").val(),
@@ -225,7 +244,7 @@ function createUser(docNumber) {
 
 
 function getCaseInformation(caseId) {
-    var status = { 0: 'Close', 1: "Open"};
+    var status = { 2: 'Closed', 1: "Open"};
     $.get({
         url: '/lexor_cs/api/case/' + caseId,
         success: function(data) {
@@ -260,6 +279,7 @@ function loadCase() {
         getCount('case_service', 'serviceCount');
         getCount('case_return', 'returnCount');
         loadTransaction(caseId);
+        loadActivity(caseId);
         getUserInfo();
     } else {
         $('#userGrid').datagrid({
@@ -281,12 +301,29 @@ function loadTransaction(caseId) {
                     tableData.push({
                         doc_number: data.docCode,
                         case_status: data.status,
-                        name: data.caseID,
-                        mobile_phone: data.address,
+                        type: transactionType[data.docCode],
+                        address: data.address,
                     });
                 });
                 $("#transactionDataGrid").datagrid({
                     data: tableData
+                });
+            }
+        },
+        contentType: 'application/json'
+    });
+}
+
+function loadActivity(caseId) {
+    $.get({
+        url: "/lexor_cs/api/case_log/" + caseId +"/" + caseId,
+        success: function(data) {
+            let tableData = [];
+            if ( data ) {
+                var hitory = $("#logHistory");
+                var log = [];
+                data.forEach(function(data) {
+                    hitory.val(hitory.val() + data.logMessage + " " + data.createdDate + '\r\n');
                 });
             }
         },
@@ -311,6 +348,40 @@ function createSaleOrder(customerSOID, caseServiceID) {
     }) ;
 }
 
+function createTransaction(caseId, documentCode, address) {
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/case_info',
+        data: JSON.stringify({
+            "caseID": caseId,
+            "docCode": documentCode,
+            "address": address,
+            "status": 1,
+            "createdDate": getCurrentTime()
+        }),
+        contentType: 'application/json'
+    });
+}
+
+function createActivity(caseId, message) {
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/case_log',
+        data: JSON.stringify({
+            "caseID": caseId,
+            "logMessage": message,
+            "createdDate": getCurrentTime(),
+            "updatedDate": getCurrentTime()
+        }),
+        contentType: 'application/json'
+    });
+}
+
+function getCurrentTime() {
+    var dt = new Date;
+    
+    return dt.getFullYear() + "/" + (dt.getMonth() + 1) + "/" + dt.getDate();
+}
 
 $.urlParam = function(name){
     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);

@@ -21,9 +21,9 @@ public class CaseLogService extends BaseService<CaseLog> {
         CaseLog c = (CaseLog) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO \"CaseLog\" (\"CaseID\", \"LogMessage\", \"CreatedDate\") VALUES (?, ?, ?)";
+                = "INSERT INTO public.CaseLog (\"CaseID\", \"LogMessage\", \"CreatedDate\") VALUES (?, ?, ?::timestamp)";
 
-        return runner.update(connection, insertSQL, c.getCaseID(), c.getLogMessage(), c.getCreatedDate());
+        return runner.update(connection, insertSQL.toLowerCase(), c.getCaseID(), c.getLogMessage(), c.getCreatedDate());
     }
 
     @Override
@@ -80,8 +80,9 @@ public class CaseLogService extends BaseService<CaseLog> {
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseLog>> resultHandler = new CaseLogHandler(connection);
-
-        List<CaseLog> empList = queryRunner.query(connection, "SELECT * FROM \"CaseLog\" WHERE \"LogID\" >= ? AND  \"LogID\" <= ?", resultHandler, from, to);
+            
+        String query = "SELECT * FROM public.CaseLog WHERE CaseID >= ? AND CaseID <= ?";
+        List<CaseLog> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (CaseLog case1 : empList) {
             list.add((T) case1);
         }

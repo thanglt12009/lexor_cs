@@ -22,7 +22,6 @@ and open the template in the editor.
     </head>
     <body>
         <div id="editSaleOrderDialog" path="/lexor_cs/api/case_service"></div>
-        <div id="editReturnDialog"  path="/lexor_cs/api/case_return"></div>
         <div class="easyui-dialog" id="editContactDialog" title="Edit contact" style="width:400px;height:400px;display: none"
              accesskey="" data-options="iconCls:'icon-save',resizable:true">
             <form>
@@ -104,8 +103,8 @@ and open the template in the editor.
                 <div class="col-sm-12 case-info">
                     <a href="#" class="case-info__status">Case: {name}-{status}</a>
                     <a href="javascript:void(0)" onclick="window.print();" class="easyui-linkbutton float-right">Print</a>
-                    <a href="javascript:void(0);" id="editReturn" class="easyui-linkbutton float-right">Create Return</a>
-                    <a href="javascript:void(0);" id="editSaleOrder" class="easyui-linkbutton float-right">Create Service</a>
+                    <a href="javascript:void(0);" id="editReturn" path="/lexor_cs/api/case_return" class="easyui-linkbutton float-right">Create Return</a>
+                    <a href="javascript:void(0);" id="editSaleOrder" path="/lexor_cs/api/case_service" class="easyui-linkbutton float-right">Create Service</a>
                     <a href="#" class="easyui-linkbutton float-right">Create Buy Part</a>  
                 </div>
             </div>
@@ -173,9 +172,9 @@ and open the template in the editor.
                         <thead>
                             <tr>
                                 <th data-options="field:'doc_number', fixed:true, width: 100">Doc#</th>
-                                <th data-options="field:'case_status',sortable:true, fixed:true, width: 200">Type</th>
-                                <th data-options="field:'name', fixed:true, width: 230">Status</th>
-                                <th data-options="field:'mobile_phone', fixed:true, width: 150">Address</th>
+                                <th data-options="field:'type',sortable:true, fixed:true, width: 200">Type</th>
+                                <th data-options="field:'case_status', fixed:true, width: 230">Status</th>
+                                <th data-options="field:'address', fixed:true, width: 150">Address</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -212,7 +211,7 @@ and open the template in the editor.
                 <div title="Log History"  style="overflow:auto;padding:20px;display:none;">
                         <div class="row">
                             <div class="col-sm-12">
-                                <input style="width:600px" class="easyui-textbox" disabled="true" data-options="multiline:true, height:100">
+                                <textarea rows="4" cols="50" id="logHistory" disabled="true"></textarea>
                             </div>
                         </div>
                 </div>

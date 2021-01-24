@@ -21,9 +21,9 @@ public class CaseInformationService extends BaseService<CaseInformation> {
         CaseInformation c = (CaseInformation) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO \"CaseInformation\" ( \"CaseID\", \"DocCode\", \"Status\", \"Address\", \"CreatedDate\" ) VALUES (?, ?, ?, ?, ?)";
+                = "INSERT INTO public.CaseInformation ( \"CaseID\", \"DocCode\", \"Status\", \"Address\", \"CreatedDate\" ) VALUES (?, ?, ?, ?, ?::timestamp)";
 
-        return runner.update(connection, insertSQL, c.getCaseID(), c.getDocCode(), c.getStatus(), c.getAddress(), c.getCreatedDate(), c.getStatus());
+        return runner.update(connection, insertSQL.toLowerCase(), c.getCaseID(), c.getDocCode(), Integer.parseInt(c.getStatus()), c.getAddress(), c.getCreatedDate());
     }
 
     @Override
@@ -80,8 +80,9 @@ public class CaseInformationService extends BaseService<CaseInformation> {
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseInformation>> resultHandler = new CaseInformationHandler(connection);
-
-        List<CaseInformation> empList = queryRunner.query(connection, "SELECT * FROM \"CaseInformation\" WHERE \"TransactionID\" >= ? AND  \"TransactionID\" <= ?", resultHandler, from, to);
+        
+        String query = "SELECT * FROM public.CaseInformation WHERE \"CaseID\" >= ? AND  \"CaseID\" <= ?";
+        List<CaseInformation> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (CaseInformation case1 : empList) {
             list.add((T) case1);
         }
