@@ -95,3 +95,15 @@ hr {
     top: 3px;
     left: -25px;
 }
+
+.case-info {
+    margin-top: 10px;
+}
+
+.height-240 {
+    height: 240px !important;
+}
+
+.payment table,.payment th,.payment td {
+  border: 1px solid #95B8E7;
+}

@@ -1,10 +1,9 @@
 productDatas = {
     "total" : 2,
     "footer":[
-	{"shiping_day":'<strong>Subtotal</strong>',"original_so":"$3000.00"},
-	{"shiping_day":'<strong>Shipping Fee</strong>',"original_so":"$<input style='width:70px' value='5.00' />"},
-        {"shiping_day":'<strong>Manager Discount</strong>',"original_so":'<strong>-$1000.00</strong>'},
-        {"shiping_day":'<strong>Total</strong>',"original_so":'<strong>$3005.00</strong>'},
+	{"sold_price":'<strong>Subtotal</strong>',"amout":"$3000.00"},
+        {"sold_price":'<strong>Restocking Fee</strong>',"amout":'<strong>-$1000.00</strong>'},
+        {"sold_price":'<strong>Total</strong>',"amout":'<strong>$2000.00</strong>'},
     ],
     "rows":[
         {
@@ -16,12 +15,7 @@ productDatas = {
             sold_price: "$2,095.00",
             amout: "$2,095.00",
             stock_avaiable: "20",
-            total_weight: "900",
-            ware_house: "CA",
-            shiping_day: "25/01/2021",
-            original_so: "001",
-            service_for_product: "Service for Product 001",
-            under_warranty: "Y"
+            total_weight: "YES/NO",
         },
         {
             id : 2,
@@ -32,12 +26,7 @@ productDatas = {
             sold_price: "$1,000.00",
             amout: "$2,000.00",
             stock_avaiable: "20",
-            total_weight: "1000",
-            ware_house: "CA",
-            shiping_day: "25/01/2021",
-            original_so: "001",
-            service_for_product: "Service for Product 002",
-            under_warranty: "Y"
+            total_weight: "YES/NO",
         }
     ]
     
@@ -65,7 +54,7 @@ shippingDatas = {
     ],
     "footer":[
 	{"shipping_type":'<strong>Total Shipping Cost</strong>',"shipping_cost":"$10.00"},
-	{"shipping_type":'<strong>Shipping Discount</strong>',"shipping_cost":"-$<input style='width:100px' value='5.00' />"},
+	{"shipping_type":'<strong>Shipping Discount</strong>',"shipping_cost":"$<input style='width:100px' value='5.00' />"},
         {"shipping_type":'<strong>Shipping Fee</strong>',"shipping_cost":'<strong>$5.00</strong>'},
     ]
 };
@@ -169,7 +158,7 @@ function loadService() {
     });
 }
 function openService() {
-    window.location.href = "/lexor_cs/pages/cs/purchaseorder/service.html"
+    window.location.href = "/lexor_cs/pages/cs/purchaseorder/rma.html"
 }
 
 function loadProducts() {
@@ -194,12 +183,7 @@ function addProduct() {
         sold_price: "$1,000.00",
         amout: "$2,000.00",
         stock_avaiable: "20",
-        total_weight: "1000",
-        ware_house: "CA",
-        shiping_day: "25/01/2021",
-        original_so: "001",
-        service_for_product: "Service for Product 003",
-        under_warranty: "Y"
+        total_weight: "YES/NO"
     });
     loadProducts();
     initRemove();

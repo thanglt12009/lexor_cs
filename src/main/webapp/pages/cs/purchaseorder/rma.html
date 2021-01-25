@@ -16,17 +16,16 @@ and open the template in the editor.
         <link rel="stylesheet" type="text/css" href="../../../css/style.css">
         <script type="text/javascript" src="../../../js/jquery.min.js"></script>
         <script type="text/javascript" src="../../../js/jquery.easyui.min.js"></script>
-        <script type="text/javascript" src="../../../js/service.js"></script>
+        <script type="text/javascript" src="../../../js/rma.js"></script>
     </head>
     <body>
         <div class="container">
             <div class="row">
                 <div class="col-sm-12 case-info">        
                     <div class="col-sm-12 case-info">
-                        <a href="javascript:void(0);" class="case-info__status">Service 1 - Process Pending</a>
-                        <a href="javascript:void(0);" onClick="window.location.href='services.html'" class="easyui-linkbutton float-right">Submit to Production</a>
+                        <a href="javascript:void(0);" class="case-info__status">RMA 1 - Process Pending</a>
                         <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Print</a>
-                        <a href="javascript:void(0);" onClick="window.location.href='services.html'" class="easyui-linkbutton float-right">Cancel</a>  
+                        <a href="javascript:void(0);" onClick="window.location.href='rmas.html'" class="easyui-linkbutton float-right">Cancel</a>  
                     </div>  
                 </div>
             </div>
@@ -56,9 +55,6 @@ and open the template in the editor.
                                 </div>
                             </div>
                             <hr>
-                            <div class="col-sm-12">
-                                <a href="javascript:void(0)" id="editSalon" class="easyui-linkbutton float-right submit">Edit</a>
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -79,17 +75,12 @@ and open the template in the editor.
                             <tr>
                                 <th style="width: 4%" data-options="align: 'center', field:'no'">#</th>
                                 <th style="width: 5%" data-options="field:'image'">Images</th>
-                                <th style="width: 15%" data-options="field:'product', sortable:true">Product</th>
-                                <th style="width: 5%" data-options="field:'quantity'">Quantity</th>
-                                <th style="width: 10%" data-options="field:'sold_price'">Sold Price</th>
-                                <th style="width: 10%" data-options="field:'amout', sortable:true">Amount</th>
-                                <th style="width: 7%;" data-options="field:'stock_avaiable', nowrap: false">Stock </br>Available</th>
-                                <th style="width: 7%;" data-options="field:'total_weight'">Total Weight (lbs)</th>
-                                <th style="width: 7%;" data-options="field:'ware_house', nowrap: false">Warehouse</th>
-                                <th style="width: 10%" data-options="field:'shiping_day'">Shipping Day</th>
-                                <th style="width: 7%" data-options="field:'original_so'">Original SO</th>
-                                <th style="width: 10%" data-options="field:'service_for_product'">Service for </br>Product (qty1)</th>
-                                <th style="width: 5%" data-options="align: 'center', field:'under_warranty'">Under </br> Warranty</th>
+                                <th style="width: 30%" data-options="field:'product', sortable:true">Product</th>
+                                <th style="width: 10%" data-options="field:'quantity'">Quantity</th>
+                                <th style="width: 15%" data-options="field:'sold_price'">Return Price</th>
+                                <th style="width: 15%" data-options="field:'amout', sortable:true">Amount</th>
+                                <th style="width: 10%;" data-options="field:'stock_avaiable', nowrap: false">Warehouse</th>
+                                <th style="width: 10%;" data-options="field:'total_weight'">Receiver</th>
                         <tbody>
                         </tbody>
                     </table>
