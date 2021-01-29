@@ -107,3 +107,7 @@ hr {
 .payment table,.payment th,.payment td {
   border: 1px solid #95B8E7;
 }
+
+.checkbox-type label {
+    width: 200px;
+}

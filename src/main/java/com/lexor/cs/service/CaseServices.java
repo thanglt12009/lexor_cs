@@ -59,7 +59,7 @@ public class CaseServices extends BaseService<CaseService> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
         
-        String query = "SELECT * FROM public.CaseService WHERE \"CaseID\" = ?";
+        String query = "SELECT * FROM public.CaseService WHERE \"CaseServiceID\" = ?";
         List<CaseService> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);

@@ -18,10 +18,12 @@ and open the template in the editor.
         <script type="text/javascript" src="../../../js/jquery.min.js"></script>
         <script type="text/javascript" src="../../../js/jquery.easyui.min.js"></script>
         <script type="text/javascript" src="../../../js/jquery.easy-autocomplete.min.js"></script>
+        <script type="text/javascript" src="../../../js/datagrid-cellediting.js"></script>
+        <script type="text/javascript" src="../../../js/user.js"></script>
         <script type="text/javascript" src="../../../js/case.js"></script>
     </head>
     <body>
-        <div id="editSaleOrderDialog" path="/lexor_cs/api/case_service"></div>
+        <div id="editSaleOrderDialog"></div>
         <div class="easyui-dialog" id="editContactDialog" title="Edit contact" style="width:400px;height:400px;display: none"
              accesskey="" data-options="iconCls:'icon-save',resizable:true">
             <form>
@@ -159,7 +161,7 @@ and open the template in the editor.
                         </div>
                         <div class="form-group">
                             <label class="type-bold">Customer Service Rep: </label>
-                            <div class="col-sm-12"><input disabled="true" class="easyui-textbox" value="Customer Service"/></div>
+                            <div class="col-sm-12"><input disabled="true" class="easyui-textbox" value="Auto Rotation"/></div>
                         </div>
                         <div class="form-group">
                             <label class="type-bold">Priority:  </label>

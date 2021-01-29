@@ -6,7 +6,7 @@ and open the template in the editor.
 -->
 <html>
     <head>
-        <title>Case Details</title>
+        <title>Service Details</title>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <link rel="stylesheet" type="text/css" href="../../../css/themes/default/easyui.css">
@@ -16,6 +16,7 @@ and open the template in the editor.
         <link rel="stylesheet" type="text/css" href="../../../css/style.css">
         <script type="text/javascript" src="../../../js/jquery.min.js"></script>
         <script type="text/javascript" src="../../../js/jquery.easyui.min.js"></script>
+        <script type="text/javascript" src="../../../js/user.js"></script>
         <script type="text/javascript" src="../../../js/service.js"></script>
     </head>
     <body>
@@ -23,7 +24,7 @@ and open the template in the editor.
             <div class="row">
                 <div class="col-sm-12 case-info">        
                     <div class="col-sm-12 case-info">
-                        <a href="javascript:void(0);" class="case-info__status">Service 1 - Process Pending</a>
+                        <a href="javascript:void(0);" class="service-info__status">Service {name}-{status}</a>
                         <a href="javascript:void(0);" onClick="window.location.href='services.html'" class="easyui-linkbutton float-right">Submit to Production</a>
                         <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Print</a>
                         <a href="javascript:void(0);" onClick="window.location.href='services.html'" class="easyui-linkbutton float-right">Cancel</a>  
@@ -82,10 +83,10 @@ and open the template in the editor.
                                 <th style="width: 15%" data-options="field:'product', sortable:true">Product</th>
                                 <th style="width: 5%" data-options="field:'quantity'">Quantity</th>
                                 <th style="width: 10%" data-options="field:'sold_price'">Sold Price</th>
-                                <th style="width: 10%" data-options="field:'amout', sortable:true">Amount</th>
+                                <th style="width: 10%" data-options="field:'amount', sortable:true">Amount</th>
                                 <th style="width: 7%;" data-options="field:'stock_avaiable', nowrap: false">Stock </br>Available</th>
                                 <th style="width: 7%;" data-options="field:'total_weight'">Total Weight (lbs)</th>
-                                <th style="width: 7%;" data-options="field:'ware_house', nowrap: false">Warehouse</th>
+                                <th style="width: 7%;" data-options="field:'ware_house'">Warehouse</th>
                                 <th style="width: 10%" data-options="field:'shiping_day'">Shipping Day</th>
                                 <th style="width: 7%" data-options="field:'original_so'">Original SO</th>
                                 <th style="width: 10%" data-options="field:'service_for_product'">Service for </br>Product (qty1)</th>

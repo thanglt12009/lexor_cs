@@ -1,20 +1,20 @@
 productDatas = {
     "total" : 2,
     "footer":[
-	{"shiping_day":'<strong>Subtotal</strong>',"original_so":"$3000.00"},
-	{"shiping_day":'<strong>Shipping Fee</strong>',"original_so":"$<input style='width:70px' value='5.00' />"},
+	{"shiping_day":'<strong>Subtotal</strong>', "original_so":"$3000.00"},
+	{"shiping_day":'<strong>Shipping Fee</strong>',"original_so":"$0.00"},
         {"shiping_day":'<strong>Manager Discount</strong>',"original_so":'<strong>-$1000.00</strong>'},
-        {"shiping_day":'<strong>Total</strong>',"original_so":'<strong>$3005.00</strong>'},
+        {"shiping_day":'<strong>Total</strong>',"original_so":'<strong> $0.00</strong>'},
     ],
     "rows":[
         {
             id : 1,
-            no: '<a class="removeUser" onClick="removeProduct(1)" href="javascript:void(0)">1</a>',
+            no: 1,
             image: "<img width='60px' height='60px' src='../../../images/product01.jpg' />", 
             product: "Product 01",
             quantity: "1",
-            sold_price: "$2,095.00",
-            amout: "$2,095.00",
+            sold_price: "$2,095.02",
+            amount: "$2,095.20",
             stock_avaiable: "20",
             total_weight: "900",
             ware_house: "CA",
@@ -25,15 +25,15 @@ productDatas = {
         },
         {
             id : 2,
-            no: '<a class="removeUser" onClick="removeProduct(2)" href="javascript:void(0)">2</a>',
+            no: 2,
             image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
             product: "Product 02",
             quantity: "2",
             sold_price: "$1,000.00",
-            amout: "$2,000.00",
+            amount: "$2,000.00",
             stock_avaiable: "20",
             total_weight: "1000",
-            ware_house: "CA",
+            ware_house: "CB",
             shiping_day: "25/01/2021",
             original_so: "001",
             service_for_product: "Service for Product 002",
@@ -70,16 +70,33 @@ shippingDatas = {
     ]
 };
 
+comboBoxedProduct = {};
+dateBoxProduct = {};
+removeTagProduct = {};
+
+comboBoxedProduct[1] = "CA";
+removeTagProduct[1] = 1;
+comboBoxedProduct[2] = "CB";
+removeTagProduct[2] = 2;
+dateBoxProduct[1] = "25/01/2021"
+dateBoxProduct[2] = "25/01/2021";
+
+discount = 1000;
+total = 0;
+totalAmount = 0;
+shippingAmount = 0;
 $(document).ready(function () {
     loadService();
     loadProducts();
     loadShipping();
     $("#editProducts").on("click", function(){
-       initRemove();
+       reloadList();
     });
     
     $("#saveProducts").on("click", function(){
-       loadProducts();
+        reloadShippingAmount(function(){
+            reloadList(false);
+        });
     });
     
     $("#addSaleOrder").on("click", function(){
@@ -151,34 +168,69 @@ function loadShipping() {
 
 function loadService() {
     var services = [];
-    services[0] = {
-        service_number: 1,
-        original_case: "Case 1", 
-        customer_name: "Customer 01",
-        mobile_phone: "0999-999-999",
-        business_phone: "083-999-9999",
-        address: "Customer Address 01",
-        action: '<a href="javascript::void(0)" onClick="openService()" class="easyui-linkbutton">Select</a>'
-    };
-    
-    $('#serviceGrid').datagrid({
-        data: services,
-        onLoadSuccess: function() {
-            $(".easyui-linkbutton").linkbutton();
-        }
+
+    $.get({
+        url: "/lexor_cs/api/case_service/",
+        success: function(data) {
+            let tableData = [];
+            if ( data ) {
+                for ( i = 0; i < data.length; i++ ) {
+                    services.push({
+                        service_number: data[i].docCode,
+                        original_case: data[i].status,
+                        customer_name: data[i].status,
+                        mobile_phone: data[i].address,
+                        business_phone : data[i].address,
+                        address : data[i].address,
+                        action: '<a href="javascript::void(0)" onClick="openService()" class="easyui-linkbutton">Select</a>'
+                    }); 
+                }
+
+                var serviceGrid = $("#serviceGrid").datagrid({
+                    data: tableData,
+                    
+                    onLoadSuccess: function() {
+                        $(".easyui-linkbutton").linkbutton();
+                    }
+                });
+                serviceGrid.datagrid('enableCellEditing');
+            }
+        },
+        contentType: 'application/json'
     });
 }
+
 function openService() {
     window.location.href = "/lexor_cs/pages/cs/purchaseorder/service.html"
 }
 
+function refreshProduct() {
+    $('#productGrid').datagrid('data', productDatas);
+}
+
 function loadProducts() {
     var products = productDatas;
-    
+    reCalculateAmount();
     $('#productGrid').datagrid({
         showFooter: true,
         data: products,
         onLoadSuccess: function() {
+            initRemove();
+            registerComboboxAction();
+            $('.date-box').each(function(){
+                 $(this).datebox({
+                    required: true,
+                    onSelect: function(date){
+                        dateBoxProduct[$(this).attr('data-id')] = date.getDate() +"/"+ date.getMonth()+ 1+ "/"+ date.getFullYear();
+                    }
+                 }).datebox('calendar').calendar({
+                    validator: function(date){
+                        var now = new Date();
+                        var d1 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+                        return d1 <= date;
+                    }
+                });
+            });
         }
     });
 }
@@ -187,12 +239,12 @@ function addProduct() {
     var id = productDatas.rows.length + 1;
     productDatas.rows.push({
         id: id,
-        no: '<a class="removeUser" onClick="removeProduct('+ id +')" href="javascript:void(0)">'+ id +'</a>',
+        no: id,
         image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
         product: "Product 003 </br> Serial Number: 123-456-789",
         quantity: "1",
         sold_price: "$1,000.00",
-        amout: "$2,000.00",
+        amount: "$2,000.00",
         stock_avaiable: "20",
         total_weight: "1000",
         ware_house: "CA",
@@ -201,6 +253,8 @@ function addProduct() {
         service_for_product: "Service for Product 003",
         under_warranty: "Y"
     });
+    comboBoxedProduct[id] = "CA";
+    removeTagProduct[id] = id;
     loadProducts();
     initRemove();
 }
@@ -216,4 +270,116 @@ function initRemove() {
         iconCls: 'icon-remove',
         text: ''
     }); 
+}
+
+function getComboboxTemplate(id) {
+    var vaiableOptions = ['CA', 'CB'];
+    var options = '<select data-id="' + id + '" class="easyui-combobox" name="dept" style="width:50px;">:selections</select>';
+    
+    var selections = vaiableOptions.map(function(value) {
+        if (comboBoxedProduct[id] === value) {
+            return '<option selected="selected" value="'+ value +'">' + value + '</option>';
+        } else {
+            return '<option value="'+ value +'">' + value + '</option>';
+        }
+    });
+    
+    return options.replace(':selections', selections);
+}
+
+function registerComboboxAction() {
+    $(".easyui-combobox").on('change', function(){
+        comboBoxedProduct[$(this).attr('data-id')] = $(this).val();
+    });
+    
+}
+
+
+function getEditAmountTemplate(amount) {
+    return '$<input type="text" style="width:70px" id="newAmount" value="'+ parseFloat(amount.replace("$", '')) +'" />';
+}
+
+function getRemoveTemplate(id) {
+    return '<a class="removeUser" onClick="removeProduct('+ id +')" href="javascript:void(0)">'+ id +'</a>';
+}
+
+function getDateBoxTemplate(id, value) {
+    return '<input class="date-box" style="width: 110px" data-id="'+ id +'" type="text" value="'+ value +'">';
+}
+
+function reloadList(isCombobox = true) {
+    productDatas.rows = productDatas.rows.map( function(product) { 
+       if ( isCombobox ) {
+            product.ware_house = getComboboxTemplate(product.id);
+            product.no = getRemoveTemplate(product.id);
+            product.shiping_day = getDateBoxTemplate(product.id, product.shiping_day);
+
+       } else {
+            product.ware_house = comboBoxedProduct[product.id];
+            product.no = removeTagProduct[product.id];
+            product.shiping_day = dateBoxProduct[product.id];
+       }
+       
+       return product;
+    });
+    
+    if (isCombobox) {
+        productDatas.footer[1].original_so = getEditAmountTemplate(productDatas.footer[1].original_so);
+    }
+    
+    loadProducts();
+}
+
+function reloadShippingAmount(callback) {  
+    var sum = "$";
+    sum+= parseFloat($("#newAmount").val()).toFixed(2);
+    productDatas.footer[1].original_so = sum;
+    shippingAmount = $("#newAmount").val();
+    callback();
+}
+
+
+function loadService() {
+    var serviceId = null;
+    if (serviceId = $.urlParam('service_id')) {
+        getServiceInformation(serviceId);
+        getUserInfo();
+    } else {
+        loadService();
+    }
+}
+
+function getServiceInformation(serviceId) {
+    var status = { 2: 'Closed', 1: "Processing"};
+    $.get({
+        url: '/lexor_cs/api/case_service/' + serviceId,
+        success: function(data) {
+            var serviceInformation = $(".service-info__status");
+            serviceInformation.html(serviceInformation.text().replace('{name}', data.serviceID).replace('{status}', status[1]));
+        },
+        contentType: 'application/json'
+   });
+}
+
+function reCalculateAmount() {
+    let amount = 0;
+    var pattern = /[^0-9.-]+/g;
+
+    for( i = 0; i < productDatas.rows.length; i++ ) {
+        amount += parseFloat(productDatas.rows[i].amount.replace(pattern, ''));
+    }
+    
+
+    totalAmount = amount;
+    total = totalAmount - discount + parseFloat(shippingAmount);
+    productDatas.footer[0].original_so = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
+    productDatas.footer[3].original_so = "<strong>$" + total.toFixed(2) + " </strong>";
+}
+
+$.urlParam = function(name){
+    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
+    if (results === null) {
+       return null;
+    }
+    return decodeURI(results[1]) || 0;
 }

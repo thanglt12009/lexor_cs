@@ -1,6 +1,5 @@
 saleOrders = {};
 saleOrderToSave = {};
-defaultUser = {};
 casePriority = {     
     1: "Low",
     2: "Normal",
@@ -9,7 +8,7 @@ casePriority = {
 };
 transactionType = {     
     1: "Processing",
-    2: "Closed",
+    2: "Closed"
 };
 $(document).ready(function () {
     reInitUser();
@@ -32,27 +31,18 @@ $(document).ready(function () {
     });
     
     $("#editReturn").on("click", function () {
-        registerCaseTransactionDialog('editSaleOrderDialog', 'Return', $(this).attr("path"));
+        registerCaseTransactionDialog('editSaleOrderDialog', 'Return', $(this).attr("path"), {
+            withOutSaveOrder : false
+        });
     });
     
     $("#editCase").on("click", function () {
-        $("#editMobilePhone").textbox({value : defaultUser.mobile_phone, required:true, validateOnCreate:false, width:337});
-        $("#editBusinessPhone").textbox({value : defaultUser.business_phone, required:true, validateOnCreate:false, width:337});
+        $("#editMobilePhone").textbox({value : window.defaultUser.mobile_phone, required:true, validateOnCreate:false, width:337});
+        $("#editBusinessPhone").textbox({value : window.defaultUser.business_phone, required:true, validateOnCreate:false, width:337});
         $('#editContactDialog').window('open');
     });
     
-    $("#editUser").on("click", function() {
-        var users = JSON.parse(localStorage.getItem("users"));
-        var user = users.find(x => x.doc_number == $.urlParam("user_id"));
-        var index = users.indexOf(user);
-        user.mobile_phone = $("#editMobilePhone").val();
-        user.business_phone = $("#editBusinessPhone").val();         
-        users.fill(user, index, index++); 
-        
-        localStorage.setItem("users", JSON.stringify(users));
-        getUserInfo();
-        $('#editContactDialog').window('close');
-    });
+   
 });
 
 function reInitUser() {
@@ -72,7 +62,8 @@ function reInitUser() {
     }
 }
 
-function registerCaseTransactionDialog(dialogElement, title, path) {
+function registerCaseTransactionDialog(dialogElement, title, path, defaultSaleOrder = {}) {
+
     var element = $('#' + dialogElement);
     element.dialog({
         title: title,
@@ -83,7 +74,7 @@ function registerCaseTransactionDialog(dialogElement, title, path) {
         modal: true,
         href: 'case_service.html',
         onLoad: function() {
-            registerAddSaleOrder();
+            registerAddSaleOrder(defaultSaleOrder);
             registerCaseSeviceAutoComplete();
             registerSaveCaseService(path, dialogElement, title);
         }
@@ -113,31 +104,40 @@ function registerCaseSeviceAutoComplete() {
     $("#saleOrderSearch").easyAutocomplete(options);
 }
 
-function registerAddSaleOrder() {
+function registerAddSaleOrder(saleOrder = {}) {
     saleOrderToSave = {};
-    saleOrders = {};
+    saleOrders = saleOrder;
+
+    if ( saleOrder && saleOrder.withOutSaveOrder === false ) {
+        registerSOCheckbox("withOutSaveOrder", "Without Sale Order");
+    }
+
     $("#addSaleOrder").on("click", function () {
         var name = $("#saleOrderSearch").val();
         if ( saleOrders[name] || name.trim() === '') {
             return;
         }
-
-        var template = '<div class="checkbox-type"><input id=":name" class="easyui-checkbox saleOrder" labelPosition="after" name=":name" value=":name" label="BuyPart"></div>';
-        $('#selectionSaleOrder').append(template.replace(':name', name).replace(':name', name).replace(':name', name));
-        $('#' + name).checkbox({
-            label: name,
-            value: name,
-            checked: false,
-            onChange: function(value) {
-                if ( value ) {
-                    saleOrderToSave[name] = true;
-                } else {
-                    saleOrderToSave[name] = false;
-                }
-            }
-        });
+        registerSOCheckbox(name, name);
         saleOrders[name] = true;
         $("#saleOrderSearch").val(null);
+    });
+}
+
+function registerSOCheckbox(id, name) {
+    var template = '<div class="checkbox-type"><input id=":id" class="easyui-checkbox saleOrder" labelPosition="after" name=":name" value=":name"></div>';
+
+    $('#selectionSaleOrder').append(template.replace(':id', id).replace(':name', id).replace(':name', id));
+    $('#' + id).checkbox({
+      label: name,
+      value: id,
+      checked: false,
+      onChange: function(value) {
+          if ( value ) {
+              saleOrderToSave[name] = true;
+          } else {
+              saleOrderToSave[name] = false;
+          }
+      }
     });
 }
 
@@ -156,16 +156,6 @@ function createCase(customerId, priority = 1) {
         },
         contentType: 'application/json'
    });
-}
-
-function getUserInfo() {
-    var users = JSON.parse(localStorage.getItem("users"));
-    
-    var user = users.find(x => x.doc_number == $.urlParam('user_id'));
-    if (user) {
-        defaultUser = user;
-        $("#userInformation").html("<li>First Name: " + user.name + " </li><li>Last Name : " + user.name + " </li><li>Mobile Phone : " + user.mobile_phone + "</li><li>Business Phone : " + user.business_phone + "</li><li>Email : </li> ");
-    }
 }
 
 function createCaseService(caseId, path, dialog, title) {
@@ -193,6 +183,7 @@ function createCaseService(caseId, path, dialog, title) {
             createTransaction(caseId, title, "Address");
             createActivity(caseId, "Create " + title);
             getCount('case_service', 'serviceCount');
+            getCount('case_return', 'returnCount');
             loadTransaction(caseId);
             loadActivity(caseId);
         },
@@ -297,14 +288,15 @@ function loadTransaction(caseId) {
         success: function(data) {
             let tableData = [];
             if ( data ) {
-                data.forEach(function(data) {
+                for ( i = 0; i < data.length; i++ ) {
                     tableData.push({
-                        doc_number: data.docCode,
-                        case_status: data.status,
-                        type: transactionType[data.docCode],
-                        address: data.address,
-                    });
-                });
+                        doc_number: data[i].docCode,
+                        case_status: transactionType[data[i].status],
+                        type: data[i].status,
+                        address: data[i].address,
+                    }); 
+                }
+
                 $("#transactionDataGrid").datagrid({
                     data: tableData
                 });
