@@ -1,46 +1,12 @@
 productDatas = {
     "total" : 2,
     "footer":[
-	{"shiping_day":'<strong>Subtotal</strong>', "original_so":"$3000.00"},
-	{"shiping_day":'<strong>Shipping Fee</strong>',"original_so":"$0.00"},
-        {"shiping_day":'<strong>Manager Discount</strong>',"original_so":'<strong>-$1000.00</strong>'},
-        {"shiping_day":'<strong>Total</strong>',"original_so":'<strong> $0.00</strong>'}
+	{"shipingDay":'<strong>Subtotal</strong>', "originalSo":"$3000.00"},
+	{"shipingDay":'<strong>Shipping Fee</strong>',"originalSo":"$0.00"},
+        {"shipingDay":'<strong>Manager Discount</strong>',"originalSo":'<strong>-$1000.00</strong>'},
+        {"shipingDay":'<strong>Total</strong>',"originalSo":'<strong> $0.00</strong>'}
     ],
-    "rows":[
-        {
-            id : 1,
-            no: 1,
-            image: "<img width='60px' height='60px' src='../../../images/product01.jpg' />", 
-            product: "Product 01",
-            quantity: "1",
-            sold_price: "$2,095.02",
-            amount: "$2,095.20",
-            stock_avaiable: "20",
-            total_weight: "900",
-            ware_house: "CA",
-            shiping_day: "25/01/2021",
-            original_so: "001",
-            service_for_product: "Service for Product 001",
-            under_warranty: "Y"
-        },
-        {
-            id : 2,
-            no: 2,
-            image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
-            product: "Product 02",
-            quantity: "2",
-            sold_price: "$1,000.00",
-            amount: "$2,000.00",
-            stock_avaiable: "20",
-            total_weight: "1000",
-            ware_house: "CB",
-            shiping_day: "25/01/2021",
-            original_so: "001",
-            service_for_product: "Service for Product 002",
-            under_warranty: "Y"
-        }
-    ]
-    
+    "rows":[]
 };
 
 servicesData = [{
@@ -70,6 +36,13 @@ shippingDatas = {
     ]
 };
 
+variableOptions = {1 :'CA', 2: 'CB'};
+isWarrantyOptions = {1 : "Y", 0: "N"}
+productImages = {
+    1: "<img width='60px' height='60px' src='../../../images/product01.jpg' />",
+    2: "<img width='60px' height='60px' src='../../../images/product02.jpg' />",
+    3: "<img width='60px' height='60px' src='../../../images/product03.jpg' />"
+};
 paymentMethod = 1;
 comboBoxedProduct = {};
 dateBoxProduct = {};
@@ -88,7 +61,7 @@ totalAmount = 0;
 shippingAmount = 0;
 $(document).ready(function () {
     loadServices();
-    loadProducts();
+    getProducts();
     loadPaymentMethod();
     $("#editProducts").on("click", function(){
        reloadList();
@@ -142,6 +115,25 @@ $(document).ready(function () {
     });
 });
 
+function getProducts() {
+     $.get({
+        url: "/lexor_cs/api/serviceDetail/1/100",
+        success: function(data) {
+            if ( data ) {
+                for ( i = 0; i < data.length; i++ ) {
+                    data[i]['no'] = data[i]['productID'];
+                    data[i]['isWarranty'] = data[i]['isWarranty'] ? isWarrantyOptions[data[i]['isWarranty']] : isWarrantyOptions[1];
+                    data[i]['warehouse'] = data[i]['warehouse'] || variableOptions[1];
+                    data[i]['image'] = productImages[data[i].productID];
+                    data[i]['amount'] = "$" + (parseFloat(data[i]['quantity']) * parseFloat(data[i]['soldPrice'])).toString();
+                    productDatas.rows.push(data[i]); 
+                }
+            }
+            loadProducts();
+        },
+        contentType: 'application/json'
+    });
+}
 function submitSalonForm() {
     $('#editSalonDialog').window('close');
 }
@@ -219,16 +211,16 @@ function refreshProduct() {
 function loadProducts() {
     shippingDetail = [];
     for(i = 0 ; i < productDatas.rows.length; i++) {
-        var wareHouse = productDatas.rows[i].ware_house;
-        var shipDate = productDatas.rows[i].shiping_day;        
+        var wareHouse = productDatas.rows[i].warehouse;
+        var shipDate = productDatas.rows[i].shipingDay;        
         var key = wareHouse + shipDate;
         var weight = 0;
         var id = i + 1;
         if (shippingDetail[key]) {
-            weight = shippingDetail[key]['shipping_weight'] + parseInt(productDatas.rows[i].total_weight);
+            weight = shippingDetail[key]['shipping_weight'] + parseInt(productDatas.rows[i].totalWeight);
             id = shippingDetail[key]['no'];
         } else {
-            weight = parseInt(productDatas.rows[i].total_weight);
+            weight = parseInt(productDatas.rows[i].totalWeight);
         }
 
         shippingDetail[key] = {
@@ -270,7 +262,7 @@ function loadProducts() {
 function addProduct() {
     var id = productDatas.rows.length + 1;
     productDatas.rows.push({
-        id: id,
+        productId: id,
         no: id,
         image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
         product: "Product 003 </br> Serial Number: 123-456-789",
@@ -292,7 +284,7 @@ function addProduct() {
 }
 
 function removeProduct(key) {;
-    productDatas.rows = productDatas.rows.filter((item) => {return item.id != key});
+    productDatas.rows = productDatas.rows.filter((item) => {return item.productID != key});
     loadProducts();
     initRemove();
 }
@@ -305,17 +297,17 @@ function initRemove() {
 }
 
 function getComboboxTemplate(id) {
-    var vaiableOptions = ['CA', 'CB'];
     var options = '<select data-id="' + id + '" class="easyui-combobox" name="dept" style="width:50px;">:selections</select>';
-    
-    var selections = vaiableOptions.map(function(value) {
+    var selections = "";
+    for ( var key in variableOptions ) {
+        var value = variableOptions[key];
         if (comboBoxedProduct[id] === value) {
-            return '<option selected="selected" value="'+ value +'">' + value + '</option>';
+            selections += '<option selected="selected" value="'+ value +'">' + value + '</option>';
         } else {
-            return '<option value="'+ value +'">' + value + '</option>';
+            selections += '<option value="'+ value +'">' + value + '</option>';
         }
-    });
-    
+    }
+
     return options.replace(':selections', selections);
 }
 
@@ -341,21 +333,23 @@ function getDateBoxTemplate(id, value) {
 function reloadList(isCombobox = true) {
     productDatas.rows = productDatas.rows.map( function(product) { 
        if ( isCombobox ) {
-            product.ware_house = getComboboxTemplate(product.id);
-            product.no = getRemoveTemplate(product.id);
-            product.shiping_day = getDateBoxTemplate(product.id, product.shiping_day);
+            product.warehouse = getComboboxTemplate(product.productID);
+            product.no = getRemoveTemplate(product.productID);
+            product.shipingDay = getDateBoxTemplate(product.productID, product.shipingDay);
 
        } else {
-            product.ware_house = comboBoxedProduct[product.id];
-            product.no = removeTagProduct[product.id];
-            product.shiping_day = dateBoxProduct[product.id];
+            product.warehouse = comboBoxedProduct[product.productID];
+            product.no = removeTagProduct[product.productID];
+            product.shipingDay = dateBoxProduct[product.productID];
        }
        
        return product;
     });
     
     if (isCombobox) {
-        productDatas.footer[1].original_so = getEditAmountTemplate(productDatas.footer[1].original_so);
+        productDatas.footer[1].originalSo = getEditAmountTemplate(productDatas.footer[1].originalSo);
+    } else {
+        productDatas.footer[1].originalSo = shippingAmount;
     }
     
     loadProducts();
@@ -400,11 +394,10 @@ function reCalculateAmount() {
         amount += parseFloat(productDatas.rows[i].amount.replace(pattern, ''));
     }
     
-
     totalAmount = amount;
     total = totalAmount - discount + parseFloat(shippingAmount);
-    productDatas.footer[0].original_so = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
-    productDatas.footer[3].original_so = "<strong>$" + total.toFixed(2) + " </strong>";
+    productDatas.footer[0].originalSo = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
+    productDatas.footer[3].originalSo = "<strong>$" + total.toFixed(2) + " </strong>";
 }
 
 function updatePaymentMethod() {

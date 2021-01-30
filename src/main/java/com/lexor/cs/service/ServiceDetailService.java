@@ -23,11 +23,11 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         ServiceDetail c = (ServiceDetail) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.ServiceDetail (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\" ) VALUES (?,?,?,?,?,?,?,?, ?, ?,?)";
+                = "INSERT INTO public.ServiceDetail (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"isWarranty\", \"warehouse\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
 
         return runner.update(connection, insertSQL.toLowerCase(), c.getServiceMasterID(), c.getProductID(), c.getQuantity(),c.getSoldPrice(),
                 c.getAmount(),  c.getTotalWeight(), c.getSerialNumber(), c.getIsWarrantly(),
-                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType());
+                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), c.getIsWarrantly(), c.getWarehouse());
     }
 
     @Override

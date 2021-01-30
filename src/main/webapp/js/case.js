@@ -23,18 +23,22 @@ selectedSO = {};
 productList = {
     1: [
         {
+            productID: 1,
             quantity: 1,
             soldPrice: 2095.02,
             amount: 2095.20,
             totalWeight: 900,
-            isWarranty: 1
+            isWarranty: 1,
+            serialNumber: "Product 02"
         },
         {
+            productID: 2,
             quantity: 1,
             soldPrice: 2095.02,
             amount: 2095.20,
             totalWeight: 900,
-            isWarranty: 1
+            isWarranty: 1,
+            serialNumber: "Product 01"
         }
     ]
 };
@@ -365,9 +369,7 @@ function createServiceOrReturn(caseId, path, dialog, title) {
                     }
                     
                     if (productList[key]) {
-                        for (const soKey in productList[key]) {
-                            promises.push(createProducts(caseServiceId, productList[key][soKey]));
-                        }
+                        createMasterProduct(caseServiceId, productList[key]);
                     }
                 }
                 
@@ -466,20 +468,33 @@ function createSaleOrder(customerSOID, caseServiceID) {
 }
 
 function createProducts(caseServiceID, products) {
-    return new Promise(function (resolve) {
-        products['serviceMasterID'] = parseInt(caseServiceID);
-        $.post({
-            type: "POST",
-            url: '/lexor_cs/api/serviceDetail',
-            data: JSON.stringify(products),
-            success: function () {
-                resolve(true);
-            },
-            contentType: 'application/json'
-        });
+    products['serviceMasterID'] = parseInt(caseServiceID);
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/serviceDetail',
+        data: JSON.stringify(products),
+        success: function () {
+            resolve(true);
+        },
+        contentType: 'application/json'
     });
 }
 
+function createMasterProduct(caseServiceID, productList) {
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/serviceMaster',
+        data: JSON.stringify({
+            caseServiceID: caseServiceID
+        }),
+        success: function (serviceMasterID) {
+            for (const soKey in productList) {
+                createProducts(serviceMasterID, productList[soKey]);
+            }
+        },
+        contentType: 'application/json'
+    });
+}
 
 function createTransaction(caseId, documentCode, address) {
     $.post({

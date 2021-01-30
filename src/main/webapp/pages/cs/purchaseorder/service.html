@@ -80,17 +80,17 @@ and open the template in the editor.
                             <tr>
                                 <th style="width: 4%" data-options="align: 'center', field:'no'">#</th>
                                 <th style="width: 5%" data-options="field:'image'">Images</th>
-                                <th style="width: 15%" data-options="field:'product', sortable:true">Product</th>
+                                <th style="width: 15%" data-options="field:'serialNumber', sortable:true">Product</th>
                                 <th style="width: 5%" data-options="field:'quantity'">Quantity</th>
-                                <th style="width: 10%" data-options="field:'sold_price'">Sold Price</th>
+                                <th style="width: 10%" data-options="field:'soldPrice'">Sold Price</th>
                                 <th style="width: 10%" data-options="field:'amount', sortable:true">Amount</th>
-                                <th style="width: 7%;" data-options="field:'stock_avaiable', nowrap: false">Stock </br>Available</th>
-                                <th style="width: 7%;" data-options="field:'total_weight'">Total Weight (lbs)</th>
-                                <th style="width: 7%;" data-options="field:'ware_house'">Warehouse</th>
-                                <th style="width: 10%" data-options="field:'shiping_day'">Shipping Day</th>
-                                <th style="width: 7%" data-options="field:'original_so'">Original SO</th>
-                                <th style="width: 10%" data-options="field:'service_for_product'">Service for </br>Product (qty1)</th>
-                                <th style="width: 5%" data-options="align: 'center', field:'under_warranty'">Under </br> Warranty</th>
+                                <th style="width: 7%;" data-options="field:'stockAvaiable', nowrap: false">Stock </br>Available</th>
+                                <th style="width: 7%;" data-options="field:'totalWeight'">Total Weight (lbs)</th>
+                                <th style="width: 7%;" data-options="field:'warehouse'">Warehouse</th>
+                                <th style="width: 10%" data-options="field:'shipingDay'">Shipping Day</th>
+                                <th style="width: 7%" data-options="field:'originalSo'">Original SO</th>
+                                <th style="width: 10%" data-options="field:'serviceForProduct'">Service for </br>Product (qty1)</th>
+                                <th style="width: 5%" data-options="align: 'center', field:'isWarranty'">Under </br> Warranty</th>
                         <tbody>
                         </tbody>
                     </table>
@@ -109,7 +109,7 @@ and open the template in the editor.
                                 Select Payment Method
                             </label>
                             <div class="col-sm-12">
-                                <select class="easyui-combobox" id="paymentMethod" name="paymentMethod" style="width:200px;">
+                                <select class="easyui-combobox" id="paymentMethod" name="paymentMethod" style="width:200px !important;">
                                     <option value="1">Cash</option>
                                     <option value="2">Credit Card / Debit</option>
                                     <option value="3">Check</option>
