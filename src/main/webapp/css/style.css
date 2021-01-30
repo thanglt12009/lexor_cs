@@ -111,3 +111,11 @@ hr {
 .checkbox-type label {
     width: 200px;
 }
+
+.combo {
+    width: 100% !important;
+}
+
+.combo input {
+    width: 100% !important;
+}

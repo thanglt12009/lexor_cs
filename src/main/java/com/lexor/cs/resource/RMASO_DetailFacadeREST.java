@@ -56,14 +56,14 @@ public class RMASO_DetailFacadeREST extends AbstractFacade<RMASO_Detail> {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public RMASO_Detail find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
     
     @GET
-    @Path("/{keyword}")
+    @Path("/find/{keyword}")
     @Produces({MediaType.APPLICATION_JSON})
     public List<RMASO_Detail> findByKeyWord(@PathParam("productID") Integer productID) throws SQLException {        
         return super.findByKeyWord(productID);

@@ -3,6 +3,7 @@ package com.lexor.cs.resource;
 import com.lexor.cs.domain.CaseType;
 import com.lexor.cs.service.CaseReturnService;
 import com.lexor.cs.service.CaseServices;
+import com.lexor.cs.service.CaseTypeService;
 import com.lexor.cs.service.Service;
 import java.sql.SQLException;
 import java.util.List;
@@ -22,11 +23,11 @@ import javax.ws.rs.core.MediaType;
 @Path("/casetype")
 public class CaseTypeFacadeREST extends AbstractFacade<CaseType> {
     
-    private CaseReturnService service;
+    private CaseTypeService service;
 
     public CaseTypeFacadeREST() {
         super(CaseType.class);
-        this.service = new CaseReturnService();
+        this.service = new CaseTypeService();
     }
 
     @Override
@@ -57,14 +58,14 @@ public class CaseTypeFacadeREST extends AbstractFacade<CaseType> {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public CaseType find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
     
     @GET
-    @Path("/{caseTypeValue}")
+    @Path("/find/{caseTypeValue}")
     @Produces({MediaType.APPLICATION_JSON})
     public List<CaseType> findByKeyWord(@PathParam("caseTypeValue") Integer caseTypeValue) throws SQLException {        
         return super.findByKeyWord(caseTypeValue);

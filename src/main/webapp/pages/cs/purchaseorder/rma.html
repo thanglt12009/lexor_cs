@@ -26,11 +26,10 @@ and open the template in the editor.
                         <a href="javascript:void(0);" class="case-info__status">RMA 1 - Process Pending</a>
                         <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Print</a>
                         <a href="javascript:void(0);" onClick="window.location.href='rmas.html'" class="easyui-linkbutton float-right">Cancel</a>  
-                        <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Print</a>
-                        <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Refund</a>
-                        <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Partial Received</a>
-                        <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Product Received</a>
-                        <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Product Receiving</a>
+                        <a href="javascript:void(0);" data-id="4" class="easyui-linkbutton float-right editRMAStatus">Refund</a>
+                        <a href="javascript:void(0);" data-id="3" class="easyui-linkbutton float-right editRMAStatus">Partial Received</a>
+                        <a href="javascript:void(0);" data-id="2" class="easyui-linkbutton float-right editRMAStatus">Product Received</a>
+                        <a href="javascript:void(0);" data-id="1" class="easyui-linkbutton float-right editRMAStatus">Product Receiving</a>
                     </div>  
                 </div>
             </div>
@@ -82,10 +81,10 @@ and open the template in the editor.
                                 <th style="width: 5%" data-options="field:'image'">Images</th>
                                 <th style="width: 30%" data-options="field:'product', sortable:true">Product</th>
                                 <th style="width: 10%" data-options="field:'quantity'">Quantity</th>
-                                <th style="width: 15%" data-options="field:'sold_price'">Return Price</th>
-                                <th style="width: 15%" data-options="field:'amout', sortable:true">Amount</th>
-                                <th style="width: 10%;" data-options="field:'stock_avaiable', nowrap: false">Warehouse</th>
-                                <th style="width: 10%;" data-options="field:'total_weight'">Receiver</th>
+                                <th style="width: 15%" data-options="field:'return_price'">Return Price</th>
+                                <th style="width: 15%" data-options="field:'amount', sortable:true">Amount</th>
+                                <th style="width: 12%;" data-options="field:'warehouse', nowrap: false">Warehouse</th>
+                                <th style="width: 11%;" data-options="field:'receiver'">Receiver</th>
                         <tbody>
                         </tbody>
                     </table>
@@ -94,6 +93,7 @@ and open the template in the editor.
         </div>
         <div id="editServiceDialog"></div>
         <div id="editSalonDialog"></div>
+        <div id="editRMADialog"></div>        
         <hr>
         <div class="container-fluid">
             <div class="easyui-tabs" style="width:100%;">
@@ -101,7 +101,7 @@ and open the template in the editor.
                     <form>
                         <div class="form-group">
                             <label class="type-bold">
-                                Select Payment Method
+                                Return Payment Method
                             </label>
                             <div class="col-sm-12">
                                 <select class="easyui-combobox" name="dept" style="width:200px;">
@@ -114,22 +114,26 @@ and open the template in the editor.
                         </div>
                     </form>
                 </div>
-                <div title="Shipping" style="overflow:auto;padding:20px;display:none;">
+                <div title="RMA Information" style="overflow:auto;padding:20px;display:none;">
                     <table id="shippingGrid" class="easyui-datagrid" pagination="true">
                         <thead>
                             <tr>
                                 <th data-options="field:'no', fixed:true, width: 100">#</th>
-                                <th data-options="field:'warehouse',sortable:true, fixed:true, width: 200">Warehouse</th>
-                                <th data-options="field:'shipping_day', fixed:true, width: 230">Shipping Day</th>
-                                <th data-options="field:'shipping_weight', fixed:true, width: 230">Shipping Weight (lbs)</th>
-                                <th data-options="field:'shipping_type', fixed:true, width: 150">Shipping Type</th>
-                                <th data-options="field:'shipping_cost', fixed:true, width: 150">Shipping Cost</th>
+                                <th data-options="field:'warehouse',sortable:true, fixed:true, width: 200">SO Name</th>
                             </tr>
                         </thead>
                         <tbody>
 
                         </tbody>
                     </table>
+                    <div class="form-group">   
+                        <div class="col-sm-12">
+                           Service Rep Name : Rep 01
+                        </div>
+                        <div class="col-sm-12">
+                           Create From : Case No
+                        </div>
+                    </div>
                 </div>
                 <div title="Send Message" style="overflow:auto;padding:20px;display:none;">
                     <form>

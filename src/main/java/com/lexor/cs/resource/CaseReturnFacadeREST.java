@@ -58,14 +58,14 @@ public class CaseReturnFacadeREST extends AbstractFacade<CaseReturn> {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public CaseReturn find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
     
     @GET
-    @Path("/{id}")
+    @Path("/find/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public List<CaseReturn> findByKeyWord(@PathParam("id") Integer id) throws SQLException {        
         return super.findByKeyWord(id);

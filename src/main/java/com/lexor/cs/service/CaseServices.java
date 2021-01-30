@@ -26,7 +26,7 @@ public class CaseServices extends BaseService<CaseService> {
         String insertSQL
                 = "INSERT INTO public.CaseService (\"CaseID\", \"CustomerSOID\", \"LogMessage\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
 
-        return runner.update(connection, insertSQL.toLowerCase(), c.getCaseID(), c.getCustomerSOID(), c.getLogMessage(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseID(), c.getCustomerSOID(), c.getLogMessage(), c.getCreatedDate(), c.getUpdatedDate());
     }
 
     @Override

@@ -48,7 +48,7 @@ public class RMAMessageFacadeREST extends AbstractFacade<RMAMessage> {
     }
 
     @DELETE
-    @Path("/{id}")
+    @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public int remove(@PathParam("id") Integer id) throws SQLException {
         RMAMessage entity = super.find(id);
@@ -56,7 +56,7 @@ public class RMAMessageFacadeREST extends AbstractFacade<RMAMessage> {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/find/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public RMAMessage find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);

@@ -56,14 +56,14 @@ public class ServiceMasterFacadeREST extends AbstractFacade<ServiceMaster> {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public ServiceMaster find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
     
     @GET
-    @Path("/{status}")
+    @Path("/find/{status}")
     @Produces({MediaType.APPLICATION_JSON})
     public List<ServiceMaster> findByKeyWord(@PathParam("status") Integer status) throws SQLException {
         ServiceMaster entity = new ServiceMaster();

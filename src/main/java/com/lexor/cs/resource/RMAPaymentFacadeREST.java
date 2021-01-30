@@ -56,14 +56,14 @@ public class RMAPaymentFacadeREST extends AbstractFacade<RMAPayment> {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public RMAPayment find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
     
     @GET
-    @Path("/{status}")
+    @Path("/find/{status}")
     @Produces({MediaType.APPLICATION_JSON})
     public List<RMAPayment> findByKeyWord(@PathParam("status") Integer status) throws SQLException {        
         return super.findByKeyWord(status);

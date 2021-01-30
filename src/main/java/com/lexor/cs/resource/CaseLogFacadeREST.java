@@ -48,7 +48,7 @@ public class CaseLogFacadeREST extends AbstractFacade<CaseLog> {
     }
 
     @DELETE
-    @Path("/{id}")
+    @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public int remove(@PathParam("id") Integer id) throws SQLException {
         CaseLog entity = super.find(id);
@@ -56,7 +56,7 @@ public class CaseLogFacadeREST extends AbstractFacade<CaseLog> {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/find/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public CaseLog find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);

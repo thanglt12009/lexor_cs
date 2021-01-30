@@ -1,10 +1,10 @@
 productDatas = {
     "total" : 2,
     "footer":[
-	{"shiping_day":'<strong>Subtotal</strong>', "original_so":"$3000.00"},
-	{"shiping_day":'<strong>Shipping Fee</strong>',"original_so":"$0.00"},
-        {"shiping_day":'<strong>Manager Discount</strong>',"original_so":'<strong>-$1000.00</strong>'},
-        {"shiping_day":'<strong>Total</strong>',"original_so":'<strong> $0.00</strong>'}
+	{"amount":'<strong>Subtotal</strong>', "warehouse":"$3000.00"},
+	{"amount":'<strong>Shipping Fee</strong>',"warehouse":"$0.00"},
+        {"amount":'<strong>Manager Discount</strong>',"warehouse":'<strong>-$1000.00</strong>'},
+        {"amount":'<strong>Total</strong>',"warehouse":'<strong> $0.00</strong>'}
     ],
     "rows":[
         {
@@ -13,31 +13,21 @@ productDatas = {
             image: "<img width='60px' height='60px' src='../../../images/product01.jpg' />", 
             product: "Product 01",
             quantity: "1",
-            sold_price: "$2,095.02",
+            return_price: "$2,095.02",
             amount: "$2,095.20",
-            stock_avaiable: "20",
-            total_weight: "900",
-            ware_house: "CA",
-            shiping_day: "25/01/2021",
-            original_so: "001",
-            service_for_product: "Service for Product 001",
-            under_warranty: "Y"
+            warehouse: "20",
+            receiver: "Y"
         },
         {
             id : 2,
             no: 2,
             image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
-            product: "Product 02",
-            quantity: "2",
-            sold_price: "$1,000.00",
-            amount: "$2,000.00",
-            stock_avaiable: "20",
-            total_weight: "1000",
-            ware_house: "CB",
-            shiping_day: "25/01/2021",
-            original_so: "001",
-            service_for_product: "Service for Product 002",
-            under_warranty: "Y"
+            product: "Product 01",
+            quantity: "1",
+            return_price: "$2,095.02",
+            amount: "$2,095.20",
+            warehouse: "20",
+            receiver: "Y"
         }
     ]
     
@@ -75,9 +65,9 @@ comboBoxedProduct = {};
 dateBoxProduct = {};
 removeTagProduct = {};
 shippingDetail = {};
-comboBoxedProduct[1] = "CA";
+comboBoxedProduct[1] = "Y";
 removeTagProduct[1] = 1;
-comboBoxedProduct[2] = "CB";
+comboBoxedProduct[2] = "N";
 removeTagProduct[2] = 2;
 dateBoxProduct[1] = "25/01/2021";
 dateBoxProduct[2] = "25/01/2021";
@@ -86,10 +76,26 @@ discount = 1000;
 total = 0;
 totalAmount = 0;
 shippingAmount = 0;
+rmaStatus = 1;
+rmaTempStatus = 1;
 $(document).ready(function () {
     loadServices();
     loadProducts();
     loadPaymentMethod();
+    
+    $(".editRMAStatus").on("click", function(){
+         $('#editRMADialog').dialog({
+            title: 'Change RMA Status',
+            width: 400,
+            height: 250,
+            closed: false,
+            cache: false,
+            modal: true,
+            href: 'rma_status.html'
+        });
+       rmaTempStatus = $(this).attr('data-id');
+    });
+    
     $("#editProducts").on("click", function(){
        reloadList();
     });
@@ -142,8 +148,11 @@ $(document).ready(function () {
     });
 });
 
-function submitSalonForm() {
-    $('#editSalonDialog').window('close');
+function submitRMAForm() {
+    rmaStatus = rmaTempStatus;
+    var quality = $("input[name='quality']").val();
+    var status = $("input[name='status']").val();
+    $('#editRMADialog').window('close');
 }
 
 function loadShipping(shippingDetail = {}) {
@@ -305,7 +314,7 @@ function initRemove() {
 }
 
 function getComboboxTemplate(id) {
-    var vaiableOptions = ['CA', 'CB'];
+    var vaiableOptions = ['Y', 'N'];
     var options = '<select data-id="' + id + '" class="easyui-combobox" name="dept" style="width:50px;">:selections</select>';
     
     var selections = vaiableOptions.map(function(value) {
@@ -341,14 +350,12 @@ function getDateBoxTemplate(id, value) {
 function reloadList(isCombobox = true) {
     productDatas.rows = productDatas.rows.map( function(product) { 
        if ( isCombobox ) {
-            product.ware_house = getComboboxTemplate(product.id);
+            product.receiver = getComboboxTemplate(product.id);
             product.no = getRemoveTemplate(product.id);
-            product.shiping_day = getDateBoxTemplate(product.id, product.shiping_day);
 
        } else {
-            product.ware_house = comboBoxedProduct[product.id];
+            product.receiver = comboBoxedProduct[product.id];
             product.no = removeTagProduct[product.id];
-            product.shiping_day = dateBoxProduct[product.id];
        }
        
        return product;
@@ -381,9 +388,9 @@ function loadServices() {
 }
 
 function getServiceInformation(serviceId) {
-    var status = { 2: 'Closed', 1: "Processing"};
+    var status = {4: 'Refund', 3: 'Partial Received', 2: 'Product Received', 1: 'Product Receiving'};
     $.get({
-        url: '/lexor_cs/api/case_service/' + serviceId,
+        url: '/lexor_cs/api/rma/' + serviceId,
         success: function(data) {
             var serviceInformation = $(".service-info__status");
             serviceInformation.html(serviceInformation.text().replace('{name}', data.serviceID).replace('{status}', status[1]));

@@ -42,9 +42,9 @@ public class CaseTypeService extends BaseService<CaseType> {
     public int remove(Object o) throws SQLException {
         CaseType c = (CaseType) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"CaseType\" WHERE ?;";
+        String deleteSQL = "DELETE FROM public.CaseType WHERE ?;";
         try {
-            return runner.execute(connection, deleteSQL, c.getCaseTypeID());
+            return runner.execute(connection, deleteSQL.toLowerCase(), c.getCaseTypeID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -69,15 +69,17 @@ public class CaseTypeService extends BaseService<CaseType> {
         Integer status = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseType>> resultHandler = new CaseTypeHandler(connection);
-
-        List<CaseType> empList = queryRunner.query(connection, "SELECT * FROM \"CaseType\" WHERE CONCAT(\"CaseTypeValue\", \" \") LIKE ?", resultHandler, status);
+        
+        String query = "SELECT * FROM public.CaseType WHERE CaseID = ?";
+        List<CaseType> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, status);
         List<T> list = new ArrayList<>();
         for (CaseType case1 : empList) {
             list.add((T) case1);
         }
         return list; 
     }
-
+    
+    
     @Override
     public long count() throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
@@ -98,9 +100,7 @@ public class CaseTypeService extends BaseService<CaseType> {
             
         String query = "SELECT * FROM public.CaseType WHERE CaseTypeID >= ? AND CaseTypeID <= ?";
         List<CaseType> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
-        for (CaseType case1 : empList) {
-            list.add((T) case1);
-        }
-        return list;
+        
+        return (List<T>)empList; 
     }
 }

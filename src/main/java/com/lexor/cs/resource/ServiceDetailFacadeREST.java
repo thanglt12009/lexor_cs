@@ -56,14 +56,14 @@ public class ServiceDetailFacadeREST extends AbstractFacade<ServiceDetail> {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public ServiceDetail find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
     
     @GET
-    @Path("/{productID}")
+    @Path("/find/{productID}")
     @Produces({MediaType.APPLICATION_JSON})
     public List<ServiceDetail> findByKeyWord(@PathParam("productID") Integer productID) throws SQLException {        
         return super.findByKeyWord(productID);

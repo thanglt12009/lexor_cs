@@ -57,14 +57,14 @@ public class RMAFacadeREST extends AbstractFacade<RMA> {
     }
 
     @GET
-    @Path("/{id}")
+    @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public RMA find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
 
     @GET
-    @Path("/{status}")
+    @Path("/find/{status}")
     @Produces({MediaType.APPLICATION_JSON})
     public List<RMA> findByKeyWord(@PathParam("status") Integer status) throws SQLException {        
         return super.findByKeyWord(status);
