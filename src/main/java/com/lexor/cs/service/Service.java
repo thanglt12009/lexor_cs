@@ -14,6 +14,8 @@ public interface Service {
     
     public <T extends Object> T find(Class<T> type, Object o) throws SQLException;
     
+    public <T> List<T> findByKeyWord(Object o) throws SQLException;
+    
     public <T> List<T> findRange(Class<T> type, int[] range) throws SQLException;
     
     public long count() throws SQLException;

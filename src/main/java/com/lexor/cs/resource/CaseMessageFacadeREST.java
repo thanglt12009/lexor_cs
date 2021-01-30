@@ -1,6 +1,7 @@
 package com.lexor.cs.resource;
 
 import com.lexor.cs.domain.CaseMessage;
+import com.lexor.cs.domain.CaseReturn;
 import com.lexor.cs.service.CaseMessageService;
 import com.lexor.cs.service.Service;
 import java.sql.SQLException;
@@ -60,6 +61,13 @@ public class CaseMessageFacadeREST extends AbstractFacade<CaseMessage> {
     @Produces({MediaType.APPLICATION_JSON})
     public CaseMessage find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
+    }
+    
+    @GET
+    @Path("/{sendTo}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<CaseMessage> findByKeyWord(@PathParam("sendTo") String sendTo) throws SQLException {        
+        return super.findByKeyWord(sendTo);
     }
 
     @GET

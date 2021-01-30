@@ -62,6 +62,20 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         }
         throw new SQLException("Record not found");
     }
+    
+    @Override
+    public <T> List<T> findByKeyWord(Object o) throws SQLException {
+        Integer status = (Integer) o;
+        QueryRunner queryRunner = new QueryRunner();
+        ResultSetHandler<List<RMASO_Detail>> resultHandler = new RMASO_DetailHandler(connection);
+
+        List<RMASO_Detail> empList = queryRunner.query(connection, "SELECT * FROM \"RMASO_Detail\" WHERE CONCAT(\"ProductID\", \" \") LIKE ?", resultHandler, status);
+        List<T> list = new ArrayList<>();
+        for (RMASO_Detail case1 : empList) {
+            list.add((T) case1);
+        }
+        return list;        
+    }
 
     @Override
     public long count() throws SQLException {

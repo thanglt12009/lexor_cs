@@ -23,9 +23,10 @@ public class CaseReturnService extends BaseService<Case> {
         Case c = (Case) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.Case (\"CaseName\", \"CustomerID\", \"SalonID\", \"CasePriority\", \"CaseType\", \"Status\") VALUES (?, ?, ?, ?, ?, ?)";
+                = "INSERT INTO public.Case (\"CaseName\", \"CustomerID\", \"SalonID\", \"CasePriority\", \"CaseType\", \"Status\", \"CustomerServiceRep\") VALUES (?, ?, ?, ?, ?, ?, ?)";
         
-        return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseName(), c.getCustomerID(), c.getSalonID(), c.getCasePriority(), c.getCaseType(), c.getStatus());
+        return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseName(), c.getCustomerID(), c.getSalonID(), c.getCasePriority(), c.getCaseType(), c.getStatus(), c.getCustomerServiceRep()
+        );
     }
 
     @Override
@@ -34,7 +35,8 @@ public class CaseReturnService extends BaseService<Case> {
         QueryRunner runner = new QueryRunner();
         String updateSQL
                 = "UPDATE public.\"Case\" "
-                + " SET \"CaseName\"=?, \"CustomerID\"=?, \"SalonID\"=?, \"CasePriority\"=?, \"CaseType\"=?, \"Status\"=? "
+                + " SET \"CaseName\"=?, \"CustomerID\"=?, \"SalonID\"=?, \"CasePriority\"=?, \"CaseType\"=?, \"Status\"=?, "
+                + "\"CustomerServiceRep\"=?" 
                 + " WHERE \"CaseID\"=?;";
 
         return runner.update(connection, updateSQL, c.getCaseName(), c.getCustomerID(), c.getSalonID(), c.getCasePriority(), c.getCaseType(), c.getStatus(), id);
@@ -65,6 +67,20 @@ public class CaseReturnService extends BaseService<Case> {
             return (T) empList.get(0);
         }
         throw new SQLException("Record not found");
+    }
+    
+    @Override
+    public <T> List<T> findByKeyWord(Object o) throws SQLException {
+        String name = (String) o;
+        QueryRunner queryRunner = new QueryRunner();
+        ResultSetHandler<List<CaseReturn>> resultHandler = new CaseReturnHandler(connection);
+
+        List<CaseReturn> empList = queryRunner.query(connection, "SELECT * FROM \"Case\" WHERE CONCAT(\"CaseName\", \" \") LIKE ?", resultHandler, name);
+        List<T> list = new ArrayList<>();
+        for (CaseReturn case1 : empList) {
+            list.add((T) case1);
+        }
+        return list; 
     }
 
     @Override

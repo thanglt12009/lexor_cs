@@ -1,7 +1,8 @@
 package com.lexor.cs.resource;
 
-import com.lexor.cs.domain.RMAPayment;
-import com.lexor.cs.service.RMAPaymentService;
+import com.lexor.cs.domain.CaseType;
+import com.lexor.cs.service.CaseReturnService;
+import com.lexor.cs.service.CaseServices;
 import com.lexor.cs.service.Service;
 import java.sql.SQLException;
 import java.util.List;
@@ -18,14 +19,14 @@ import javax.ws.rs.core.MediaType;
 
 
 @Stateless
-@Path("/rma_payment")
-public class RMAPaymentFacadeREST extends AbstractFacade<RMAPayment> {
+@Path("/casetype")
+public class CaseTypeFacadeREST extends AbstractFacade<CaseType> {
     
-    private RMAPaymentService service;
+    private CaseReturnService service;
 
-    public RMAPaymentFacadeREST() {
-        super(RMAPayment.class);
-        this.service = new RMAPaymentService();
+    public CaseTypeFacadeREST() {
+        super(CaseType.class);
+        this.service = new CaseReturnService();
     }
 
     @Override
@@ -36,14 +37,14 @@ public class RMAPaymentFacadeREST extends AbstractFacade<RMAPayment> {
     @POST
     @Override
     @Consumes({MediaType.APPLICATION_JSON})
-    public int create(RMAPayment entity) throws SQLException {
+    public int create(CaseType entity) throws SQLException {
         return super.create(entity);
     }
 
     @PUT
     @Path("/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
-    public int edit(@PathParam("id") Integer id, RMAPayment entity) throws SQLException {
+    public int edit(@PathParam("id") Integer id, CaseType entity) throws SQLException {
         return super.edit(id, entity);
     }
 
@@ -51,28 +52,28 @@ public class RMAPaymentFacadeREST extends AbstractFacade<RMAPayment> {
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public int remove(@PathParam("id") Integer id) throws SQLException {
-        RMAPayment entity = super.find(id);
+        CaseType entity = super.find(id);
         return super.remove(entity);
     }
 
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public RMAPayment find(@PathParam("id") Integer id) throws SQLException {
+    public CaseType find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
     
     @GET
-    @Path("/{status}")
+    @Path("/{caseTypeValue}")
     @Produces({MediaType.APPLICATION_JSON})
-    public List<RMAPayment> findByKeyWord(@PathParam("status") Integer status) throws SQLException {        
-        return super.findByKeyWord(status);
+    public List<CaseType> findByKeyWord(@PathParam("caseTypeValue") Integer caseTypeValue) throws SQLException {        
+        return super.findByKeyWord(caseTypeValue);
     }
 
     @GET
     @Path("/{from}/{to}")
     @Produces({MediaType.APPLICATION_JSON})
-    public List<RMAPayment> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) throws SQLException {
+    public List<CaseType> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) throws SQLException {
         return super.findRange(new int[]{from, to});
     }
 

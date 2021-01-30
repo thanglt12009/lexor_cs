@@ -62,6 +62,20 @@ public class RMAMessageService extends BaseService<RMAMessage> {
         }
         throw new SQLException("Record not found");
     }
+    
+    @Override
+    public <T> List<T> findByKeyWord(Object o) throws SQLException {
+        String status = (String) o;
+        QueryRunner queryRunner = new QueryRunner();
+        ResultSetHandler<List<RMAMessage>> resultHandler = new RMAMessageHandler(connection);
+
+        List<RMAMessage> empList = queryRunner.query(connection, "SELECT * FROM \"RMAMessage\" WHERE CONCAT(\"Subject\", \" \", \"SendTo\", \" \") LIKE ?", resultHandler, status);
+        List<T> list = new ArrayList<>();
+        for (RMAMessage case1 : empList) {
+            list.add((T) case1);
+        }
+        return list;  
+    }
 
     @Override
     public long count() throws SQLException {

@@ -33,6 +33,11 @@ public abstract class AbstractFacade<T> {
     public T find(Integer id) throws SQLException {
         return getService().find(entityClass, id);
     }
+    
+     public List<T> findByKeyWord(Object entity) throws SQLException {
+        return getService().findByKeyWord(entity);
+    }
+
 
     public List<T> findRange(int[] range) throws SQLException {
         return getService().findRange(entityClass, range);

@@ -21,6 +21,8 @@ public class Case implements Serializable {
     
     private Short status;
     
+    private int customerServiceRep;
+    
     private Date createdDate;
     
     private Date updatedDate;
@@ -109,6 +111,16 @@ public class Case implements Serializable {
     public void setUpdatedDate(Date updatedDate) {
         this.updatedDate = updatedDate;
     }
+    
+    public Integer getCustomerServiceRep() {
+        return customerServiceRep;
+    }
+
+    public void setCustomerServiceRep(Integer customerServiceRep) {
+        this.customerServiceRep = customerServiceRep;
+    }
+    
+    
 
     @Override
     public int hashCode() {

@@ -62,6 +62,20 @@ public class CaseReturns extends BaseService<CaseReturn> {
         }
         throw new SQLException("Record not found");
     }
+    
+    @Override
+    public <T> List<T> findByKeyWord(Object o) throws SQLException {
+        Integer status = (Integer) o;
+        QueryRunner queryRunner = new QueryRunner();
+        ResultSetHandler<List<CaseReturn>> resultHandler = new CaseReturnHandler(connection);
+
+        List<CaseReturn> empList = queryRunner.query(connection, "SELECT * FROM \"CaseReturn\" WHERE CONCAT(\"CaseReturnID\", \" \") LIKE ?", resultHandler, status);
+        List<T> list = new ArrayList<>();
+        for (CaseReturn case1 : empList) {
+            list.add((T) case1);
+        }
+        return list; 
+    }
 
     @Override
     public long count() throws SQLException {

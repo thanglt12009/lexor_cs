@@ -1,7 +1,9 @@
 package com.lexor.cs.service;
 
 import com.lexor.cs.beanhandler.CaseMessageHandler;
+import com.lexor.cs.beanhandler.CaseReturnHandler;
 import com.lexor.cs.domain.CaseMessage;
+import com.lexor.cs.domain.CaseReturn;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +63,20 @@ public class CaseMessageService extends BaseService<CaseMessage> {
             return (T) empList.get(0);
         }
         throw new SQLException("Record not found");
+    }
+    
+    @Override
+    public <T> List<T> findByKeyWord(Object o) throws SQLException {
+        String filterStr = (String) o;
+        QueryRunner queryRunner = new QueryRunner();
+        ResultSetHandler<List<CaseReturn>> resultHandler = new CaseReturnHandler(connection);
+
+        List<CaseReturn> empList = queryRunner.query(connection, "SELECT * FROM \"CaseMessage\" WHERE CONCAT(\"SendTo\", \" \") LIKE ?", resultHandler, filterStr);
+        List<T> list = new ArrayList<>();
+        for (CaseReturn case1 : empList) {
+            list.add((T) case1);
+        }
+        return list; 
     }
 
     @Override

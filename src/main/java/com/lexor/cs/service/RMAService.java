@@ -62,6 +62,20 @@ public class RMAService extends BaseService<RMA> {
         }
         throw new SQLException("Record not found");
     }
+    
+    @Override
+    public <T> List<T> findByKeyWord(Object o) throws SQLException {
+        Integer status = (Integer) o;
+        QueryRunner queryRunner = new QueryRunner();
+        ResultSetHandler<List<RMA>> resultHandler = new RMAHandler(connection);
+
+        List<RMA> empList = queryRunner.query(connection, "SELECT * FROM \"RMA\" WHERE CONCAT(\"Status\", \" \") LIKE ?", resultHandler, status);
+        List<T> list = new ArrayList<>();
+        for (RMA case1 : empList) {
+            list.add((T) case1);
+        }
+        return list;
+    }
 
     @Override
     public long count() throws SQLException {

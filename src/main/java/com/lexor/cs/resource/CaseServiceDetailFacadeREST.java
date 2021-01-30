@@ -64,6 +64,13 @@ public class CaseServiceDetailFacadeREST extends AbstractFacade<CaseServiceDetai
     public CaseServiceDetail find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
+    
+    @GET
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<CaseServiceDetail> findByKeyWord(@PathParam("id") Integer custSOID) throws SQLException {        
+        return super.findByKeyWord(custSOID);
+    }
 
     @GET
     @Path("/{from}/{to}")

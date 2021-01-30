@@ -1,6 +1,7 @@
 package com.lexor.cs.resource;
 
 import com.lexor.cs.domain.RMA;
+import com.lexor.cs.domain.RMALog;
 import com.lexor.cs.service.RMAService;
 import com.lexor.cs.service.Service;
 import java.sql.SQLException;
@@ -62,6 +63,13 @@ public class RMAFacadeREST extends AbstractFacade<RMA> {
         return super.find(id);
     }
 
+    @GET
+    @Path("/{status}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<RMA> findByKeyWord(@PathParam("status") Integer status) throws SQLException {        
+        return super.findByKeyWord(status);
+    }
+    
     @GET
     @Path("/{from}/{to}")
     @Produces({MediaType.APPLICATION_JSON})

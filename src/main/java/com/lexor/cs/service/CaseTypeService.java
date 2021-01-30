@@ -1,7 +1,7 @@
 package com.lexor.cs.service;
 
-import com.lexor.cs.beanhandler.RMASOHandler;
-import com.lexor.cs.domain.RMASO;
+import com.lexor.cs.beanhandler.CaseTypeHandler;
+import com.lexor.cs.domain.CaseType;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -9,42 +9,42 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
-public class RMASOService extends BaseService<RMASO> {
+public class CaseTypeService extends BaseService<CaseType> {
 
     @Override
-    public RMASO get(Integer id) {
+    public CaseType get(Integer id) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
     @Override
     public int persist(Object o) throws SQLException {
-        RMASO c = (RMASO) o;
+        CaseType c = (CaseType) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO \"RMASO\" (\"RMAID\", \"Fee\", \"Total\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
+                = "INSERT INTO public.CaseType (\"CaseID\", \"CaseTypeValue\" ) VALUES (?, ? )";
 
-        return runner.update(connection, insertSQL, c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.update(connection, insertSQL.toLowerCase(), c.getCaseID(), c.getCaseTypeValue());
     }
 
     @Override
     public int update(Integer id, Object o) throws SQLException {
-        RMASO c = (RMASO) o;
+        CaseType c = (CaseType) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"RMASO\" "
-                + " SET \"RMAID\"=?, \"Fee\"=?, \"Total\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=?, \""
-                + " WHERE \"SOID\"=?;";
+                = "UPDATE public.\"CaseType\" "
+                + " SET \"CaseID\"=?, \"CaseTypeValue\"=?"
+                + " WHERE \"CaseTypeID\"=?;";
 
-        return runner.update(connection, updateSQL, c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate(), id);
+        return runner.update(connection, updateSQL, c.getCaseID(), c.getCaseTypeValue(), id);
     }
 
     @Override
     public int remove(Object o) throws SQLException {
-        RMASO c = (RMASO) o;
+        CaseType c = (CaseType) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"RMASO\" WHERE ?;";
+        String deleteSQL = "DELETE FROM public.\"CaseType\" WHERE ?;";
         try {
-            return runner.execute(connection, deleteSQL, c.getSOID());
+            return runner.execute(connection, deleteSQL, c.getCaseTypeID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -54,27 +54,28 @@ public class RMASOService extends BaseService<RMASO> {
     public <T> T find(Class<T> type, Object o) throws SQLException {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<RMASO>> resultHandler = new RMASOHandler(connection);
+        ResultSetHandler<List<CaseType>> resultHandler = new CaseTypeHandler(connection);
 
-        List<RMASO> empList = queryRunner.query(connection, "SELECT * FROM \"RMASO\" WHERE \"SOID\" = ?", resultHandler, id);
+        List<CaseType> empList = queryRunner.query(connection, "SELECT * FROM \"CaseType\" WHERE \"CaseTypeID\" = ?", resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
         }
         throw new SQLException("Record not found");
     }
     
+    
     @Override
     public <T> List<T> findByKeyWord(Object o) throws SQLException {
         Integer status = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<RMASO>> resultHandler = new RMASOHandler(connection);
+        ResultSetHandler<List<CaseType>> resultHandler = new CaseTypeHandler(connection);
 
-        List<RMASO> empList = queryRunner.query(connection, "SELECT * FROM \"RMASO\" WHERE CONCAT(\"Fee\", \" \") LIKE ?", resultHandler, status);
+        List<CaseType> empList = queryRunner.query(connection, "SELECT * FROM \"CaseType\" WHERE CONCAT(\"CaseTypeValue\", \" \") LIKE ?", resultHandler, status);
         List<T> list = new ArrayList<>();
-        for (RMASO case1 : empList) {
+        for (CaseType case1 : empList) {
             list.add((T) case1);
         }
-        return list;  
+        return list; 
     }
 
     @Override
@@ -82,7 +83,7 @@ public class RMASOService extends BaseService<RMASO> {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"RMASO\"";
+        String query = "SELECT COUNT(0) FROM \"CaseType\"";
         long count = runner.query(connection, query, scalarHandler);
         return count;
     }
@@ -93,10 +94,11 @@ public class RMASOService extends BaseService<RMASO> {
         Integer to = range[1];
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<RMASO>> resultHandler = new RMASOHandler(connection);
-
-        List<RMASO> empList = queryRunner.query(connection, "SELECT * FROM \"RMASO\" WHERE \"SOID\" >= ? AND  \"SOID\" <= ?", resultHandler, from, to);
-        for (RMASO case1 : empList) {
+        ResultSetHandler<List<CaseType>> resultHandler = new CaseTypeHandler(connection);
+            
+        String query = "SELECT * FROM public.CaseType WHERE CaseTypeID >= ? AND CaseTypeID <= ?";
+        List<CaseType> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
+        for (CaseType case1 : empList) {
             list.add((T) case1);
         }
         return list;

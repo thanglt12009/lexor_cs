@@ -1,6 +1,7 @@
 package com.lexor.cs.resource;
 
 import com.lexor.cs.domain.CaseReturn;
+import com.lexor.cs.domain.CaseServiceDetail;
 import com.lexor.cs.service.CaseReturnService;
 import com.lexor.cs.service.CaseReturns;
 import com.lexor.cs.service.Service;
@@ -61,6 +62,13 @@ public class CaseReturnFacadeREST extends AbstractFacade<CaseReturn> {
     @Produces({MediaType.APPLICATION_JSON})
     public CaseReturn find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
+    }
+    
+    @GET
+    @Path("/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<CaseReturn> findByKeyWord(@PathParam("id") Integer id) throws SQLException {        
+        return super.findByKeyWord(id);
     }
 
     @GET

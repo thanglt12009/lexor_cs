@@ -61,6 +61,13 @@ public class RMALogFacadeREST extends AbstractFacade<RMALog> {
     public RMALog find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
+    
+    @GET
+    @Path("/{message}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<RMALog> findByKeyWord(@PathParam("message") String message) throws SQLException {        
+        return super.findByKeyWord(message);
+    }
 
     @GET
     @Path("/{from}/{to}")

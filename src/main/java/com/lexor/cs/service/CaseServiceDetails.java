@@ -64,6 +64,20 @@ public class CaseServiceDetails extends BaseService<CaseService> {
         }
         throw new SQLException("Record not found");
     }
+    
+    @Override
+    public <T> List<T> findByKeyWord(Object o) throws SQLException {
+        Integer status = (Integer) o;
+        QueryRunner queryRunner = new QueryRunner();
+        ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
+
+        List<CaseService> empList = queryRunner.query(connection, "SELECT * FROM \"CaseService\" WHERE CONCAT(\"CustomerSOID\", \" \") LIKE ?", resultHandler, status);
+        List<T> list = new ArrayList<>();
+        for (CaseService case1 : empList) {
+            list.add((T) case1);
+        }
+        return list; 
+    }
 
     @Override
     public long count() throws SQLException {

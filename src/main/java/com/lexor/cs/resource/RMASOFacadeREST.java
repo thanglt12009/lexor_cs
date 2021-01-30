@@ -61,6 +61,13 @@ public class RMASOFacadeREST extends AbstractFacade<RMASO> {
     public RMASO find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
+    
+    @GET
+    @Path("/{fee}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<RMASO> findByKeyWord(@PathParam("fee") Integer fee) throws SQLException {        
+        return super.findByKeyWord(fee);
+    }
 
     @GET
     @Path("/{from}/{to}")

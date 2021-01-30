@@ -63,6 +63,13 @@ public class CaseInformationFacadeREST extends AbstractFacade<CaseInformation> {
     }
 
     @GET
+    @Path("/{keyword}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<CaseInformation> findByKeyWord(@PathParam("keyword") String keyword) throws SQLException {        
+        return super.findByKeyWord(keyword);
+    }
+    
+    @GET
     @Path("/{from}/{to}")
     @Produces({MediaType.APPLICATION_JSON})
     public List<CaseInformation> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) throws SQLException {

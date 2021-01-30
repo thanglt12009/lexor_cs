@@ -1,7 +1,7 @@
 package com.lexor.cs.resource;
 
-import com.lexor.cs.domain.RMAPayment;
-import com.lexor.cs.service.RMAPaymentService;
+import com.lexor.cs.domain.ServiceMaster;
+import com.lexor.cs.service.ServiceMasterService;
 import com.lexor.cs.service.Service;
 import java.sql.SQLException;
 import java.util.List;
@@ -18,14 +18,14 @@ import javax.ws.rs.core.MediaType;
 
 
 @Stateless
-@Path("/rma_payment")
-public class RMAPaymentFacadeREST extends AbstractFacade<RMAPayment> {
+@Path("/serviceMaster")
+public class ServiceMasterFacadeREST extends AbstractFacade<ServiceMaster> {
     
-    private RMAPaymentService service;
+    private ServiceMasterService service;
 
-    public RMAPaymentFacadeREST() {
-        super(RMAPayment.class);
-        this.service = new RMAPaymentService();
+    public ServiceMasterFacadeREST() {
+        super(ServiceMaster.class);
+        this.service = new ServiceMasterService();
     }
 
     @Override
@@ -36,14 +36,14 @@ public class RMAPaymentFacadeREST extends AbstractFacade<RMAPayment> {
     @POST
     @Override
     @Consumes({MediaType.APPLICATION_JSON})
-    public int create(RMAPayment entity) throws SQLException {
+    public int create(ServiceMaster entity) throws SQLException {
         return super.create(entity);
     }
 
     @PUT
     @Path("/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
-    public int edit(@PathParam("id") Integer id, RMAPayment entity) throws SQLException {
+    public int edit(@PathParam("id") Integer id, ServiceMaster entity) throws SQLException {
         return super.edit(id, entity);
     }
 
@@ -51,28 +51,30 @@ public class RMAPaymentFacadeREST extends AbstractFacade<RMAPayment> {
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public int remove(@PathParam("id") Integer id) throws SQLException {
-        RMAPayment entity = super.find(id);
+        ServiceMaster entity = super.find(id);
         return super.remove(entity);
     }
 
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public RMAPayment find(@PathParam("id") Integer id) throws SQLException {
+    public ServiceMaster find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
     
     @GET
     @Path("/{status}")
     @Produces({MediaType.APPLICATION_JSON})
-    public List<RMAPayment> findByKeyWord(@PathParam("status") Integer status) throws SQLException {        
-        return super.findByKeyWord(status);
+    public List<ServiceMaster> findByKeyWord(@PathParam("status") Integer status) throws SQLException {
+        ServiceMaster entity = new ServiceMaster();
+        entity.setStatus(status);
+        return super.findByKeyWord(entity);
     }
 
     @GET
     @Path("/{from}/{to}")
     @Produces({MediaType.APPLICATION_JSON})
-    public List<RMAPayment> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) throws SQLException {
+    public List<ServiceMaster> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) throws SQLException {
         return super.findRange(new int[]{from, to});
     }
 
