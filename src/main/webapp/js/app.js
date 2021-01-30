@@ -64,7 +64,7 @@ function reInitUser() {
         mobile_phone: "0999-999-999",
         business_phone: "083-999-9999",
         service_rep_name: "Customer Service Rep 1",
-        action: '<a href="javascript::void(0)" onClick="createCase(1)" class="easyui-linkbutton">Select</a>'
+        action: '<a href="javascript:void(0)" onClick="createCase(1)" class="easyui-linkbutton">Select</a>'
     };
     
     if (localStorage.getItem("users") === null) {
@@ -236,7 +236,7 @@ function createUser(docNumber) {
         mobile_phone: $("[name='mobilePhone']").val(),
         business_phone: $("[name='businessPhone']").val(),
         service_rep_name: $("[name='customerService']").val(),
-        action: '<a href="javascript::void(0)" onClick="createCase(' +docNumber+ ')" class="easyui-linkbutton">Select</a>'
+        action: '<a href="javascript:void(0)" onClick="createCase(' +docNumber+ ')" class="easyui-linkbutton">Select</a>'
     });
     
     localStorage.setItem("users", JSON.stringify(users));
