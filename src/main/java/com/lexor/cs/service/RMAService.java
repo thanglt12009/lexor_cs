@@ -69,13 +69,13 @@ public class RMAService extends BaseService<RMA> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMA>> resultHandler = new RMAHandler(connection);
 
-        List<RMA> empList = queryRunner.query(connection, "SELECT * FROM \"RMA\" WHERE CONCAT(\"Status\", \" \") LIKE ?", resultHandler, status);
+        List<RMA> empList = queryRunner.query(connection, "SELECT * FROM \"RMA\" WHERE CONCAT_WS(\" \", \"Status\", \"RMAID\", \"CustomerID\", \"CaseID\") LIKE '%?%'", resultHandler, status);
         List<T> list = new ArrayList<>();
         for (RMA case1 : empList) {
             list.add((T) case1);
         }
         return list;
-    }
+    }    
 
     @Override
     public long count() throws SQLException {
