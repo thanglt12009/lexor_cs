@@ -76,7 +76,21 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<ServiceMaster>> resultHandler = new ServiceMasterHandler(connection);
 
-        List<ServiceMaster> empList = queryRunner.query(connection, "SELECT * FROM \"ServiceDetail\" WHERE CONCAT(\"ProductID\", \" \") LIKE ?", resultHandler, id);
+        List<ServiceMaster> empList = queryRunner.query(connection, "SELECT * FROM \"ServiceDetail\"  WHERE CONCAT_WS(\" \", \"CaseServiceDetailID\", \"CaseServiceID\", \"CustomerSOID\") LIKE '%?%'", resultHandler, id);
+        List<T> list = new ArrayList<>();
+        for (ServiceMaster case1 : empList) {
+            list.add((T) case1);
+        }
+        return list;
+    }
+    
+    @Override
+    public <T> List<T> findByJoinedKeyWord  (Object o) throws SQLException {
+        Integer id = (Integer) o;
+        QueryRunner queryRunner = new QueryRunner();
+        ResultSetHandler<List<ServiceMaster>> resultHandler = new ServiceMasterHandler(connection);
+
+        List<ServiceMaster> empList = queryRunner.query(connection, "SELECT ServiceDetail.* FROM \"ServiceDetail\" INNER JOIN \"ServiceMaster\" ON \"ServiceDetail.ServiceMasterID = ServiceMaster.ServiceMasterID\" WHERE \"ServiceMaster.ServiceMasterID\" = ?", resultHandler, id);
         List<T> list = new ArrayList<>();
         for (ServiceMaster case1 : empList) {
             list.add((T) case1);

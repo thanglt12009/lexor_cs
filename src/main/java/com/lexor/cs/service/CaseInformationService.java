@@ -76,6 +76,12 @@ public class CaseInformationService extends BaseService<CaseInformation> {
         }
         return list; 
     }
+    
+    
+    @Override
+    public <T> List<T> findByJoinedKeyWord  (Object o) throws SQLException {        
+        return new ArrayList<>();
+    }
 
 
     @Override

@@ -65,17 +65,22 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
     
     @Override
     public <T> List<T> findByKeyWord(Object o) throws SQLException {
-        Integer status = (Integer) o;
+        Integer serviceId = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<ServiceMaster>> resultHandler = new ServiceMasterHandler(connection);
        
         
-        List<ServiceMaster> empList = queryRunner.query(connection, "SELECT * FROM \"ServiceMaster\" WHERE CONCAT(\"Status\", \" \") LIKE ?", resultHandler, status);
+        List<ServiceMaster> empList = queryRunner.query(connection, "SELECT * FROM \"ServiceMaster\" WHERE CONCAT(\"Status\", \" \") LIKE ?", resultHandler, serviceId);
         List<T> list = new ArrayList<>();
         for (ServiceMaster case1 : empList) {
             list.add((T) case1);
         }
         return list;
+    }
+    
+    @Override
+    public <T> List<T> findByJoinedKeyWord(Object o) throws SQLException {
+        return new ArrayList<>();        
     }
 
     @Override

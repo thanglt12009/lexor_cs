@@ -76,6 +76,11 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
         }
         return list;  
     }
+    
+    @Override
+    public <T> List<T> findByJoinedKeyWord  (Object o) throws SQLException {        
+        return new ArrayList<>();
+    }  
 
     @Override
     public long count() throws SQLException {

@@ -78,6 +78,11 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
     }    
 
     @Override
+    public <T> List<T> findByJoinedKeyWord  (Object o) throws SQLException {        
+        return new ArrayList<>();
+    }  
+    
+    @Override
     public long count() throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 

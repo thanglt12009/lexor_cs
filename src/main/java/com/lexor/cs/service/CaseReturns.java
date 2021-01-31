@@ -76,6 +76,11 @@ public class CaseReturns extends BaseService<CaseReturn> {
         }
         return list; 
     }
+    
+    @Override
+    public <T> List<T> findByJoinedKeyWord  (Object o) throws SQLException {        
+        return new ArrayList<>();
+    }
 
     @Override
     public long count() throws SQLException {

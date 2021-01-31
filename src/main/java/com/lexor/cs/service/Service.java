@@ -16,6 +16,8 @@ public interface Service {
     
     public <T> List<T> findByKeyWord(Object o) throws SQLException;
     
+    public <T> List<T> findByJoinedKeyWord(Object o) throws SQLException;
+        
     public <T> List<T> findRange(Class<T> type, int[] range) throws SQLException;
     
     public long count() throws SQLException;
