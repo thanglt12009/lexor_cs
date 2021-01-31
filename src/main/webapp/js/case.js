@@ -530,6 +530,7 @@ function createMasterProduct(caseServiceID, productList) {
         type: "POST",
         url: '/lexor_cs/api/serviceMaster',
         data: JSON.stringify({
+            status: 0,
             caseServiceID: caseServiceID
         }),
         success: function (serviceMasterID) {

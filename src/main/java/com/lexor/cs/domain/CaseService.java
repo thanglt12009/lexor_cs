@@ -23,6 +23,8 @@ public class CaseService implements Serializable {
     
     private String updatedDate;
     
+    private Integer status;
+    
     public CaseService() {
     
     }
@@ -42,13 +44,20 @@ public class CaseService implements Serializable {
         this.customerSOID = customerSOID;
     }
     
-    
     public Integer getCaseID() {
         return caseID;
     }
     
     public void setCaseID(int caseID) {
         this.caseID = caseID;
+    }
+    
+    public Integer getStatus() {
+        return status;
+    }
+    
+    public void setStatus(int status) {
+        this.status = status;
     }
     
     public Integer getCaseServiceID() {
