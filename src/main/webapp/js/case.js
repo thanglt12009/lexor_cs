@@ -55,8 +55,8 @@ rmaProductList = {
             receiver: 1
         },
         {
-            productID: 1,
-            quantity: 1,
+            productID: 2,
+            quantity: 2,
             returnPrice: 2095.02,
             price: 2095.20,
             warehouse: 1,
@@ -585,11 +585,6 @@ function editCase(caseId) {
     });
 }
 
-function getCurrentTime() {
-    var dt = new Date;
-
-    return dt.getFullYear() + "/" + (dt.getMonth() + 1) + "/" + dt.getDate();
-}
 
 $.urlParam = function (name) {
     var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);

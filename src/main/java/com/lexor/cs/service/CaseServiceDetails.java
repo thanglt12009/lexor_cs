@@ -71,7 +71,7 @@ public class CaseServiceDetails extends BaseService<CaseService> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
 
-        List<CaseService> empList = queryRunner.query(connection, "SELECT * FROM \"CaseService\" WHERE CONCAT(\"CustomerSOID\", \" \") LIKE ?", resultHandler, status);
+        List<CaseService> empList = queryRunner.query(connection, "SELECT * FROM \"CaseService\" WHERE CONCAT_WS(\" \", \"CaseServiceDetailID\", \"CaseServiceID\", \"CustomerSOID\") LIKE '%?%'", resultHandler, status);
         List<T> list = new ArrayList<>();
         for (CaseService case1 : empList) {
             list.add((T) case1);

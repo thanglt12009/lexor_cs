@@ -21,9 +21,9 @@ public class RMALogService extends BaseService<RMALog> {
         RMALog c = (RMALog) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO \"RMALog\" (\"RMAID\", \"LogMessage\",  \"CreatedDate\" ) VALUES (?, ?, ?, ?, ?)";
+                = "INSERT INTO public.RMALog (\"RMAID\", \"LogMessage\",\"CreatedDate\" ) VALUES (?, ?, ?::timestamp)";
 
-        return runner.update(connection, insertSQL, c.getRMAID(), c.getLogMessage(), c.getCreatedDate());
+        return runner.update(connection, insertSQL.toLowerCase(), c.getRMAID(), c.getLogMessage(), c.getCreatedDate());
     }
 
     @Override
@@ -94,8 +94,9 @@ public class RMALogService extends BaseService<RMALog> {
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMALog>> resultHandler = new RMALoglHandler(connection);
-
-        List<RMALog> empList = queryRunner.query(connection, "SELECT * FROM \"RMALog\" WHERE \"LogID\" >= ? AND  \"LogID\" <= ?", resultHandler, from, to);
+        
+        String query = "SELECT * FROM public.RMALog WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?";
+        List<RMALog> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (RMALog case1 : empList) {
             list.add((T) case1);
         }

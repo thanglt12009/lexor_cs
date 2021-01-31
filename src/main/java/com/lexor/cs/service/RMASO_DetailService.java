@@ -42,9 +42,9 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
     public int remove(Object o) throws SQLException {
         RMASO_Detail c = (RMASO_Detail) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.RMASO_Detail WHERE ?;";
+        String deleteSQL = "DELETE FROM public.RMASO_Detail WHERE SODetail_ID = ?";
         try {
-            return runner.execute(connection, deleteSQL, c.getRMAID());
+            return runner.execute(connection, deleteSQL.toLowerCase() , c.getSODetail_ID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -69,14 +69,15 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         Integer status = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMASO_Detail>> resultHandler = new RMASO_DetailHandler(connection);
-        
-        List<RMASO_Detail> empList = queryRunner.query(connection, "SELECT * FROM \"RMASO_Detail\" WHERE CONCAT(\"ProductID\", \" \") LIKE ?", resultHandler, status);
+
+        List<RMASO_Detail> empList = queryRunner.query(connection, "SELECT * FROM \"RMASO_Detail\" WHERE CONCAT_WS(\" \", \"RMAID\", \"SOID\", \"SODetail_ID\", \"ProductID\") LIKE '%?%'", resultHandler, status);
+
         List<T> list = new ArrayList<>();
         for (RMASO_Detail case1 : empList) {
             list.add((T) case1);
         }
         return list;        
-    }
+    }    
 
     @Override
     public long count() throws SQLException {

@@ -62,6 +62,7 @@ productImages = {
     3: "<img width='60px' height='60px' src='../../../images/product03.jpg' />"
 };
 paymentMethod = 1;
+var removedProductList = [];
 $(document).ready(function () {
     loadServices();
     getProducts();
@@ -128,6 +129,17 @@ $(document).ready(function () {
     $("#saveProducts").on("click", function () {
         $("#addSaleOrder").hide();
         $("#editProducts").show();
+        
+        Promise.all([
+            saveProduct(),
+            editProduct(),
+            removeListProduct(),
+            createRMAActivity($.urlParam('rma_id'), "Edit product")
+        ]).then(function() {
+            getProducts();
+            loadRMAActivity($.urlParam('rma_id'));
+        }); 
+        
         $(this).hide();
     });
 });
@@ -174,7 +186,7 @@ function loadService() {
 }
 
 function openService() {
-    window.location.href = "/lexor_cs/pages/cs/purchaseorder/rma.html"
+    window.location.href = "/lexor_cs/pages/cs/purchaseorder/rma.html";
 }
 
 function refreshProduct() {
@@ -231,33 +243,47 @@ function loadProducts() {
 }
 
 function addProduct() {
-    var id = productDatas.rows.length + 1;
-    productDatas.rows.push({
-        id: id,
+    var id = Math.floor(Math.random() * 1000) + 1;
+    var newProduct = {
+        productID: id,
         no: id,
         image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
         product: "Product 003 </br> Serial Number: 123-456-789",
         quantity: "1",
-        sold_price: "$1,000.00",
-        amount: "$2,000.00",
-        stock_avaiable: "20",
-        total_weight: "1000",
-        ware_house: "CA",
+        soldPrice: "$1,000.00",
+        price: "$2,000.00",
+        stockAvaiable: "20",
+        totalWeight: "1000",
+        warehouse: "CA",
         shiping_day: "25/01/2021",
         original_so: "001",
         service_for_product: "Service for Product 003",
-        under_warranty: "Y"
-    });
-    comboBoxedProduct[id] = "CA";
+        receiver: "Y"
+    };
+    
+    if ( productDatas.rows.find(
+            function(element) {
+                return element.productId === id;
+            }
+        ) === undefined) {
+        productDatas.rows.push(newProduct);
+    }
+    
+    comboBoxedProduct[id] = "Y";
     removeTagProduct[id] = id;
-    loadProducts();
-    initRemove();
+    reloadShippingAmount(function(){
+        reloadList(true, false);
+    });
 }
 
 function removeProduct(key) {;
-    productDatas.rows = productDatas.rows.filter((item) => {return item.id != key});
+    var remove = productDatas.rows.find((item) => {return item.productID === key});
+    productDatas.rows = productDatas.rows.filter((item) => {return item.productID !== key});
+
+    if ( remove ) {
+        removedProductList.push(remove);
+    }
     loadProducts();
-    initRemove();
 }
 
 function initRemove() {
@@ -301,22 +327,23 @@ function getDateBoxTemplate(id, value) {
     return '<input class="date-box" style="width: 110px" data-id="'+ id +'" type="text" value="'+ value +'">';
 }
 
-function reloadList(isCombobox = true) {
+function reloadList(isCombobox = true, isReSetup = true) {
     productDatas.rows = productDatas.rows.map( function(product) { 
        if ( isCombobox ) {
-            product.receiver = getComboboxTemplate(product.id);
-            product.no = getRemoveTemplate(product.id);
+            product.receiver = getComboboxTemplate(product.productID);
+            product.no = getRemoveTemplate(product.productID);
 
        } else {
-            product.receiver = comboBoxedProduct[product.id];
-            product.no = removeTagProduct[product.id];
+            product.receiver = comboBoxedProduct[product.productID];
+            product.no = removeTagProduct[product.productID];
        }
-       
        return product;
     });
     
-    if (isCombobox) {
-        productDatas.footer[1].original_so = getEditAmountTemplate(productDatas.footer[1].original_so);
+    if ( isReSetup ) {
+        if (isCombobox) {
+            productDatas.footer[1].warehouse = getEditAmountTemplate(productDatas.footer[1].warehouse);
+        }
     }
     
     loadProducts();
@@ -334,6 +361,7 @@ function reloadShippingAmount(callback) {
 function loadServices() {
     var serviceId = null;
     if (serviceId = $.urlParam('rma_id')) {
+        loadRMAActivity(serviceId);
         getServiceInformation(serviceId);
         getUserInfo();
     } else {
@@ -386,6 +414,82 @@ function loadPaymentMethod() {
             paymentMethod = value;
         }
     });
+}
+
+function prepareProductToSave() {
+    var products = productDatas.rows;
+
+    var productToSave = [];
+    for ( let i = 0; i < products.length; i++ ) {
+        if (products[i].RMAID === false) {
+            products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
+            products[i].RMAID = $.urlParam("RMAID")
+            products[i].SOID = 1;
+           
+            productToSave.push(products[i]);
+        }
+    }
+    
+    return productToSave;
+}
+
+function prepareProductToEdit() {    
+    var products = productDatas.rows;
+    var productToSave = [];
+    for ( let i = 0; i < products.length; i++ ) {
+        if (products[i].serviceDetailID) {
+            products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
+            products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", '')).toFixed(2);
+            
+            productToSave.push(products[i]);
+        } 
+    };
+    
+    return productToSave;
+}
+
+function removeListProduct() {
+    if ( removedProductList ) {
+        for ( var product in removedProductList) {
+            if (id = removedProductList[product].SODetail_ID) {
+                $.ajax({
+                    contentType: 'application/json',
+                    url: '/lexor_cs/api/rma_soDetail/' + id,
+                    type: 'DELETE'
+                });
+            }
+        }
+    }
+}
+
+function saveProduct() {
+    var products = prepareProductToSave();
+    
+    if ( products ) {
+        for ( let i = 0 ; i < products.length; i++ ) {
+             $.post({
+                type: "POST",
+                url: '/lexor_cs/api/rma_soDetail',
+                data: JSON.stringify(products[i]),
+                contentType: 'application/json'
+            });
+        }
+    }
+}
+
+function editProduct() {
+    var products = prepareProductToEdit();
+    
+    if ( products ) {
+        for ( let i = 0 ; i < products.length; i++ ) {
+            $.ajax({
+                contentType: 'application/json',
+                url: '/lexor_cs/api/rma_soDetail/' + products[i].SODetail_ID,
+                data: JSON.stringify(products[i]),
+                type: 'PUT'
+            });
+        }
+    }
 }
 
 $.urlParam = function(name){
