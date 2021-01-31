@@ -145,9 +145,10 @@ $(document).ready(function () {
 });
 
 function submitRMAForm() {
-    rmaStatus = rmaTempStatus;
     var quality = $("input[name='quality']").val();
     var status = $("input[name='status']").val();
+    
+    updateRMAStatus(rmaTempStatus);
     $('#editRMADialog').window('close');
 }
 
@@ -490,6 +491,19 @@ function editProduct() {
             });
         }
     }
+}
+
+function updateRMAStatus(status) {
+     $.ajax({
+        contentType: 'application/json',
+        url: '/lexor_cs/api/rma/' + $.urlParam('rma_id'),
+        data: JSON.stringify({
+            "RMAID": $.urlParam('rma_id'),
+            "status" : status,
+            "customerSOID": 1,
+        }),
+        type: 'PUT'
+    });
 }
 
 $.urlParam = function(name){

@@ -32,10 +32,10 @@ public class RMAService extends BaseService<RMA> {
         QueryRunner runner = new QueryRunner();
         String updateSQL
                 = "UPDATE public.RMA "
-                + " SET \"CaseID\"=?, \"CustomerSOID\"=?, \"Status\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=?, \""
+                + " SET \"Status\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=? "
                 + " WHERE \"RMAID\"=?;";
 
-        return runner.update(connection, updateSQL.toLowerCase(), c.getCaseID(), c.getCustomerSOID(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate(), id);
+        return runner.update(connection, updateSQL.toLowerCase(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate(), id);
     }
 
     @Override
