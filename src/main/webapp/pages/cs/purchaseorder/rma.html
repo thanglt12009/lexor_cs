@@ -15,6 +15,7 @@ and open the template in the editor.
         <link rel="stylesheet" type="text/css" href="../../../css/style.css">
         <script type="text/javascript" src="../../../js/jquery.min.js"></script>
         <script type="text/javascript" src="../../../js/jquery.easyui.min.js"></script>
+        <script type="text/javascript" src="../../../js/activity.js"></script>
         <script type="text/javascript" src="../../../js/user.js"></script>
         <script type="text/javascript" src="../../../js/rma.js"></script>
         <script type="text/javascript" src="../../../js/sendmail.js"></script>
@@ -24,7 +25,7 @@ and open the template in the editor.
             <div class="row">
                 <div class="col-sm-12 case-info">        
                     <div class="col-sm-12 case-info">
-                        <a href="javascript:void(0);" class="case-info__status">RMA 1 - Process Pending</a>
+                        <a href="javascript:void(0);" class="case-info__status">RMA 1 - Product Receiving</a>
                         <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Print</a>
                         <a href="javascript:void(0);" onClick="window.location.href='rmas.html'" class="easyui-linkbutton float-right">Cancel</a>  
                         <a href="javascript:void(0);" data-id="4" class="easyui-linkbutton float-right editRMAStatus">Refund</a>
@@ -82,8 +83,8 @@ and open the template in the editor.
                                 <th style="width: 5%" data-options="field:'image'">Images</th>
                                 <th style="width: 30%" data-options="field:'product', sortable:true">Product</th>
                                 <th style="width: 10%" data-options="field:'quantity'">Quantity</th>
-                                <th style="width: 15%" data-options="field:'return_price'">Return Price</th>
-                                <th style="width: 15%" data-options="field:'amount', sortable:true">Amount</th>
+                                <th style="width: 15%" data-options="field:'price'">Return Price</th>
+                                <th style="width: 15%" data-options="field:'price', sortable:true">Amount</th>
                                 <th style="width: 12%;" data-options="field:'warehouse', nowrap: false">Warehouse</th>
                                 <th style="width: 11%;" data-options="field:'receiver'">Receiver</th>
                         <tbody>

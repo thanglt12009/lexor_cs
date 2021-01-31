@@ -162,7 +162,7 @@ function removeListProduct() {
             if (id = removedProductList[product].serviceDetailID) {
                 $.ajax({
                     contentType: 'application/json',
-                    url: '/lexor_cs/api/serviceDetail/' + id,
+                    url: '/lexor_cs/api/rma_soDetail/' + id,
                     type: 'DELETE'
                 });
             }
@@ -386,7 +386,7 @@ function addProduct() {
     comboBoxedProduct[id] = "CA";
     removeTagProduct[id] = id;
     reloadShippingAmount(function(){
-        reloadList(false, false);
+        reloadList(true, false);
     });
 }
 
@@ -396,7 +396,6 @@ function removeProduct(key) {
 
     if ( remove ) {
         removedProductList.push(remove);
-        console.log(removedProductList);
     }
     loadProducts();
 }

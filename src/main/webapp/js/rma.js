@@ -1,35 +1,11 @@
 productDatas = {
     "total" : 2,
     "footer":[
-	{"amount":'<strong>Subtotal</strong>', "warehouse":"$3000.00"},
-	{"amount":'<strong>Shipping Fee</strong>',"warehouse":"$0.00"},
-        {"amount":'<strong>Manager Discount</strong>',"warehouse":'<strong>-$1000.00</strong>'},
-        {"amount":'<strong>Total</strong>',"warehouse":'<strong> $0.00</strong>'}
+	{"price":'<strong>Subtotal</strong>', "warehouse":"$3000.00"},
+	{"price":'<strong>Restocking Fee</strong>',"warehouse":"$0.00"},
+        {"price":'<strong>Total</strong>',"warehouse":'<strong> $0.00</strong>'}
     ],
-    "rows":[
-        {
-            id : 1,
-            no: 1,
-            image: "<img width='60px' height='60px' src='../../../images/product01.jpg' />", 
-            product: "Product 01",
-            quantity: "1",
-            return_price: "$2,095.02",
-            amount: "$2,095.20",
-            warehouse: "20",
-            receiver: "Y"
-        },
-        {
-            id : 2,
-            no: 2,
-            image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
-            product: "Product 01",
-            quantity: "1",
-            return_price: "$2,095.02",
-            amount: "$2,095.20",
-            warehouse: "20",
-            receiver: "Y"
-        }
-    ]
+    "rows":[]
     
 };
 
@@ -78,9 +54,18 @@ totalAmount = 0;
 shippingAmount = 0;
 rmaStatus = 1;
 rmaTempStatus = 1;
+isWarrantyOptions = {1 : "Y", 0: "N"};
+variableOptions = {1 :'CA', 2: 'CB'};
+productImages = {
+    1: "<img width='60px' height='60px' src='../../../images/product01.jpg' />",
+    2: "<img width='60px' height='60px' src='../../../images/product02.jpg' />",
+    3: "<img width='60px' height='60px' src='../../../images/product03.jpg' />"
+};
+paymentMethod = 1;
+var removedProductList = [];
 $(document).ready(function () {
     loadServices();
-    loadProducts();
+    getProducts();
     loadPaymentMethod();
     
     $(".editRMAStatus").on("click", function(){
@@ -144,43 +129,27 @@ $(document).ready(function () {
     $("#saveProducts").on("click", function () {
         $("#addSaleOrder").hide();
         $("#editProducts").show();
+        
+        Promise.all([
+            saveProduct(),
+            editProduct(),
+            removeListProduct(),
+            createRMAActivity($.urlParam('rma_id'), "Edit product")
+        ]).then(function() {
+            getProducts();
+            loadRMAActivity($.urlParam('rma_id'));
+        }); 
+        
         $(this).hide();
     });
 });
 
 function submitRMAForm() {
-    rmaStatus = rmaTempStatus;
     var quality = $("input[name='quality']").val();
     var status = $("input[name='status']").val();
+    
+    updateRMAStatus(rmaTempStatus);
     $('#editRMADialog').window('close');
-}
-
-function loadShipping(shippingDetail = {}) {
-    var datas = shippingDatas;
-    if (shippingDetail) {
-        datas.rows = [];
-        for (const shipping in shippingDetail) {
-            datas.rows.push(shippingDetail[shipping]);
-        }
-    }
-    $('#shippingGrid').datagrid({
-        data: datas,
-        showFooter: true,
-        onLoadSuccess: function() {
-            $('.shippingOrder').combobox({
-                data:[
-                    {id : 0, text: "R&L"},
-                    {id : 1, text: "Old Dominion"},
-                    {id : 2, text: "UPS"},
-                    {id : 3, text: "USPS"},
-                    {id : 4, text: "Lexor Truck"},
-                ],
-                valueField:'id',
-                textField:'text',
-                width: 140
-            });
-        }
-    });
 }
 
 function loadService() {
@@ -218,44 +187,42 @@ function loadService() {
 }
 
 function openService() {
-    window.location.href = "/lexor_cs/pages/cs/purchaseorder/service.html"
+    window.location.href = "/lexor_cs/pages/cs/purchaseorder/rma.html";
 }
 
 function refreshProduct() {
     $('#productGrid').datagrid('data', productDatas);
 }
 
-function loadProducts() {
-    shippingDetail = [];
-    for(i = 0 ; i < productDatas.rows.length; i++) {
-        var wareHouse = productDatas.rows[i].ware_house;
-        var shipDate = productDatas.rows[i].shiping_day;        
-        var key = wareHouse + shipDate;
-        var weight = 0;
-        var id = i + 1;
-        if (shippingDetail[key]) {
-            weight = shippingDetail[key]['shipping_weight'] + parseInt(productDatas.rows[i].total_weight);
-            id = shippingDetail[key]['no'];
-        } else {
-            weight = parseInt(productDatas.rows[i].total_weight);
-        }
+function getProducts() {
+     $.get({
+        url: "/lexor_cs/api/rma_soDetail/" + $.urlParam('rma_id') + "/" + $.urlParam('rma_id'),
+        success: function(data) {
+            productDatas.rows = [];
+            if ( data ) {
+                for ( i = 0; i < data.length; i++ ) {
+                    serviceMasterID = data[i]['serviceMasterID'];
+                    data[i]['no'] = data[i]['productID'];
+                    data[i]['reveiver'] = data[i]['reveiver'] ? isWarrantyOptions[data[i]['reveiver']] : isWarrantyOptions[1];
+                    data[i]['warehouse'] = data[i]['warehouse'] || variableOptions[1];
+                    data[i]['image'] = productImages[data[i].productID] || productImages[3];
+                    data[i]['price'] = "$" + (parseFloat(data[i]['quantity']) * parseFloat(data[i]['price'])).toString();
+                    productDatas.rows.push(data[i]); 
+                }
+            }
 
-        shippingDetail[key] = {
-            no : id,
-            warehouse : wareHouse,
-            shipping_type: '<input class="shippingOrder" name="shippingOrder" value="">',
-            shipping_cost: "$0",
-            shipping_weight: weight,
-            shipping_day: shipDate
-        };
-    }
-    
+            loadProducts();
+        },
+        contentType: 'application/json'
+    });
+}
+
+function loadProducts() {    
     reCalculateAmount();
     $('#productGrid').datagrid({
         showFooter: true,
         data: productDatas,
         onLoadSuccess: function() {
-            loadShipping(shippingDetail);
             initRemove();
             registerComboboxAction();
             $('.date-box').each(function(){
@@ -277,33 +244,47 @@ function loadProducts() {
 }
 
 function addProduct() {
-    var id = productDatas.rows.length + 1;
-    productDatas.rows.push({
-        id: id,
+    var id = Math.floor(Math.random() * 1000) + 1;
+    var newProduct = {
+        productID: id,
         no: id,
         image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
         product: "Product 003 </br> Serial Number: 123-456-789",
         quantity: "1",
-        sold_price: "$1,000.00",
-        amount: "$2,000.00",
-        stock_avaiable: "20",
-        total_weight: "1000",
-        ware_house: "CA",
+        soldPrice: "$1,000.00",
+        price: "$2,000.00",
+        stockAvaiable: "20",
+        totalWeight: "1000",
+        warehouse: "CA",
         shiping_day: "25/01/2021",
         original_so: "001",
         service_for_product: "Service for Product 003",
-        under_warranty: "Y"
-    });
-    comboBoxedProduct[id] = "CA";
+        receiver: "Y"
+    };
+    
+    if ( productDatas.rows.find(
+            function(element) {
+                return element.productId === id;
+            }
+        ) === undefined) {
+        productDatas.rows.push(newProduct);
+    }
+    
+    comboBoxedProduct[id] = "Y";
     removeTagProduct[id] = id;
-    loadProducts();
-    initRemove();
+    reloadShippingAmount(function(){
+        reloadList(true, false);
+    });
 }
 
 function removeProduct(key) {;
-    productDatas.rows = productDatas.rows.filter((item) => {return item.id != key});
+    var remove = productDatas.rows.find((item) => {return item.productID === key});
+    productDatas.rows = productDatas.rows.filter((item) => {return item.productID !== key});
+
+    if ( remove ) {
+        removedProductList.push(remove);
+    }
     loadProducts();
-    initRemove();
 }
 
 function initRemove() {
@@ -347,22 +328,23 @@ function getDateBoxTemplate(id, value) {
     return '<input class="date-box" style="width: 110px" data-id="'+ id +'" type="text" value="'+ value +'">';
 }
 
-function reloadList(isCombobox = true) {
+function reloadList(isCombobox = true, isReSetup = true) {
     productDatas.rows = productDatas.rows.map( function(product) { 
        if ( isCombobox ) {
-            product.receiver = getComboboxTemplate(product.id);
-            product.no = getRemoveTemplate(product.id);
+            product.receiver = getComboboxTemplate(product.productID);
+            product.no = getRemoveTemplate(product.productID);
 
        } else {
-            product.receiver = comboBoxedProduct[product.id];
-            product.no = removeTagProduct[product.id];
+            product.receiver = comboBoxedProduct[product.productID];
+            product.no = removeTagProduct[product.productID];
        }
-       
        return product;
     });
     
-    if (isCombobox) {
-        productDatas.footer[1].original_so = getEditAmountTemplate(productDatas.footer[1].original_so);
+    if ( isReSetup ) {
+        if (isCombobox) {
+            productDatas.footer[1].warehouse = getEditAmountTemplate(productDatas.footer[1].warehouse);
+        }
     }
     
     loadProducts();
@@ -379,7 +361,8 @@ function reloadShippingAmount(callback) {
 
 function loadServices() {
     var serviceId = null;
-    if (serviceId = $.urlParam('service_id')) {
+    if (serviceId = $.urlParam('rma_id')) {
+        loadRMAActivity(serviceId);
         getServiceInformation(serviceId);
         getUserInfo();
     } else {
@@ -390,7 +373,7 @@ function loadServices() {
 function getServiceInformation(serviceId) {
     var status = {4: 'Refund', 3: 'Partial Received', 2: 'Product Received', 1: 'Product Receiving'};
     $.get({
-        url: '/lexor_cs/api/rma/' + serviceId,
+        url: '/lexor_cs/api/rma/detail/' + serviceId,
         success: function(data) {
             var serviceInformation = $(".service-info__status");
             serviceInformation.html(serviceInformation.text().replace('{name}', data.serviceID).replace('{status}', status[1]));
@@ -404,14 +387,15 @@ function reCalculateAmount() {
     var pattern = /[^0-9.-]+/g;
 
     for( i = 0; i < productDatas.rows.length; i++ ) {
-        amount += parseFloat(productDatas.rows[i].amount.replace(pattern, ''));
+        amount += parseFloat(productDatas.rows[i].price.replace(pattern, ''));
     }
     
 
     totalAmount = amount;
-    total = totalAmount - discount + parseFloat(shippingAmount);
-    productDatas.footer[0].original_so = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
-    productDatas.footer[3].original_so = "<strong>$" + total.toFixed(2) + " </strong>";
+    total = totalAmount - discount;
+    productDatas.footer[0].warehouse = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
+    productDatas.footer[1].warehouse = "<strong>$" + discount.toFixed(2) + " </strong>";
+    productDatas.footer[2].warehouse = "<strong>$" + total.toFixed(2) + " </strong>";
 }
 
 function updatePaymentMethod() {
@@ -430,6 +414,95 @@ function loadPaymentMethod() {
         onChange: function(value) {
             paymentMethod = value;
         }
+    });
+}
+
+function prepareProductToSave() {
+    var products = productDatas.rows;
+
+    var productToSave = [];
+    for ( let i = 0; i < products.length; i++ ) {
+        if (products[i].RMAID === false) {
+            products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
+            products[i].RMAID = $.urlParam("RMAID")
+            products[i].SOID = 1;
+           
+            productToSave.push(products[i]);
+        }
+    }
+    
+    return productToSave;
+}
+
+function prepareProductToEdit() {    
+    var products = productDatas.rows;
+    var productToSave = [];
+    for ( let i = 0; i < products.length; i++ ) {
+        if (products[i].serviceDetailID) {
+            products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
+            products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", '')).toFixed(2);
+            
+            productToSave.push(products[i]);
+        } 
+    };
+    
+    return productToSave;
+}
+
+function removeListProduct() {
+    if ( removedProductList ) {
+        for ( var product in removedProductList) {
+            if (id = removedProductList[product].SODetail_ID) {
+                $.ajax({
+                    contentType: 'application/json',
+                    url: '/lexor_cs/api/rma_soDetail/' + id,
+                    type: 'DELETE'
+                });
+            }
+        }
+    }
+}
+
+function saveProduct() {
+    var products = prepareProductToSave();
+    
+    if ( products ) {
+        for ( let i = 0 ; i < products.length; i++ ) {
+             $.post({
+                type: "POST",
+                url: '/lexor_cs/api/rma_soDetail',
+                data: JSON.stringify(products[i]),
+                contentType: 'application/json'
+            });
+        }
+    }
+}
+
+function editProduct() {
+    var products = prepareProductToEdit();
+    
+    if ( products ) {
+        for ( let i = 0 ; i < products.length; i++ ) {
+            $.ajax({
+                contentType: 'application/json',
+                url: '/lexor_cs/api/rma_soDetail/' + products[i].SODetail_ID,
+                data: JSON.stringify(products[i]),
+                type: 'PUT'
+            });
+        }
+    }
+}
+
+function updateRMAStatus(status) {
+     $.ajax({
+        contentType: 'application/json',
+        url: '/lexor_cs/api/rma/' + $.urlParam('rma_id'),
+        data: JSON.stringify({
+            "RMAID": $.urlParam('rma_id'),
+            "status" : status,
+            "customerSOID": 1,
+        }),
+        type: 'PUT'
     });
 }
 

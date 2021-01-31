@@ -21,9 +21,9 @@ public class RMAService extends BaseService<RMA> {
         RMA c = (RMA) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO \"RMA\" (\"CaseID\", \"CustomerSOID\", \"Status\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
+                = "INSERT INTO public.RMA (\"CaseID\", \"CustomerSOID\", \"Status\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
 
-        return runner.update(connection, insertSQL, c.getCaseID(), c.getCustomerSOID(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseID(), c.getCustomerSOID(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate());
     }
 
     @Override
@@ -31,11 +31,11 @@ public class RMAService extends BaseService<RMA> {
         RMA c = (RMA) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"RMA\" "
-                + " SET \"CaseID\"=?, \"CustomerSOID\"=?, \"Status\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=?, \""
+                = "UPDATE public.RMA "
+                + " SET \"Status\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=? "
                 + " WHERE \"RMAID\"=?;";
 
-        return runner.update(connection, updateSQL, c.getCaseID(), c.getCustomerSOID(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate(), id);
+        return runner.update(connection, updateSQL.toLowerCase(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate(), id);
     }
 
     @Override
@@ -56,7 +56,8 @@ public class RMAService extends BaseService<RMA> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMA>> resultHandler = new RMAHandler(connection);
 
-        List<RMA> empList = queryRunner.query(connection, "SELECT * FROM \"RMA\" WHERE \"RMAID\" = ?", resultHandler, id);
+        String query = "SELECT * FROM public.RMA WHERE \"RMAID\" = ?";
+        List<RMA> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
         }
@@ -87,7 +88,7 @@ public class RMAService extends BaseService<RMA> {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"RMA\"";
+        String query = "SELECT COUNT(0) FROM public.RMA";
         long count = runner.query(connection, query, scalarHandler);
         return count;
     }
