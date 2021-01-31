@@ -16,6 +16,19 @@ import javax.ws.rs.Path;
 import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.core.MediaType;
+import javax.mail.BodyPart;
+import javax.mail.Message;
+import javax.mail.MessagingException;
+import javax.mail.Multipart;
+import javax.mail.Session;
+import javax.mail.Transport;
+import javax.mail.internet.InternetAddress;
+import javax.mail.internet.MimeBodyPart;
+import javax.mail.internet.MimeMessage;
+import javax.mail.internet.MimeMessage.RecipientType;
+import javax.mail.internet.MimeMultipart;
+import javax.naming.NamingException;
+import java.io.UnsupportedEncodingException;
 
 
 @Stateless
@@ -23,6 +36,8 @@ import javax.ws.rs.core.MediaType;
 public class CaseFacadeREST extends AbstractFacade<Case> {
     
     private CaseReturnService service;
+        
+    private Session mailSession;
 
     public CaseFacadeREST() {
         super(Case.class);
@@ -75,5 +90,26 @@ public class CaseFacadeREST extends AbstractFacade<Case> {
     @Produces(MediaType.TEXT_PLAIN)
     public String countREST() throws SQLException {
         return String.valueOf(super.count());
+    }
+    
+    @POST  
+    @Path("/{emailTo}/{subject}/{emailBody}")
+    @Consumes({MediaType.APPLICATION_JSON})
+    public void sendEmail(@PathParam("email") String emailTo, @PathParam("subject") String subject, @PathParam("emailBody") String emailBody) 
+            throws NamingException, MessagingException, UnsupportedEncodingException {
+        Message msg = new MimeMessage(mailSession);
+        msg.setSubject(subject);
+        msg.setRecipient(RecipientType.TO, new InternetAddress(emailTo, emailTo)); // 2nd parameter is personal name
+        msg.setFrom(new InternetAddress("emailFromHere", "password")); // set email from and password here        
+
+        BodyPart messageBodyPart = new MimeBodyPart();
+        messageBodyPart.setText(emailBody);
+
+        Multipart multipart = new MimeMultipart();
+        multipart.addBodyPart(messageBodyPart);
+
+        msg.setContent(multipart);
+
+        Transport.send(msg);
     }
 }
