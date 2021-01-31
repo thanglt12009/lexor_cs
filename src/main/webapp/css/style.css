@@ -112,10 +112,10 @@ hr {
     width: 200px;
 }
 
-.combo {
+.combobox .combo {
     width: 100% !important;
 }
 
-.combo input {
+.combobox input {
     width: 100% !important;
 }

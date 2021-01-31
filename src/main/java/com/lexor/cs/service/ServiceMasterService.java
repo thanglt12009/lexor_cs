@@ -23,7 +23,7 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
         String insertSQL
                 = "INSERT INTO public.ServiceMaster (\"CaseServiceID\", \"SubTotal\" , \"ShippingFee\" , \"ManagerDiscount\" , \"Total\", \"CreatedDate\"  , \"IsSubmittedProduction\", \"Status\" ) VALUES (?,?,?,?,?,?,?,?)";
 
-        return runner.update(connection, insertSQL.toLowerCase(), c.getCaseServiceID(), c.getSubTotal(), c.getShippingFee(),c.getManagerDiscount(), c.getTotal(), c.getCreatedDate(), c.getIsSubmittedProduction(), c.getStatus());
+        return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseServiceID(), c.getSubTotal(), c.getShippingFee(),c.getManagerDiscount(), c.getTotal(), c.getCreatedDate(), c.getIsSubmittedProduction(), c.getStatus());
     }
 
     @Override

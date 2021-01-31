@@ -30,10 +30,12 @@ public class ServiceDetail implements Serializable {
     private Date warrantyEndDate;
     
     private Integer paymentType;
-    
+
     private String logMessage;
     
     private Date createdDate;
+    
+    private Integer warehouse;
 
     public ServiceDetail() {
         
@@ -159,7 +161,15 @@ public class ServiceDetail implements Serializable {
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }    
-
+    
+    public Integer getWarehouse() {
+        return warehouse;
+    }
+ 
+    public void setWarehouse(int warehouse) {
+        this.warehouse = warehouse;
+    }
+    
     @Override
     public int hashCode() {
         int hash = 0;

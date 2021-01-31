@@ -36,6 +36,7 @@ public class ServiceDetailHandler extends BeanListHandler<ServiceDetail> {
         columnsToFieldsMap.put("PaymentType", "PaymentType");
         columnsToFieldsMap.put("LogMessage", "LogMessage");
         columnsToFieldsMap.put("CreatedDate", "CreatedDate");
+        columnsToFieldsMap.put("Warehouse", "Warehouse");
          
         return columnsToFieldsMap;
     }
