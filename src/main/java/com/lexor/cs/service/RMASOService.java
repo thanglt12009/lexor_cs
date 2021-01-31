@@ -21,9 +21,9 @@ public class RMASOService extends BaseService<RMASO> {
         RMASO c = (RMASO) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO \"RMASO\" (\"RMAID\", \"Fee\", \"Total\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
+                = "INSERT INTO public.RMASO (\"RMAID\", \"Fee\", \"Total\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
 
-        return runner.update(connection, insertSQL, c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate());
     }
 
     @Override
@@ -31,11 +31,11 @@ public class RMASOService extends BaseService<RMASO> {
         RMASO c = (RMASO) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"RMASO\" "
+                = "UPDATE public.RMASO "
                 + " SET \"RMAID\"=?, \"Fee\"=?, \"Total\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=?, \""
                 + " WHERE \"SOID\"=?;";
 
-        return runner.update(connection, updateSQL, c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate(), id);
+        return runner.update(connection, updateSQL.toLowerCase(), c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate(), id);
     }
 
     @Override

@@ -20,6 +20,7 @@ customerServiceRep = {
 caseToUpdate = {};
 caseType = {};
 selectedSO = {};
+withOutSaveOrder = false;
 productList = {
     1: [
         {
@@ -39,6 +40,27 @@ productList = {
             totalWeight: 900,
             isWarranty: 1,
             serialNumber: "Product 01"
+        }
+    ]
+};
+
+rmaProductList = {
+    1: [
+        {
+            productID: 1,
+            quantity: 1,
+            returnPrice: 2095.02,
+            price: 2095.20,
+            warehouse: 1,
+            receiver: 1
+        },
+        {
+            productID: 1,
+            quantity: 1,
+            returnPrice: 2095.02,
+            price: 2095.20,
+            warehouse: 1,
+            receiver: 1
         }
     ]
 };
@@ -203,11 +225,15 @@ function registerSOCheckbox(id, name) {
         value: id,
         checked: false,
         onChange: function (value) {
-            if (value) {
-                saleOrderToSave[id] = true;
+            if (($(this)[0].defaultValue === "withOutSaveOrder")) {
+                withOutSaveOrder = value;
             } else {
-                saleOrderToSave[id] = false;
-            }
+                if (value) {
+                    saleOrderToSave[id] = true;
+                } else {
+                    saleOrderToSave[id] = false;
+                }
+            }       
         }
     });
 }
@@ -364,12 +390,18 @@ function createServiceOrReturn(caseId, path, dialog, title) {
             if ( caseServiceId && saleOrderToSave ) {
                 var promises = [];
                 for (const key in saleOrderToSave) {
-                    if (saleOrderToSave[key]) {
-                        promises.push(createSaleOrder(caseServiceId, key));
-                    }
-                    
-                    if (productList[key]) {
-                        createMasterProduct(caseServiceId, productList[key]);
+                    if (path === "/lexor_cs/api/case_service") {
+                        if (saleOrderToSave[key]) {
+                            promises.push(createSaleOrder(caseServiceId, key));
+                        }
+
+                        if (productList[key]) {
+                            createMasterProduct(caseServiceId, productList[key]);
+                        }
+                    } else {
+                        if (saleOrderToSave[key]) {
+                            promises.push(createRMASaleOrder(caseServiceId, key));
+                        }
                     }
                 }
                 
@@ -380,7 +412,7 @@ function createServiceOrReturn(caseId, path, dialog, title) {
             createTransaction(caseId, title, "Address");
             createActivity(caseId, "Create " + title);
             getCount('case_service', 'serviceCount');
-            getCount('case_return', 'returnCount');
+            getCount('rma', 'returnCount');
             loadTransaction(caseId);
             loadActivity(caseId);
             
@@ -395,7 +427,7 @@ function loadCase() {
         getCaseInformation(caseId);
         loadCaseType(caseId);
         getCount('case_service', 'serviceCount');
-        getCount('case_return', 'returnCount');
+        getCount('rma', 'returnCount');
         loadTransaction(caseId);
         loadActivity(caseId);
         getUserInfo();
@@ -433,23 +465,6 @@ function loadTransaction(caseId) {
     });
 }
 
-function loadActivity(caseId) {
-    $.get({
-        url: "/lexor_cs/api/case_log/" + caseId + "/" + caseId,
-        success: function (data) {
-            let tableData = [];
-            if (data) {
-                var hitory = $("#logHistory");
-                var log = [];
-                data.forEach(function (data) {
-                    hitory.val(hitory.val() + data.logMessage + " " + data.createdDate + '\r\n');
-                });
-            }
-        },
-        contentType: 'application/json'
-    });
-}
-
 function createSaleOrder(customerSOID, caseServiceID) {
     return new Promise(function (resolve) {
         $.post({
@@ -467,11 +482,44 @@ function createSaleOrder(customerSOID, caseServiceID) {
     });
 }
 
-function createProducts(caseServiceID, products) {
+function createRMASaleOrder(rmaId, soId) {
+    return new Promise(function (resolve) {
+        $.post({
+            type: "POST",
+            url: '/lexor_cs/api/rma_so',
+            data: JSON.stringify({
+                "RMAID": rmaId
+            }),
+            success: function (response) {
+                if (rmaProductList[soId] && withOutSaveOrder === false) {
+                    let productList = rmaProductList[soId];
+                    for (const soKey in productList) {
+                        createRMAProducts(response, rmaId, productList[soKey]);
+                    }
+                }
+                resolve();
+            },
+            contentType: 'application/json'
+        });
+    });
+}
+
+function createProducts(caseServiceID, products ) {
     products['serviceMasterID'] = parseInt(caseServiceID);
     $.post({
         type: "POST",
         url: '/lexor_cs/api/serviceDetail',
+        data: JSON.stringify(products),
+        contentType: 'application/json'
+    });
+}
+
+function createRMAProducts(soId, rmaID, products) {
+    products['RMAID'] = parseInt(rmaID);
+    products['SOID'] = parseInt(soId);
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/rma_soDetail',
         data: JSON.stringify(products),
         contentType: 'application/json'
     });
@@ -503,20 +551,6 @@ function createTransaction(caseId, documentCode, address) {
             "address": address,
             "status": 1,
             "createdDate": getCurrentTime()
-        }),
-        contentType: 'application/json'
-    });
-}
-
-function createActivity(caseId, message) {
-    $.post({
-        type: "POST",
-        url: '/lexor_cs/api/case_log',
-        data: JSON.stringify({
-            "caseID": caseId,
-            "logMessage": message,
-            "createdDate": getCurrentTime(),
-            "updatedDate": getCurrentTime()
         }),
         contentType: 'application/json'
     });
