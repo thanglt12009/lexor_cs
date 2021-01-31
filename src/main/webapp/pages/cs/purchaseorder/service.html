@@ -12,12 +12,12 @@ and open the template in the editor.
         <link rel="stylesheet" type="text/css" href="../../../css/themes/default/easyui.css">
         <link rel="stylesheet" type="text/css" href="../../../css/themes/icon.css">
         <link rel="stylesheet" href="../../../css/bootstrap/bootstrap.min.css">
-        <link rel="stylesheet" href="../../../css/bootstrap/bootstrap.grid.min.css">
         <link rel="stylesheet" type="text/css" href="../../../css/style.css">
         <script type="text/javascript" src="../../../js/jquery.min.js"></script>
         <script type="text/javascript" src="../../../js/jquery.easyui.min.js"></script>
         <script type="text/javascript" src="../../../js/user.js"></script>
         <script type="text/javascript" src="../../../js/service.js"></script>
+        <script type="text/javascript" src="../../../js/sendmail.js"></script>
     </head>
     <body>
         <div class="container">
@@ -137,25 +137,25 @@ and open the template in the editor.
                     </table>
                 </div>
                 <div title="Send Message" style="overflow:auto;padding:20px;display:none;">
-                    <form>
+                    <form id="sendMail">
                         <div class="form-group">   
                             <div class="col-sm-12">
-                                <input style="width:300px" class="easyui-textbox" data-options="prompt:'Send to', required:true, validType:'email', validateOnCreate:false">
+                                <input style="width:300px" class="easyui-textbox" name="email" data-options="prompt:'Send to', required:true, validType:'email', validateOnCreate:false">
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-sm-12">
-                                <input style="width:300px" class="easyui-textbox" data-options="prompt:'Subject', required:true, validateOnCreate:false">
+                                <input style="width:300px" class="easyui-textbox"  name="subject" data-options="prompt:'Subject', required:true, validateOnCreate:false">
                             </div>
                         </div>
                         <div class="form-group">
                             <div class="col-sm-12">
-                                <input style="width:600px" class="easyui-textbox" data-options="prompt:'Message', required:true, validateOnCreate:false, multiline:true, height:100">
+                                <input style="width:600px" class="easyui-textbox"  name="message" data-options="prompt:'Message', required:true, validateOnCreate:false, multiline:true, height:100">
                             </div>
                         </div>      
                         <div class="form-group">
                             <div class="col-sm-12">
-                                <a href="javascript:void(0)" id="sendMail" class="easyui-linkbutton float-right submit">Send message</a>
+                                <a href="javascript:void(0)" id="send" class="easyui-linkbutton float-right submit">Send message</a>
                             </div>
                         </div>
                     </form>

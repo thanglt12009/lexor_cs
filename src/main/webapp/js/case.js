@@ -473,9 +473,6 @@ function createProducts(caseServiceID, products) {
         type: "POST",
         url: '/lexor_cs/api/serviceDetail',
         data: JSON.stringify(products),
-        success: function () {
-            resolve(true);
-        },
         contentType: 'application/json'
     });
 }
