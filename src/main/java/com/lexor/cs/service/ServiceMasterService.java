@@ -31,11 +31,13 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
         ServiceMaster c = (ServiceMaster) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"ServiceMaster\" "
-                + " SET \"CaseServiceID\"=?, \"SubTotal\"=?, \"ShippingFee\"=?, \"ManagerDiscount\"=?, \"Total\"=?, \"CreatedDate\"=?, \"IsSubmittedProduction\"=?, \"Status\"=?"
-                + " WHERE \"ServiceMasterID\"=?;";
+                = "UPDATE public.ServiceMaster"
+                + " SET  \"IsSubmittedProduction\"=?, \"Status\"=?"
+                + " WHERE \"CaseServiceID\"=?;";
+        //\"CaseServiceID\"=?, \"SubTotal\"=?, \"ShippingFee\"=?, \"ManagerDiscount\"=?, \"Total\"=?, \"CreatedDate\"=?,
+        //return runner.update(connection, updateSQL.toLowerCase(), c.getCaseServiceID(), c.getSubTotal(), c.getShippingFee(), c.getManagerDiscount(), c.getTotal(), c.getCreatedDate(), c.getIsSubmittedProduction(), c.getStatus(), id);
+        return runner.update(connection, updateSQL.toLowerCase(), c.getIsSubmittedProduction(), c.getStatus(), id);
 
-        return runner.update(connection, updateSQL, c.getCaseServiceID(), c.getSubTotal(), c.getShippingFee(), c.getManagerDiscount(), c.getTotal(), c.getCreatedDate(), c.getIsSubmittedProduction(), c.getStatus(), id);
     }
 
     @Override

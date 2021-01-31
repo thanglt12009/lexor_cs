@@ -25,6 +25,8 @@ public class CaseService implements Serializable {
     
     private Integer status;
     
+    private Integer serviceMasterID;
+    
     public CaseService() {
     
     }
@@ -58,6 +60,14 @@ public class CaseService implements Serializable {
     
     public void setStatus(int status) {
         this.status = status;
+    }
+    
+    public Integer getServiceMasterID() {
+        return serviceMasterID;
+    }
+    
+    public void setServiceMasterID(int serviceMasterID) {
+        this.serviceMasterID = serviceMasterID;
     }
     
     public Integer getCaseServiceID() {

@@ -77,6 +77,7 @@ public class CaseServices extends BaseService<CaseService> {
             caseObj.setCustomerSOID((Integer)mapObj.get("customerSOID"));
             caseObj.setLogMessage((String)mapObj.get("logMessage")); 
             caseObj.setStatus((Integer)mapObj.get("status"));
+            caseObj.setServiceMasterID((Integer)mapObj.get("serviceMasterID"));
             list.add((T) caseObj);
         }
         
@@ -92,7 +93,7 @@ public class CaseServices extends BaseService<CaseService> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
 
-        String query = "SELECT * FROM \"CaseService\" WHERE CONCAT_WS(' ', \"CustomerSOID\", \"CaseServiceID\", \"CaseID\") LIKE '%1%'";
+        String query = "SELECT * FROM \"CaseService\" WHERE CONCAT_WS(' ', \"CustomerSOID\", \"CaseServiceID\", \"CaseID\") LIKE '%1%' order by CaseServiceID desc";
         
         //List<CaseService> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler);
         List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler());

@@ -66,7 +66,7 @@ public class ServiceDetailFacadeREST extends AbstractFacade<ServiceDetail> {
     @Path("/find/{productID}")
     @Produces({MediaType.APPLICATION_JSON})
     public List<ServiceDetail> findByKeyWord(@PathParam("productID") Integer productID) throws SQLException {        
-        return super.findByKeyWord(productID);
+        return super.findByJoinedKeyWord(productID);
     }
 
     @GET

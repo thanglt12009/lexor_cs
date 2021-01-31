@@ -156,38 +156,32 @@ function loadService() {
     var services = [];
 
     $.get({
-        url: "/lexor_cs/api/case_service/",
+        url: "/lexor_cs/api/rma/find/1",
         success: function(data) {
-            let tableData = [];
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
                     services.push({
-                        service_number: data[i].docCode,
-                        original_case: data[i].status,
-                        customer_name: data[i].status,
-                        mobile_phone: data[i].address,
-                        business_phone : data[i].address,
-                        address : data[i].address,
-                        action: '<a href="javascript:void(0)" onClick="openService()" class="easyui-linkbutton">Select</a>'
+                        service_number: data[i].RMAID,
+                        original_case: data[i].caseID,
+                        customer_name: data[i].customerSOID,
+                        action: '<a href="javascript:void(0)" onClick="openService('+data[i].RMAID+')" class="easyui-linkbutton">Select</a>'
                     }); 
                 }
 
-                var serviceGrid = $("#serviceGrid").datagrid({
-                    data: tableData,
-                    
+                $("#serviceGrid").datagrid({
+                    data: services,
                     onLoadSuccess: function() {
                         $(".easyui-linkbutton").linkbutton();
                     }
                 });
-                serviceGrid.datagrid('enableCellEditing');
             }
         },
         contentType: 'application/json'
     });
 }
 
-function openService() {
-    window.location.href = "/lexor_cs/pages/cs/purchaseorder/rma.html";
+function openService(RMAID) {
+    window.location.href = "/lexor_cs/pages/cs/purchaseorder/rma.html?rma_id="+RMAID+"&user_id=1";
 }
 
 function refreshProduct() {
@@ -375,8 +369,9 @@ function getServiceInformation(serviceId) {
     $.get({
         url: '/lexor_cs/api/rma/detail/' + serviceId,
         success: function(data) {
-            var serviceInformation = $(".service-info__status");
-            serviceInformation.html(serviceInformation.text().replace('{name}', data.serviceID).replace('{status}', status[1]));
+            var serviceInformation = $(".case-info__status");
+            var text = "RMA {name} - {status}";
+            serviceInformation.html(text.replace('{name}', data.RMAID).replace('{status}', status[data.status]));
         },
         contentType: 'application/json'
    });
@@ -396,17 +391,6 @@ function reCalculateAmount() {
     productDatas.footer[0].warehouse = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
     productDatas.footer[1].warehouse = "<strong>$" + discount.toFixed(2) + " </strong>";
     productDatas.footer[2].warehouse = "<strong>$" + total.toFixed(2) + " </strong>";
-}
-
-function updatePaymentMethod() {
-    $.post({
-        type: "POST",
-        url: '/lexor_cs/api/' + $.urlParam("service_id"),
-        data: JSON.stringify({
-            "paymentMethod": paymentMethod, 
-        }),
-        contentType: 'application/json'
-   });
 }
 
 function loadPaymentMethod() {
@@ -493,6 +477,17 @@ function editProduct() {
     }
 }
 
+function updatePaymentMethod() {
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/' + $.urlParam("service_id"),
+        data: JSON.stringify({
+            "paymentMethod": paymentMethod, 
+        }),
+        contentType: 'application/json'
+   });
+}
+
 function updateRMAStatus(status) {
      $.ajax({
         contentType: 'application/json',
@@ -502,6 +497,9 @@ function updateRMAStatus(status) {
             "status" : status,
             "customerSOID": 1,
         }),
+        success: function() {
+            getServiceInformation($.urlParam('rma_id'));
+        },
         type: 'PUT'
     });
 }

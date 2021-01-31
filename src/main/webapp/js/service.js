@@ -36,6 +36,7 @@ shippingDatas = {
     ]
 };
 
+serviceStatus = { 1: 'Closed', 0: "Processing", 2: "Submitted To Production" };
 variableOptions = {1 :'CA', 2: 'CB'};
 isWarrantyOptions = {1 : "Y", 0: "N"};
 productImages = {
@@ -62,12 +63,16 @@ shippingAmount = 0;
 oldProduct = {};
 var removedProductList = [];
 var serviceMasterID = 0;
+var caseServiceID = 0;
 $(document).ready(function () {
     loadServices();
-    getProducts();
     loadPaymentMethod();
     $("#editProducts").on("click", function(){
        reloadList();
+    });
+    
+    $(".editServiceStatus").on("click", function(){
+        updateServiceStatus($(this).attr('data-id'), 1);
     });
     
     $("#saveProducts").on("click", function(){
@@ -207,7 +212,7 @@ function prepareProductToEdit() {
 
 function getProducts() {
      $.get({
-        url: "/lexor_cs/api/serviceDetail/1/100",
+        url: "/lexor_cs/api/serviceDetail/" + serviceMasterID + '/' + serviceMasterID,
         success: function(data) {
             productDatas.rows = [];
             if ( data ) {
@@ -265,38 +270,32 @@ function loadService() {
     var services = [];
 
     $.get({
-        url: "/lexor_cs/api/case_service/",
+        url: "/lexor_cs/api/case_service/find/1",
         success: function(data) {
-            let tableData = [];
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
                     services.push({
-                        service_number: data[i].docCode,
-                        original_case: data[i].status,
-                        customer_name: data[i].status,
-                        mobile_phone: data[i].address,
-                        business_phone : data[i].address,
-                        address : data[i].address,
-                        action: '<a href="javascript:void(0)" onClick="openService()" class="easyui-linkbutton">Select</a>'
+                        service_number: data[i].caseServiceID,
+                        original_case: data[i].caseID,
+                        customer_name: data[i].customerSOID,
+                        action: '<a href="javascript:void(0)" onClick="openService( '+ data[i].caseServiceID +')" class="easyui-linkbutton">Select</a>'
                     }); 
                 }
 
-                var serviceGrid = $("#serviceGrid").datagrid({
-                    data: tableData,
-                    
+                $("#serviceGrid").datagrid({
+                    data: services,
                     onLoadSuccess: function() {
                         $(".easyui-linkbutton").linkbutton();
                     }
                 });
-                serviceGrid.datagrid('enableCellEditing');
             }
         },
         contentType: 'application/json'
     });
 }
 
-function openService() {
-    window.location.href = "/lexor_cs/pages/cs/purchaseorder/service.html"
+function openService(serviceId) {
+    window.location.href = "/lexor_cs/pages/cs/purchaseorder/service.html?user_id=1&service_id=" + serviceId;
 }
 
 function refreshProduct() {
@@ -476,6 +475,20 @@ function reloadShippingAmount(callback) {
     callback();
 }
 
+function updateServiceStatus(status, isSubmit = 1) {
+    $.ajax({
+        contentType: 'application/json',
+        url: '/lexor_cs/api/serviceMaster/' + caseServiceID,
+        data: JSON.stringify({
+            status: parseInt(status),
+            isSubmittedProduction: isSubmit
+        }),
+        success: function () {
+            getServiceInformation($.urlParam('service_id'));
+        },
+        type: 'PUT'
+    });
+}
 
 function loadServices() {
     var serviceId = null;
@@ -488,12 +501,16 @@ function loadServices() {
 }
 
 function getServiceInformation(serviceId) {
-    var status = { 2: 'Closed', 1: "Processing"};
+
     $.get({
-        url: '/lexor_cs/api/case_service/' + serviceId,
+        url: '/lexor_cs/api/case_service/detail/' + serviceId,
         success: function(data) {
+            var text = "Service {name}-{status}";
             var serviceInformation = $(".service-info__status");
-            serviceInformation.html(serviceInformation.text().replace('{name}', data.serviceID).replace('{status}', status[1]));
+            caseServiceID = data.caseServiceID;
+            serviceMasterID = data.serviceMasterID;
+            getProducts();
+            serviceInformation.html(text.replace('{name}', data.caseServiceID).replace('{status}', serviceStatus[data.status]));
         },
         contentType: 'application/json'
    });

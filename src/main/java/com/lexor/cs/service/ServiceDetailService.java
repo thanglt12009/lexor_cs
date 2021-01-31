@@ -116,7 +116,7 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<ServiceDetail>> resultHandler = new ServiceDetailHandler(connection);
             
-        String query = "SELECT * FROM public.ServiceDetail WHERE ServiceDetailID >= ? AND ServiceDetailID <= ?";
+        String query = "SELECT * FROM public.ServiceDetail WHERE ServiceMasterID >= ? AND ServiceMasterID <= ?";
         List<ServiceDetail> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (ServiceDetail case1 : empList) {
             list.add((T) case1);
