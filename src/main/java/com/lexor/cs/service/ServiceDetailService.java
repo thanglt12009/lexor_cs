@@ -23,11 +23,11 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         ServiceDetail c = (ServiceDetail) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.ServiceDetail (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"isWarranty\", \"warehouse\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?)";
+                = "INSERT INTO public.ServiceDetail (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"warehouse\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 
         return runner.update(connection, insertSQL.toLowerCase(), c.getServiceMasterID(), c.getProductID(), c.getQuantity(),c.getSoldPrice(),
                 c.getAmount(),  c.getTotalWeight(), c.getSerialNumber(), c.getIsWarrantly(),
-                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), c.getIsWarrantly(), c.getWarehouse());
+                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), c.getWarehouse());
     }
 
     @Override
@@ -35,11 +35,11 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         ServiceDetail c = (ServiceDetail) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"ServiceDetail\" "
+                = "UPDATE public.ServiceDetail "
                 + " SET \"ServiceMasterID\"=?, \"ProductID\"=?, \"Quantity\"=?, \"SoldPrice\"=?, \"Amount\"=?, \"TotalWeight\"=?, \"SerialNumber\"=?, \"IsWarrantly\"=?, \"WarrantyStartDate\"=?, \"WarrantyEndDate\"=?, \"PaymentType\"=?"
                 + " WHERE \"ServiceMasterID\"=?;";
 
-        return runner.update(connection, updateSQL, c.getServiceMasterID(), c.getProductID(), c.getQuantity(),c.getSoldPrice(),
+        return runner.update(connection, updateSQL.toLowerCase(), c.getServiceMasterID(), c.getProductID(), c.getQuantity(),c.getSoldPrice(),
                 c.getAmount(),  c.getTotalWeight(), c.getSerialNumber(), c.getIsWarrantly(),
                 c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), id);
     }
@@ -48,9 +48,9 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
     public int remove(Object o) throws SQLException {
         ServiceDetail c = (ServiceDetail) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"ServiceDetail\" WHERE ?;";
+        String deleteSQL = "DELETE FROM public.\"ServiceDetail\" WHERE \"ServiceDetailID\" =?";
         try {
-            return runner.execute(connection, deleteSQL, c.getServiceDetailID());
+            return runner.execute(connection, deleteSQL.toLowerCase(), c.getServiceDetailID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -61,8 +61,9 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<ServiceDetail>> resultHandler = new ServiceDetailHandler(connection);
-
-        List<ServiceDetail> empList = queryRunner.query(connection, "SELECT * FROM \"ServiceDetail\" WHERE \"ServiceDetailID\" = ?", resultHandler, id);
+        
+        String query = "SELECT * FROM public.ServiceDetail WHERE \"ServiceDetailID\" = ?";
+        List<ServiceDetail> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
         }

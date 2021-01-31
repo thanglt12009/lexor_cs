@@ -37,7 +37,7 @@ shippingDatas = {
 };
 
 variableOptions = {1 :'CA', 2: 'CB'};
-isWarrantyOptions = {1 : "Y", 0: "N"}
+isWarrantyOptions = {1 : "Y", 0: "N"};
 productImages = {
     1: "<img width='60px' height='60px' src='../../../images/product01.jpg' />",
     2: "<img width='60px' height='60px' src='../../../images/product02.jpg' />",
@@ -59,6 +59,9 @@ discount = 1000;
 total = 0;
 totalAmount = 0;
 shippingAmount = 0;
+oldProduct = {};
+var removedProductList = [];
+var serviceMasterID = 0;
 $(document).ready(function () {
     loadServices();
     getProducts();
@@ -111,29 +114,121 @@ $(document).ready(function () {
     $("#saveProducts").on("click", function () {
         $("#addSaleOrder").hide();
         $("#editProducts").show();
+        
+        Promise.all([ 
+            saveProduct(),
+            editProduct(),
+            removeListProduct()
+        ]).then(function() {
+            getProducts();
+        });       
         $(this).hide();
     });
 });
+
+function saveProduct() {
+    var products = prepareProductToSave();
+    
+    if ( products ) {
+        for ( let i = 0 ; i < products.length; i++ ) {
+             $.post({
+                type: "POST",
+                url: '/lexor_cs/api/serviceDetail',
+                data: JSON.stringify(products[i]),
+                contentType: 'application/json'
+            });
+        }
+    }
+}
+
+function editProduct() {
+    var products = prepareProductToEdit();
+    
+    if ( products ) {
+        for ( let i = 0 ; i < products.length; i++ ) {
+            $.ajax({
+                contentType: 'application/json',
+                url: '/lexor_cs/api/serviceDetail/' + products[i].serviceDetailID,
+                data: JSON.stringify(products[i]),
+                type: 'PUT'
+            });
+        }
+    }
+}
+
+function removeListProduct() {
+    if ( removedProductList ) {
+        for ( var product in removedProductList) {
+            if (id = removedProductList[product].serviceDetailID) {
+                $.ajax({
+                    contentType: 'application/json',
+                    url: '/lexor_cs/api/serviceDetail/' + id,
+                    type: 'DELETE'
+                });
+            }
+        }
+    }
+}
+
+function prepareProductToSave() {
+    var products = productDatas.rows;
+
+    var productToSave = [];
+    for ( let i = 0; i < products.length; i++ ) {
+        if (products[i].serviceMasterID === false) {
+            products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
+            products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", '')).toFixed(2);
+            products[i].serviceMasterID = serviceMasterID;
+            
+            delete products[i].warehouse; 
+            console.log(products[i]);
+            productToSave.push(products[i]);
+        }
+    }
+    
+    return productToSave;
+}
+
+function prepareProductToEdit() {    
+    var products = productDatas.rows;
+    var productToSave = [];
+    for ( let i = 0; i < products.length; i++ ) {
+        if (products[i].serviceDetailID) {
+            products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
+            products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", '')).toFixed(2);
+            
+            delete products[i].warehouse; 
+            productToSave.push(products[i]);
+        } 
+    };
+    
+    return productToSave;
+}
 
 function getProducts() {
      $.get({
         url: "/lexor_cs/api/serviceDetail/1/100",
         success: function(data) {
+            productDatas.rows = [];
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
+                    serviceMasterID = data[i]['serviceMasterID'];
                     data[i]['no'] = data[i]['productID'];
                     data[i]['isWarranty'] = data[i]['isWarranty'] ? isWarrantyOptions[data[i]['isWarranty']] : isWarrantyOptions[1];
                     data[i]['warehouse'] = data[i]['warehouse'] || variableOptions[1];
-                    data[i]['image'] = productImages[data[i].productID];
+                    data[i]['image'] = productImages[data[i].productID] || productImages[3];
                     data[i]['amount'] = "$" + (parseFloat(data[i]['quantity']) * parseFloat(data[i]['soldPrice'])).toString();
+                    data[i]['soldPrice'] = "$" + data[i]['soldPrice'];
                     productDatas.rows.push(data[i]); 
                 }
             }
+
             loadProducts();
         },
         contentType: 'application/json'
     });
 }
+
 function submitSalonForm() {
     $('#editSalonDialog').window('close');
 }
@@ -210,6 +305,7 @@ function refreshProduct() {
 
 function loadProducts() {
     shippingDetail = [];
+    productDatas.total = productDatas.rows.length;
     for(i = 0 ; i < productDatas.rows.length; i++) {
         var wareHouse = productDatas.rows[i].warehouse;
         var shipDate = productDatas.rows[i].shipingDay;        
@@ -260,33 +356,49 @@ function loadProducts() {
 }
 
 function addProduct() {
-    var id = productDatas.rows.length + 1;
-    productDatas.rows.push({
-        productId: id,
+    var id = Math.floor(Math.random() * 1000) + 1;
+    var newProduct = {
+        productID: id,
         no: id,
         image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
-        product: "Product 003 </br> Serial Number: 123-456-789",
+        serialNumber: "Product 003 </br> Serial Number: 123-456-789",
         quantity: "1",
-        sold_price: "$1,000.00",
-        amount: "$2,000.00",
-        stock_avaiable: "20",
-        total_weight: "1000",
-        ware_house: "CA",
-        shiping_day: "25/01/2021",
-        original_so: "001",
-        service_for_product: "Service for Product 003",
-        under_warranty: "Y"
-    });
+        soldPrice: "$1000.00",
+        amount: "$2000.00",
+        stockAvaiable: "20",
+        totalWeight: "1000",
+        wareHouse: "CA",
+        shipingDay: "25/01/2021",
+        originalSo: "001",
+        serviceForProduct: "Service for Product 003",
+        isWarranty: isWarrantyOptions[1],
+        serviceMasterID: false
+    };
+
+    if ( productDatas.rows.find(
+            function(element) {
+                return element.productId === id;
+            }
+        ) === undefined) {
+        productDatas.rows.push(newProduct);
+    }
+    
     comboBoxedProduct[id] = "CA";
     removeTagProduct[id] = id;
-    loadProducts();
-    initRemove();
+    reloadShippingAmount(function(){
+        reloadList(false, false);
+    });
 }
 
-function removeProduct(key) {;
-    productDatas.rows = productDatas.rows.filter((item) => {return item.productID != key});
+function removeProduct(key) {
+    var remove = productDatas.rows.find((item) => {return item.productID === key});
+    productDatas.rows = productDatas.rows.filter((item) => {return item.productID !== key});
+
+    if ( remove ) {
+        removedProductList.push(remove);
+        console.log(removedProductList);
+    }
     loadProducts();
-    initRemove();
 }
 
 function initRemove() {
@@ -323,14 +435,14 @@ function getEditAmountTemplate(amount) {
 }
 
 function getRemoveTemplate(id) {
-    return '<a class="removeUser" onClick="removeProduct('+ id +')" href="javascript:void(0)">'+ id +'</a>';
+    return '<a class="removeUser" onClick="removeProduct('+ id +')" href="javascript:void(0);">'+ id +'</a>';
 }
 
 function getDateBoxTemplate(id, value) {
     return '<input class="date-box" style="width: 110px" data-id="'+ id +'" type="text" value="'+ value +'">';
 }
 
-function reloadList(isCombobox = true) {
+function reloadList(isCombobox = true, isReSetup = true) {
     productDatas.rows = productDatas.rows.map( function(product) { 
        if ( isCombobox ) {
             product.warehouse = getComboboxTemplate(product.productID);
@@ -346,12 +458,13 @@ function reloadList(isCombobox = true) {
        return product;
     });
     
-    if (isCombobox) {
-        productDatas.footer[1].originalSo = getEditAmountTemplate(productDatas.footer[1].originalSo);
-    } else {
-        productDatas.footer[1].originalSo = shippingAmount;
+    if ( isReSetup ) {
+        if (isCombobox) {
+            productDatas.footer[1].originalSo = getEditAmountTemplate(productDatas.footer[1].originalSo);
+        } else {
+            productDatas.footer[1].originalSo = shippingAmount;
+        }
     }
-    
     loadProducts();
 }
 
@@ -360,6 +473,7 @@ function reloadShippingAmount(callback) {
     sum+= parseFloat($("#newAmount").val()).toFixed(2);
     productDatas.footer[1].original_so = sum;
     shippingAmount = $("#newAmount").val();
+ 
     callback();
 }
 
