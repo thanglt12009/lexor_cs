@@ -1,0 +1,73 @@
+<form id="userForm">
+    <div class="form-group">
+        <label>
+            Mobile Phone:
+        </label>
+        <div class="col-sm-12">       
+            <input style="width:100%" class="easyui-textbox" name="mobilePhone" data-options="required:true, validateOnCreate:false">
+        </div>                        
+    </div>
+    <div class="form-group">
+        <label>
+            Business Phone:
+        </label>
+        <div class="col-sm-12">       
+            <input style="width:100%" class="easyui-textbox" name="businessPhone" data-options="required:true, validateOnCreate:false">
+        </div>                        
+    </div>
+    <div class="form-group">
+        <label>
+            Email:
+        </label>
+        <div class="col-sm-12">       
+            <input style="width:100%" class="easyui-textbox" name="email" data-options="required:true, validType:'email', validateOnCreate:false">
+        </div>                        
+    </div>
+    <div class="form-group">
+        <label>
+            Case priority:
+        </label>
+        <div class="col-sm-12">     
+            <select class="easyui-combobox" data-options="valueField:'id',textField:'text'" name="casePriority" style="width:100%">
+                <option value="1">Low</option>
+                <option value="2">Normal</option>
+                <option value="3">High</option>
+                <option value="4">Critical</option>
+            </select>                       
+        </div> 
+    </div>
+    <div class="form-group">
+        <label>
+            Customer Service Rep:
+        </label>
+        <div class="col-sm-12">     
+            <select class="easyui-combobox" name="customerService" style="width:100%">
+                <option value="1">Auto Rotation </option>
+                <option value="2">Customer Service Rep 1 </option>
+                <option value="3">Customer Service Rep 2 </option>
+                <option value="4">Customer Service Rep 3 </option>
+                <option value="5">Customer Service Rep 4 </option>
+            </select>                       
+        </div> 
+    </div>
+    <div class="form-group">
+        <label>
+            Service Type
+        </label>
+        <div class="checkbox-type">
+            <input class="easyui-checkbox" labelPosition="after" data_id="" name="BuyPart" value="1" label="BuyPart">
+        </div>
+        <div class="checkbox-type">
+            <input class="easyui-checkbox" labelPosition="after" data_id="" name="Warranty" value="2" label="Warranty">
+        </div>
+        <div class="checkbox-type">
+            <input class="easyui-checkbox" labelPosition="after" data_id="" name="RMA" value="3" label="Return">
+        </div>
+    </div>
+    <hr>
+    <div class="form-group">
+        <div class="col-sm-12">  
+            <a onClick="submitUserForm()" href="javascript:void(0)" class="easyui-linkbutton  float-right submit" data-options="iconCls:'icon-save'">Save</a>
+        </div>
+    </div>
+</form>

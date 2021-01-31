@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>RMA</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="../../../css/themes/default/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../../../css/themes/icon.css">
+        <link rel="stylesheet" href="../../../css/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" href="http://easyautocomplete.com/dist/easy-autocomplete.min.css">
+        <link rel="stylesheet" type="text/css" href="../../../css/style.css">
+
+        <script type="text/javascript" src="../../../js/jquery.min.js"></script>
+        <script type="text/javascript" src="../../../js/jquery.easyui.min.js"></script>
+        <script type="text/javascript" src="http://easyautocomplete.com/dist/jquery.easy-autocomplete.min.js"></script>
+        <script type="text/javascript" src="../../../js/rma.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <form>
+                <div class="form-group row">
+                    <label for="search-box">Please Enter RMA Information:</label>
+                    <div class="col-sm-10">                    
+                        <input class="easyui-textbox" style="width:100%" id="search-box" data-options="iconCls:'icon-search'">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <table class="easyui-datagrid" id="serviceGrid" pagination="true">
+                        <thead>
+                            <tr>
+                                <th style="width: 31%" data-options="field:'service_number', fixed:true, width: 100">RMA Number</th>
+                                <th style="width: 32%" data-options="field:'customer_name',sortable:true, fixed:true, width: 200">Customer Name</th>
+                                <th style="width: 33%" data-options="field:'original_case', fixed:true, width: 150">Original Case</th>
+                                <th style="width: 6%" data-options="field:'action', fixed:true, width: 80">Action</th>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </form>
+            <div id="addContactDialog" style="height:auto"></div>
+        </div>
+    </body>
+</html>

@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<!--
+To change this license header, choose License Headers in Project Properties.
+To change this template file, choose Tools | Templates
+and open the template in the editor.
+-->
+<html>
+    <head>
+        <title>RMA Details</title>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <link rel="stylesheet" type="text/css" href="../../../css/themes/default/easyui.css">
+        <link rel="stylesheet" type="text/css" href="../../../css/themes/icon.css">
+        <link rel="stylesheet" href="../../../css/bootstrap/bootstrap.min.css">
+        <link rel="stylesheet" type="text/css" href="../../../css/style.css">
+        <script type="text/javascript" src="../../../js/jquery.min.js"></script>
+        <script type="text/javascript" src="../../../js/jquery.easyui.min.js"></script>
+        <script type="text/javascript" src="../../../js/activity.js"></script>
+        <script type="text/javascript" src="../../../js/user.js"></script>
+        <script type="text/javascript" src="../../../js/rma.js"></script>
+        <script type="text/javascript" src="../../../js/sendmail.js"></script>
+    </head>
+    <body>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12 case-info">        
+                    <div class="col-sm-12 case-info">
+                        <a href="javascript:void(0);" class="case-info__status">RMA 1 - Product Receiving</a>
+                        <a href="javascript:void(0);" onClick="window.print()" class="easyui-linkbutton float-right">Print</a>
+                        <a href="javascript:void(0);" onClick="window.location.href='rmas.html'" class="easyui-linkbutton float-right">Cancel</a>  
+                        <a href="javascript:void(0);" data-id="4" class="easyui-linkbutton float-right editRMAStatus">Refund</a>
+                        <a href="javascript:void(0);" data-id="3" class="easyui-linkbutton float-right editRMAStatus">Partial Received</a>
+                        <a href="javascript:void(0);" data-id="2" class="easyui-linkbutton float-right editRMAStatus">Product Received</a>
+                        <a href="javascript:void(0);" data-id="1" class="easyui-linkbutton float-right editRMAStatus">Product Receiving</a>
+                    </div>  
+                </div>
+            </div>
+        </div>
+        <div class="container">
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="easyui-layout" style="width:100%; min-height:310px;">
+                        <div class="height-240" data-options="region:'north',title:'Contact information'" style="width:400px">
+                            <div class="row case-info" style="width: 90%">
+                                <div class="col-sm-6"> <label>Contact ID:12345</label>
+                                    <ul style="width:600px;" id="userInformation">
+                                        <li>First Name : Customer</li>
+                                        <li>Last Name : 01</li>
+                                        <li>Mobile Phone : 0999-999-999</li>
+                                        <li>Business Phone :083-999-9999</li>
+                                        <li>Email : Customer01@gmail.com</li> 
+                                    </ul> 
+                                </div>
+                                <div class="col-sm-6"> <label>Salon Information</label>
+                                    <ul style="width:600px;">
+                                        <li>Salon Name : Salon A</li>
+                                        <li>Salon Address : USA </li>
+                                        <li>Suite Number : 1 </li>
+
+                                    </ul>
+                                </div>
+                            </div>
+                            <hr>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <hr>
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-sm-12 actionList">
+                    <a href="javascript:void(0);" style="margin-left: 10px; display: none;" id="saveProducts" class="easyui-linkbutton float-right submit">Save</a>
+                    <a href="javascript:void(0);" style="margin-left: 10px" id="editProducts" class="easyui-linkbutton float-right submit">Edit</a>
+                    <a href="javascript:void(0);" style="display: none" id="addSaleOrder" class="easyui-linkbutton float-right submit">Add Service</a>
+
+                </div>
+                <div class="col-sm-12">
+                    <table class="easyui-datagrid" id="productGrid" style="width: 100%" pagination="true">
+                        <thead>
+                            <tr>
+                                <th style="width: 4%" data-options="align: 'center', field:'no'">#</th>
+                                <th style="width: 5%" data-options="field:'image'">Images</th>
+                                <th style="width: 30%" data-options="field:'product', sortable:true">Product</th>
+                                <th style="width: 10%" data-options="field:'quantity'">Quantity</th>
+                                <th style="width: 15%" data-options="field:'price'">Return Price</th>
+                                <th style="width: 15%" data-options="field:'price', sortable:true">Amount</th>
+                                <th style="width: 12%;" data-options="field:'warehouse', nowrap: false">Warehouse</th>
+                                <th style="width: 11%;" data-options="field:'receiver'">Receiver</th>
+                        <tbody>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div id="editServiceDialog"></div>
+        <div id="editSalonDialog"></div>
+        <div id="editRMADialog"></div>        
+        <hr>
+        <div class="container-fluid">
+            <div class="easyui-tabs" style="width:100%;">
+                <div title="Payment" style="padding:20px;display:none;">
+                    <form>
+                        <div class="form-group">
+                            <label class="type-bold">
+                                Return Payment Method
+                            </label>
+                            <div class="col-sm-12">
+                                <select class="easyui-combobox" name="dept" style="width:200px;">
+                                    <option>Cash</option>
+                                    <option>Credit Card / Debit</option>
+                                    <option>Check</option>
+                                </select>
+                                <a href="javascript:void(0)" id="sendMail" class="easyui-linkbutton">Add</a>
+                            </div>   
+                        </div>
+                    </form>
+                </div>
+                <div title="RMA Information" style="overflow:auto;padding:20px;display:none;">
+                    <table id="shippingGrid" class="easyui-datagrid" pagination="true">
+                        <thead>
+                            <tr>
+                                <th data-options="field:'no', fixed:true, width: 100">#</th>
+                                <th data-options="field:'warehouse',sortable:true, fixed:true, width: 200">SO Name</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+
+                        </tbody>
+                    </table>
+                    <div class="form-group">   
+                        <div class="col-sm-12">
+                           Service Rep Name : Rep 01
+                        </div>
+                        <div class="col-sm-12">
+                           Create From : Case No
+                        </div>
+                    </div>
+                </div>
+                <div title="Send Message" style="overflow:auto;padding:20px;display:none;">
+                    <form id="sendMail">
+                        <div class="form-group">   
+                            <div class="col-sm-12">
+                                <input style="width:300px" class="easyui-textbox" name="email" data-options="prompt:'Send to', required:true, validType:'email', validateOnCreate:false">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input style="width:300px" class="easyui-textbox"  name="subject" data-options="prompt:'Subject', required:true, validateOnCreate:false">
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <input style="width:600px" class="easyui-textbox"  name="message" data-options="prompt:'Message', required:true, validateOnCreate:false, multiline:true, height:100">
+                            </div>
+                        </div>      
+                        <div class="form-group">
+                            <div class="col-sm-12">
+                                <a href="javascript:void(0)" id="send" class="easyui-linkbutton float-right submit">Send message</a>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+                <div title="Activity" style="overflow:auto;padding:20px;display:none;">
+                </div>
+                <div title="Log History"  style="overflow:auto;padding:20px;display:none;">
+                    <div class="row">
+                        <div class="col-sm-12">
+                            <textarea rows="4" cols="50" id="logHistory" disabled="true"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
