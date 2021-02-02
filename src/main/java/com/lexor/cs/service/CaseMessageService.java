@@ -22,31 +22,31 @@ public class CaseMessageService extends BaseService<CaseMessage> {
     public int persist(Object o) throws SQLException {
         CaseMessage c = (CaseMessage) o;
         QueryRunner runner = new QueryRunner();
-        String insertSQL
-                = "INSERT INTO \"CaseMessage\" (\"CaseID\", \"SendTo\", \"Subject\", \"MessageBody\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?)";
+        String query
+                = "INSERT INTO \"public\".\"CaseMessage\" (\"CaseID\", \"SendTo\", \"Subject\", \"MessageBody\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?);";
 
-        return runner.update(connection, insertSQL, c.getCaseID(), c.getSendTo(), c.getSubject(), c.getMessageBody(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.update(connection, query.toLowerCase(), c.getCaseID(), c.getSendTo(), c.getSubject(), c.getMessageBody(), c.getCreatedDate(), c.getUpdatedDate());
     }
 
     @Override
     public int update(Integer id, Object o) throws SQLException {
         CaseMessage c = (CaseMessage) o;
         QueryRunner runner = new QueryRunner();
-        String updateSQL
-                = "UPDATE \"CaseMessage\" "
+        String query
+                = "UPDATE \"public\".\"CaseMessage\" "
                 + " SET \"CaseID\"=?, \"SendTo\"=?, \"Subject\"=?, \"MessageBody\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=? "
                 + " WHERE \"MessageID\"=?;";
 
-        return runner.update(connection, updateSQL, c.getCaseID(), c.getSendTo(), c.getSubject(), c.getMessageBody(), c.getCreatedDate(), c.getUpdatedDate(), id);
+        return runner.update(connection, query.toLowerCase(), c.getCaseID(), c.getSendTo(), c.getSubject(), c.getMessageBody(), c.getCreatedDate(), c.getUpdatedDate(), id);
     }
 
     @Override
     public int remove(Object o) throws SQLException {
         CaseMessage c = (CaseMessage) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM \"CaseMessage\" WHERE ?;";
+        String query = "DELETE FROM \"CaseMessage\" WHERE ?;";
         try {
-            return runner.execute(connection, deleteSQL, c.getMessageID());
+            return runner.execute(connection, query.toLowerCase(), c.getMessageID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -57,8 +57,9 @@ public class CaseMessageService extends BaseService<CaseMessage> {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseMessage>> resultHandler = new CaseMessageHandler(connection);
+        String query = "SELECT * FROM \"public\".\"CaseMessage\" WHERE \"MessageID\" = ?;";
 
-        List<CaseMessage> empList = queryRunner.query(connection, "SELECT * FROM \"CaseMessage\" WHERE \"MessageID\" = ?", resultHandler, id);
+        List<CaseMessage> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
         }
@@ -70,8 +71,9 @@ public class CaseMessageService extends BaseService<CaseMessage> {
         String filterStr = (String) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseReturn>> resultHandler = new CaseReturnHandler(connection);
+        String query = "SELECT * FROM \"public\".\"CaseMessage\" WHERE CONCAT(\"SendTo\", \" \") LIKE ?;";
 
-        List<CaseReturn> empList = queryRunner.query(connection, "SELECT * FROM \"CaseMessage\" WHERE CONCAT(\"SendTo\", \" \") LIKE ?", resultHandler, filterStr);
+        List<CaseReturn> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, filterStr);
         List<T> list = new ArrayList<>();
         for (CaseReturn case1 : empList) {
             list.add((T) case1);
@@ -89,8 +91,9 @@ public class CaseMessageService extends BaseService<CaseMessage> {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"CaseMessage\"";
-        long count = runner.query(connection, query, scalarHandler);
+        String query = "SELECT COUNT(0) FROM \"public\".\"CaseMessage\";";
+        
+        long count = runner.query(connection, query.toLowerCase(), scalarHandler);
         return count;
     }
 
@@ -101,8 +104,9 @@ public class CaseMessageService extends BaseService<CaseMessage> {
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseMessage>> resultHandler = new CaseMessageHandler(connection);
+        String query = "SELECT * FROM \"public\".\"CaseMessage\" WHERE \"MessageID\" >= ? AND  \"MessageID\" <= ?;";
 
-        List<CaseMessage> empList = queryRunner.query(connection, "SELECT * FROM \"CaseMessage\" WHERE \"MessageID\" >= ? AND  \"MessageID\" <= ?", resultHandler, from, to);
+        List<CaseMessage> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (CaseMessage case1 : empList) {
             list.add((T) case1);
         }

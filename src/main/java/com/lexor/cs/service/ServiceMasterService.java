@@ -20,23 +20,23 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
     public int persist(Object o) throws SQLException {
         ServiceMaster c = (ServiceMaster) o;
         QueryRunner runner = new QueryRunner();
-        String insertSQL
-                = "INSERT INTO \"ServiceMaster\" (\"CaseServiceID\", \"SubTotal\" , \"ShippingFee\" , \"ManagerDiscount\" , \"Total\", \"CreatedDate\"  , \"IsSubmittedProduction\", \"Status\" ) VALUES (?,?,?,?,?,?,?,?)";
+        String query
+                = "INSERT INTO \"public\".\"ServiceMaster\" (\"CaseServiceID\", \"SubTotal\" , \"ShippingFee\" , \"ManagerDiscount\" , \"Total\", \"CreatedDate\"  , \"IsSubmittedProduction\", \"Status\" ) VALUES (?,?,?,?,?,?,?,?);";
 
-        return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseServiceID(), c.getSubTotal(), c.getShippingFee(),c.getManagerDiscount(), c.getTotal(), c.getCreatedDate(), c.getIsSubmittedProduction(), c.getStatus());
+        return runner.insert(connection, query.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseServiceID(), c.getSubTotal(), c.getShippingFee(),c.getManagerDiscount(), c.getTotal(), c.getCreatedDate(), c.getIsSubmittedProduction(), c.getStatus());
     }
 
     @Override
     public int update(Integer id, Object o) throws SQLException {
         ServiceMaster c = (ServiceMaster) o;
         QueryRunner runner = new QueryRunner();
-        String updateSQL
-                = "UPDATE \"ServiceMaster\""
+        String query
+                = "UPDATE \"public\".\"ServiceMaster\""
                 + " SET  \"IsSubmittedProduction\"=?, \"Status\"=?"
                 + " WHERE \"CaseServiceID\"=?;";
         //\"CaseServiceID\"=?, \"SubTotal\"=?, \"ShippingFee\"=?, \"ManagerDiscount\"=?, \"Total\"=?, \"CreatedDate\"=?,
         //return runner.update(connection, updateSQL.toLowerCase(), c.getCaseServiceID(), c.getSubTotal(), c.getShippingFee(), c.getManagerDiscount(), c.getTotal(), c.getCreatedDate(), c.getIsSubmittedProduction(), c.getStatus(), id);
-        return runner.update(connection, updateSQL.toLowerCase(), c.getIsSubmittedProduction(), c.getStatus(), id);
+        return runner.update(connection, query.toLowerCase(), c.getIsSubmittedProduction(), c.getStatus(), id);
 
     }
 
@@ -44,9 +44,10 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
     public int remove(Object o) throws SQLException {
         ServiceMaster c = (ServiceMaster) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM \"ServiceMaster\" WHERE ?;";
+        String query = "DELETE FROM \"public\".\"ServiceMaster\" WHERE ?;";
+        
         try {
-            return runner.execute(connection, deleteSQL, c.getServiceMasterID());
+            return runner.execute(connection, query.toLowerCase(), c.getServiceMasterID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -57,8 +58,9 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<ServiceMaster>> resultHandler = new ServiceMasterHandler(connection);
+        String query = "SELECT * FROM \"public\".\"ServiceMaster\" WHERE \"ServiceMasterID\" = ?;";
 
-        List<ServiceMaster> empList = queryRunner.query(connection, "SELECT * FROM \"ServiceMaster\" WHERE \"ServiceMasterID\" = ?", resultHandler, id);
+        List<ServiceMaster> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
         }
@@ -70,9 +72,10 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
         Integer serviceId = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<ServiceMaster>> resultHandler = new ServiceMasterHandler(connection);
+        String query = "SELECT * FROM \"public\".\"ServiceMaster\" WHERE CONCAT(\"Status\", \" \") LIKE ?;";
        
         
-        List<ServiceMaster> empList = queryRunner.query(connection, "SELECT * FROM \"ServiceMaster\" WHERE CONCAT(\"Status\", \" \") LIKE ?", resultHandler, serviceId);
+        List<ServiceMaster> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, serviceId);
         List<T> list = new ArrayList<>();
         for (ServiceMaster case1 : empList) {
             list.add((T) case1);
@@ -90,8 +93,9 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"ServiceMaster\"";
-        long count = runner.query(connection, query, scalarHandler);
+        String query = "SELECT COUNT(0) FROM \"public\".\"ServiceMaster\";";
+        
+        long count = runner.query(connection, query.toLowerCase(), scalarHandler);
         return count;
     }
 
@@ -101,9 +105,9 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
         Integer to = range[1];
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<ServiceMaster>> resultHandler = new ServiceMasterHandler(connection);
-            
-        String query = "SELECT * FROM \"ServiceMaster\" WHERE \"ServiceMasterID\" >= ? AND \"ServiceMasterID\" <= ?";
+        ResultSetHandler<List<ServiceMaster>> resultHandler = new ServiceMasterHandler(connection);            
+        String query = "SELECT * FROM \"public\".\"ServiceMaster\" WHERE \"ServiceMasterID\" >= ? AND \"ServiceMasterID\" <= ?;";
+        
         List<ServiceMaster> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (ServiceMaster case1 : empList) {
             list.add((T) case1);

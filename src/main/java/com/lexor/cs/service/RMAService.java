@@ -23,31 +23,32 @@ public class RMAService extends BaseService<RMA> {
     public int persist(Object o) throws SQLException {
         RMA c = (RMA) o;
         QueryRunner runner = new QueryRunner();
-        String insertSQL
-                = "INSERT INTO \"RMA\" (\"CaseID\", \"CustomerSOID\", \"Status\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
+        String query
+                = "INSERT INTO \"public\".\"RMA\" (\"CaseID\", \"CustomerSOID\", \"Status\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?);";
 
-        return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseID(), c.getCustomerSOID(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.insert(connection, query.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseID(), c.getCustomerSOID(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate());
     }
 
     @Override
     public int update(Integer id, Object o) throws SQLException {
         RMA c = (RMA) o;
         QueryRunner runner = new QueryRunner();
-        String updateSQL
-                = "UPDATE \"RMA\" "
+        String query
+                = "UPDATE \"public\".\"RMA\" "
                 + " SET \"Status\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=? "
                 + " WHERE \"RMAID\"=?;";
 
-        return runner.update(connection, updateSQL.toLowerCase(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate(), id);
+        return runner.update(connection, query.toLowerCase(), c.getStatus(), c.getCreatedDate(), c.getUpdatedDate(), id);
     }
 
     @Override
     public int remove(Object o) throws SQLException {
         RMA c = (RMA) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM \"RMA\" WHERE ?;";
+        String query = "DELETE FROM \"public\".\"RMA\" WHERE ?;";
+        
         try {
-            return runner.execute(connection, deleteSQL, c.getRMAID());
+            return runner.execute(connection, query.toLowerCase(), c.getRMAID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -57,9 +58,7 @@ public class RMAService extends BaseService<RMA> {
     public <T> T find(Class<T> type, Object o) throws SQLException {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<RMA>> resultHandler = new RMAHandler(connection);
-
-        String query = "SELECT * FROM \"RMA\" WHERE \"RMAID\" = ?";
+        String query = "SELECT * FROM \"public\".\"RMA\" WHERE \"RMAID\" = ?;";
         
         List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler(), id);
         List<T> list = new ArrayList<>();
@@ -89,9 +88,8 @@ public class RMAService extends BaseService<RMA> {
     @Override
     public <T> List<T> findByKeyWord(Object o) throws SQLException {
         Integer status = (Integer) o;
-        QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<RMA>> resultHandler = new RMAHandler(connection);
-         String query = "SELECT * FROM \"RMA\" order by \"RMAID\" desc";
+        QueryRunner queryRunner = new QueryRunner(); 
+        String query = "SELECT * FROM \"public\".\"RMA\" order by \"RMAID\" desc;";
 
          /*
         List<RMA> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler);
@@ -128,10 +126,10 @@ public class RMAService extends BaseService<RMA> {
     @Override
     public long count() throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
-
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"RMA\"";
-        long count = runner.query(connection, query, scalarHandler);
+        String query = "SELECT COUNT(0) FROM \"public\".\"RMA\";";
+        
+        long count = runner.query(connection, query.toLowerCase(), scalarHandler);
         return count;
     }
 
@@ -142,8 +140,9 @@ public class RMAService extends BaseService<RMA> {
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMA>> resultHandler = new RMAHandler(connection);
+        String query = "SELECT * FROM \"public\".\"RMA\" WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?;";
 
-        List<RMA> empList = queryRunner.query(connection, "SELECT * FROM \"RMA\" WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?", resultHandler, from, to);
+        List<RMA> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (RMA case1 : empList) {
             list.add((T) case1);
         }

@@ -20,31 +20,32 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
     public int persist(Object o) throws SQLException {
         RMAPayment c = (RMAPayment) o;
         QueryRunner runner = new QueryRunner();
-        String insertSQL
-                = "INSERT INTO \"RMAPayment\" (\"RMAID\", \"PaymentType\", \"PaymentAmount\", \"PaymentStatus\" ) VALUES (?, ?, ?, ?)";
+        String query
+                = "INSERT INTO \"public\".\"RMAPayment\" (\"RMAID\", \"PaymentType\", \"PaymentAmount\", \"PaymentStatus\" ) VALUES (?, ?, ?, ?);";
 
-        return runner.update(connection, insertSQL, c.getRMAID(), c.getPaymentType(), c.getPaymentAmount(), c.getPaymentStatus());
+        return runner.update(connection, query.toLowerCase(), c.getRMAID(), c.getPaymentType(), c.getPaymentAmount(), c.getPaymentStatus());
     }
 
     @Override
     public int update(Integer id, Object o) throws SQLException {
         RMAPayment c = (RMAPayment) o;
         QueryRunner runner = new QueryRunner();
-        String updateSQL
-                = "UPDATE \"RMAPayment\" "
+        String query
+                = "UPDATE \"public\".\"RMAPayment\" "
                 + " SET \"RMAID\"=?, \"PaymentType\"=?, \"PaymentAmount\"=?, \"PaymentStatus\"=? \""
                 + " WHERE \"PaymentID\"=?;";
 
-        return runner.update(connection, updateSQL, c.getRMAID(), c.getPaymentType(), c.getPaymentAmount(), c.getPaymentStatus(), id);
+        return runner.update(connection, query.toLowerCase(), c.getRMAID(), c.getPaymentType(), c.getPaymentAmount(), c.getPaymentStatus(), id);
     }
 
     @Override
     public int remove(Object o) throws SQLException {
         RMAPayment c = (RMAPayment) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM \"RMAPayment\" WHERE ?;";
+        String query = "DELETE FROM \"public\".\"RMAPayment\" WHERE ?;";
+        
         try {
-            return runner.execute(connection, deleteSQL, c.getPaymentID());
+            return runner.execute(connection, query.toLowerCase(), c.getPaymentID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -55,8 +56,9 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMAPayment>> resultHandler = new RMAPaymentHandler(connection);
+        String query = "SELECT * FROM \"public\".\"RMAPayment\" WHERE \"PaymentID\" = ?;";
 
-        List<RMAPayment> empList = queryRunner.query(connection, "SELECT * FROM \"RMAPayment\" WHERE \"PaymentID\" = ?", resultHandler, id);
+        List<RMAPayment> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
         }
@@ -68,8 +70,9 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
         Integer status = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMAPayment>> resultHandler = new RMAPaymentHandler(connection);
+        String query = "SELECT * FROM \"public\".\"RMAPayment\" WHERE CONCAT(\"PaymentAmount\", \" \", \"PaymentStatus\", \" \") LIKE ?;";
 
-        List<RMAPayment> empList = queryRunner.query(connection, "SELECT * FROM \"RMAPayment\" WHERE CONCAT(\"PaymentAmount\", \" \", \"PaymentStatus\", \" \") LIKE ?", resultHandler, status);
+        List<RMAPayment> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, status);
         List<T> list = new ArrayList<>();
         for (RMAPayment case1 : empList) {
             list.add((T) case1);
@@ -85,10 +88,10 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
     @Override
     public long count() throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
-
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"RMAPayment\"";
-        long count = runner.query(connection, query, scalarHandler);
+        String query = "SELECT COUNT(0) FROM \"public\".\"RMAPayment\";";
+        
+        long count = runner.query(connection, query.toLowerCase(), scalarHandler);
         return count;
     }
 
@@ -99,8 +102,9 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMAPayment>> resultHandler = new RMAPaymentHandler(connection);
+        String query = "SELECT * FROM \"public\".\"RMAPayment\" WHERE \"PaymentID\" >= ? AND  \"PaymentID\" <= ?;";
 
-        List<RMAPayment> empList = queryRunner.query(connection, "SELECT * FROM \"RMAPayment\" WHERE \"PaymentID\" >= ? AND  \"PaymentID\" <= ?", resultHandler, from, to);
+        List<RMAPayment> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (RMAPayment case1 : empList) {
             list.add((T) case1);
         }

@@ -20,31 +20,32 @@ public class RMALogService extends BaseService<RMALog> {
     public int persist(Object o) throws SQLException {
         RMALog c = (RMALog) o;
         QueryRunner runner = new QueryRunner();
-        String insertSQL
-                = "INSERT INTO RMALog (\"RMAID\", \"LogMessage\",\"CreatedDate\" ) VALUES (?, ?, ?::timestamp)";
+        String query
+                = "INSERT INTO \"public\".\"RMALog\" (\"RMAID\", \"LogMessage\",\"CreatedDate\" ) VALUES (?, ?, ?::timestamp);";
 
-        return runner.update(connection, insertSQL.toLowerCase(), c.getRMAID(), c.getLogMessage(), c.getCreatedDate());
+        return runner.update(connection, query.toLowerCase(), c.getRMAID(), c.getLogMessage(), c.getCreatedDate());
     }
 
     @Override
     public int update(Integer id, Object o) throws SQLException {
         RMALog c = (RMALog) o;
         QueryRunner runner = new QueryRunner();
-        String updateSQL
-                = "UPDATE \"RMALog\" "
+        String query
+                = "UPDATE \"public\".\"RMALog\" "
                 + " SET \"RMAID\"=?, \"LogMessage\"=?, \"CreatedDate\"=? \""
                 + " WHERE \"LogID\"=?;";
 
-        return runner.update(connection, updateSQL, c.getRMAID(), c.getLogMessage(), c.getCreatedDate(), id);
+        return runner.update(connection, query.toLowerCase(), c.getRMAID(), c.getLogMessage(), c.getCreatedDate(), id);
     }
 
     @Override
     public int remove(Object o) throws SQLException {
         RMALog c = (RMALog) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM \"RMALog\" WHERE ?;";
+        String query = "DELETE FROM \"public\".\"RMALog\" WHERE ?;";
+        
         try {
-            return runner.execute(connection, deleteSQL, c.getRMAID());
+            return runner.execute(connection, query.toLowerCase(), c.getRMAID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -55,8 +56,9 @@ public class RMALogService extends BaseService<RMALog> {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMALog>> resultHandler = new RMALoglHandler(connection);
+        String query = "SELECT * FROM \"public\".\"RMALog\" WHERE \"LogID\" = ?;";
 
-        List<RMALog> empList = queryRunner.query(connection, "SELECT * FROM \"RMALog\" WHERE \"LogID\" = ?", resultHandler, id);
+        List<RMALog> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
         }
@@ -68,8 +70,9 @@ public class RMALogService extends BaseService<RMALog> {
         String message = (String) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMALog>> resultHandler = new RMALoglHandler(connection);
+        String query = "SELECT * FROM \"public\".\"RMALog\" WHERE CONCAT(\"LogMessage\", \" \") LIKE ?;";
 
-        List<RMALog> empList = queryRunner.query(connection, "SELECT * FROM \"RMALog\" WHERE CONCAT(\"LogMessage\", \" \") LIKE ?", resultHandler, message);
+        List<RMALog> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, message);
         List<T> list = new ArrayList<>();
         for (RMALog case1 : empList) {
             list.add((T) case1);
@@ -85,10 +88,10 @@ public class RMALogService extends BaseService<RMALog> {
     @Override
     public long count() throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
-
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"RMALog\"";
-        long count = runner.query(connection, query, scalarHandler);
+        String query = "SELECT COUNT(0) FROM \"public\".\"RMALog\";";
+        
+        long count = runner.query(connection, query.toLowerCase(), scalarHandler);
         return count;
     }
 
@@ -98,9 +101,9 @@ public class RMALogService extends BaseService<RMALog> {
         Integer to = range[1];
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<RMALog>> resultHandler = new RMALoglHandler(connection);
+        ResultSetHandler<List<RMALog>> resultHandler = new RMALoglHandler(connection);        
+        String query = "SELECT * FROM \"public\".\"RMALog\" WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?;";
         
-        String query = "SELECT * FROM RMALog WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?";
         List<RMALog> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (RMALog case1 : empList) {
             list.add((T) case1);

@@ -20,31 +20,31 @@ public class CaseLogService extends BaseService<CaseLog> {
     public int persist(Object o) throws SQLException {
         CaseLog c = (CaseLog) o;
         QueryRunner runner = new QueryRunner();
-        String insertSQL
-                = "INSERT INTO \"CaseLog\" (\"CaseID\", \"LogMessage\", \"CreatedDate\") VALUES (?, ?, ?::timestamp)";
+        String query
+                = "INSERT INTO \"public\".\"CaseLog\" (\"CaseID\", \"LogMessage\", \"CreatedDate\") VALUES (?, ?, ?::timestamp);";
 
-        return runner.update(connection, insertSQL.toLowerCase(), c.getCaseID(), c.getLogMessage(), c.getCreatedDate());
+        return runner.update(connection, query.toLowerCase(), c.getCaseID(), c.getLogMessage(), c.getCreatedDate());
     }
 
     @Override
     public int update(Integer id, Object o) throws SQLException {
         CaseLog c = (CaseLog) o;
         QueryRunner runner = new QueryRunner();
-        String updateSQL
-                = "UPDATE \"CaseLog\" "
+        String query
+                = "UPDATE \"public\".\"CaseLog\" "
                 + " SET \"CaseID\"=?, \"LogMessage\"=?, \"CreatedDate\"=? "
                 + " WHERE \"LogID\"=?;";
 
-        return runner.update(connection, updateSQL, c.getCaseID(), c.getLogMessage(), c.getCreatedDate(), id);
+        return runner.update(connection, query.toLowerCase(), c.getCaseID(), c.getLogMessage(), c.getCreatedDate(),id);
     }
 
     @Override
     public int remove(Object o) throws SQLException {
         CaseLog c = (CaseLog) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM \"CaseLog\" WHERE ?;";
+        String query = "DELETE FROM \"public\".\"CaseLog\" WHERE ?;";
         try {
-            return runner.execute(connection, deleteSQL, c.getLogID());
+            return runner.execute(connection, query.toLowerCase(), c.getLogID());
         } catch (Exception ex) {
             throw new SQLException("Record not found");
         }
@@ -55,8 +55,9 @@ public class CaseLogService extends BaseService<CaseLog> {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseLog>> resultHandler = new CaseLogHandler(connection);
+        String query = "SELECT * FROM \"public\".\"CaseLog\" WHERE \"LogID\" = ?;";
 
-        List<CaseLog> empList = queryRunner.query(connection, "SELECT * FROM \"CaseLog\" WHERE \"LogID\" = ?", resultHandler, id);
+        List<CaseLog> empList = queryRunner.query(connection, query.toLowerCase() ,resultHandler ,id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
         }
@@ -68,8 +69,9 @@ public class CaseLogService extends BaseService<CaseLog> {
         String filterStr = (String) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseLog>> resultHandler = new CaseLogHandler(connection);
+        String query = "SELECT * FROM \"public\".\"CaseLog\" WHERE CONCAT(\"LogMessage\", \" \") LIKE ?;";
 
-        List<CaseLog> empList = queryRunner.query(connection, "SELECT * FROM \"CaseLog\" WHERE CONCAT(\"LogMessage\", \" \") LIKE ?", resultHandler, filterStr);
+        List<CaseLog> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, filterStr);
         List<T> list = new ArrayList<>();
         for (CaseLog case1 : empList) {
             list.add((T) case1);
@@ -88,8 +90,9 @@ public class CaseLogService extends BaseService<CaseLog> {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"CaseLog\"";
-        long count = runner.query(connection, query, scalarHandler);
+        String query = "SELECT COUNT(0) FROM \"public\".\"CaseLog\";";
+        
+        long count = runner.query(connection, query.toLowerCase(), scalarHandler);
         return count;
     }
 
@@ -101,7 +104,8 @@ public class CaseLogService extends BaseService<CaseLog> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseLog>> resultHandler = new CaseLogHandler(connection);
             
-        String query = "SELECT * FROM \"CaseLog\" WHERE \"CaseID\" >= ? AND \"CaseID\" <= ?";
+        String query = "SELECT * FROM \"public\".\"CaseLog\" WHERE \"CaseID\" >= ? AND \"CaseID\" <= ?;";
+        
         List<CaseLog> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (CaseLog case1 : empList) {
             list.add((T) case1);
