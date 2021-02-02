@@ -23,7 +23,7 @@ public class CaseReturnService extends BaseService<Case> {
         Case c = (Case) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.Case (\"CaseName\", \"CustomerID\", \"SalonID\", \"CasePriority\", \"CaseType\", \"Status\", \"CustomerServiceRep\") VALUES (?, ?, ?, ?, ?, ?, ?)";
+                = "INSERT INTO \"Case\" (\"CaseName\", \"CustomerID\", \"SalonID\", \"CasePriority\", \"CaseType\", \"Status\", \"CustomerServiceRep\") VALUES (?, ?, ?, ?, ?, ?, ?)";
         
         return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseName(), c.getCustomerID(), c.getSalonID(), c.getCasePriority(), c.getCaseType(), c.getStatus(), c.getCustomerServiceRep()
         );
@@ -34,7 +34,7 @@ public class CaseReturnService extends BaseService<Case> {
         Case c = (Case) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.Case"
+                = "UPDATE  \"Case\""
                 + " SET \"CaseName\"=?, \"CustomerID\"=?, \"SalonID\"=?, \"CasePriority\"=?, \"CaseType\"=?, \"Status\"=?, "
                 + "\"CustomerServiceRep\"=?" 
                 + " WHERE \"CaseID\"=?;";
@@ -46,7 +46,7 @@ public class CaseReturnService extends BaseService<Case> {
     public int remove(Object o) throws SQLException {
         Case c = (Case) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"Case\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"Case\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getCaseID());
         } catch (Exception ex) {
@@ -60,7 +60,7 @@ public class CaseReturnService extends BaseService<Case> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<Case>> resultHandler = new CaseHandler(connection);
         
-        String query = "SELECT * FROM public.Case WHERE \"CaseID\" = ?";
+        String query = "SELECT * FROM \"Case\" WHERE \"CaseID\" = ?";
 
         List<Case> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
@@ -93,7 +93,7 @@ public class CaseReturnService extends BaseService<Case> {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM public.Case";
+        String query = "SELECT COUNT(0) FROM \"Case\"";
         long count = runner.query(connection, query, scalarHandler);
         return count;
     }

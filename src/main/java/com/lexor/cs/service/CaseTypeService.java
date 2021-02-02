@@ -21,7 +21,7 @@ public class CaseTypeService extends BaseService<CaseType> {
         CaseType c = (CaseType) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.CaseType (\"CaseID\", \"CaseTypeValue\" ) VALUES (?, ? )";
+                = "INSERT INTO \"CaseType\" (\"CaseID\", \"CaseTypeValue\" ) VALUES (?, ? )";
 
         return runner.update(connection, insertSQL.toLowerCase(), c.getCaseID(), c.getCaseTypeValue());
     }
@@ -31,7 +31,7 @@ public class CaseTypeService extends BaseService<CaseType> {
         CaseType c = (CaseType) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"CaseType\" "
+                = "UPDATE \"CaseType\" "
                 + " SET \"CaseID\"=?, \"CaseTypeValue\"=?"
                 + " WHERE \"CaseTypeID\"=?;";
 
@@ -42,7 +42,7 @@ public class CaseTypeService extends BaseService<CaseType> {
     public int remove(Object o) throws SQLException {
         CaseType c = (CaseType) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.CaseType WHERE ?;";
+        String deleteSQL = "DELETE FROM \"CaseType\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL.toLowerCase(), c.getCaseTypeID());
         } catch (Exception ex) {
@@ -70,7 +70,7 @@ public class CaseTypeService extends BaseService<CaseType> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseType>> resultHandler = new CaseTypeHandler(connection);
         
-        String query = "SELECT * FROM public.CaseType WHERE CaseID = ?";
+        String query = "SELECT * FROM \"CaseType\" WHERE CaseID = ?";
         List<CaseType> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, status);
         List<T> list = new ArrayList<>();
         for (CaseType case1 : empList) {
@@ -102,7 +102,7 @@ public class CaseTypeService extends BaseService<CaseType> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseType>> resultHandler = new CaseTypeHandler(connection);
             
-        String query = "SELECT * FROM public.CaseType WHERE CaseTypeID >= ? AND CaseTypeID <= ?";
+        String query = "SELECT * FROM \"CaseType\" WHERE \"CaseTypeID\" >= ? AND \"CaseTypeID\" <= ?";
         List<CaseType> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         
         return (List<T>)empList; 

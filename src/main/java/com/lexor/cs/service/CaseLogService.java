@@ -21,7 +21,7 @@ public class CaseLogService extends BaseService<CaseLog> {
         CaseLog c = (CaseLog) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.CaseLog (\"CaseID\", \"LogMessage\", \"CreatedDate\") VALUES (?, ?, ?::timestamp)";
+                = "INSERT INTO \"CaseLog\" (\"CaseID\", \"LogMessage\", \"CreatedDate\") VALUES (?, ?, ?::timestamp)";
 
         return runner.update(connection, insertSQL.toLowerCase(), c.getCaseID(), c.getLogMessage(), c.getCreatedDate());
     }
@@ -31,7 +31,7 @@ public class CaseLogService extends BaseService<CaseLog> {
         CaseLog c = (CaseLog) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"CaseLog\" "
+                = "UPDATE \"CaseLog\" "
                 + " SET \"CaseID\"=?, \"LogMessage\"=?, \"CreatedDate\"=? "
                 + " WHERE \"LogID\"=?;";
 
@@ -42,7 +42,7 @@ public class CaseLogService extends BaseService<CaseLog> {
     public int remove(Object o) throws SQLException {
         CaseLog c = (CaseLog) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"CaseLog\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"CaseLog\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getLogID());
         } catch (Exception ex) {
@@ -101,7 +101,7 @@ public class CaseLogService extends BaseService<CaseLog> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseLog>> resultHandler = new CaseLogHandler(connection);
             
-        String query = "SELECT * FROM public.CaseLog WHERE CaseID >= ? AND CaseID <= ?";
+        String query = "SELECT * FROM \"CaseLog\" WHERE \"CaseID\" >= ? AND \"CaseID\" <= ?";
         List<CaseLog> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (CaseLog case1 : empList) {
             list.add((T) case1);

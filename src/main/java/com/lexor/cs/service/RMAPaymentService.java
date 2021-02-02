@@ -31,7 +31,7 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
         RMAPayment c = (RMAPayment) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"RMAPayment\" "
+                = "UPDATE \"RMAPayment\" "
                 + " SET \"RMAID\"=?, \"PaymentType\"=?, \"PaymentAmount\"=?, \"PaymentStatus\"=? \""
                 + " WHERE \"PaymentID\"=?;";
 
@@ -42,7 +42,7 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
     public int remove(Object o) throws SQLException {
         RMAPayment c = (RMAPayment) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"RMAPayment\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"RMAPayment\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getPaymentID());
         } catch (Exception ex) {

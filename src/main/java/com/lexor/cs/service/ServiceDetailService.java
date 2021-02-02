@@ -23,7 +23,7 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         ServiceDetail c = (ServiceDetail) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.ServiceDetail (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"warehouse\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
+                = "INSERT INTO \"ServiceDetail\" (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"warehouse\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?)";
 
         return runner.update(connection, insertSQL.toLowerCase(), c.getServiceMasterID(), c.getProductID(), c.getQuantity(),c.getSoldPrice(),
                 c.getAmount(),  c.getTotalWeight(), c.getSerialNumber(), c.getIsWarrantly(),
@@ -35,7 +35,7 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         ServiceDetail c = (ServiceDetail) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.ServiceDetail "
+                = "UPDATE \"ServiceDetail\" "
                 + " SET \"ServiceMasterID\"=?, \"ProductID\"=?, \"Quantity\"=?, \"SoldPrice\"=?, \"Amount\"=?, \"TotalWeight\"=?, \"SerialNumber\"=?, \"IsWarrantly\"=?, \"WarrantyStartDate\"=?, \"WarrantyEndDate\"=?, \"PaymentType\"=?"
                 + " WHERE \"ServiceMasterID\"=?;";
 
@@ -48,7 +48,7 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
     public int remove(Object o) throws SQLException {
         ServiceDetail c = (ServiceDetail) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"ServiceDetail\" WHERE \"ServiceDetailID\" =?";
+        String deleteSQL = "DELETE FROM \"ServiceDetail\" WHERE \"ServiceDetailID\" =?";
         try {
             return runner.execute(connection, deleteSQL.toLowerCase(), c.getServiceDetailID());
         } catch (Exception ex) {
@@ -62,7 +62,7 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<ServiceDetail>> resultHandler = new ServiceDetailHandler(connection);
         
-        String query = "SELECT * FROM public.ServiceDetail WHERE \"ServiceDetailID\" = ?";
+        String query = "SELECT * FROM \"ServiceDetail\" WHERE \"ServiceDetailID\" = ?";
         List<ServiceDetail> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
@@ -90,7 +90,7 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<ServiceMaster>> resultHandler = new ServiceMasterHandler(connection);
 
-        List<ServiceMaster> empList = queryRunner.query(connection, "SELECT ServiceDetail.* FROM \"ServiceDetail\" INNER JOIN \"ServiceMaster\" ON \"ServiceDetail.ServiceMasterID = ServiceMaster.ServiceMasterID\" WHERE \"ServiceMaster.ServiceMasterID\" = ?", resultHandler, id);
+        List<ServiceMaster> empList = queryRunner.query(connection, "SELECT \"ServiceDetail\".* FROM \"ServiceDetail\" INNER JOIN \"ServiceMaster\" ON \"ServiceDetail.ServiceMasterID = ServiceMaster.ServiceMasterID\" WHERE \"ServiceMaster.ServiceMasterID\" = ?", resultHandler, id);
         List<T> list = new ArrayList<>();
         for (ServiceMaster case1 : empList) {
             list.add((T) case1);
@@ -116,7 +116,7 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<ServiceDetail>> resultHandler = new ServiceDetailHandler(connection);
             
-        String query = "SELECT * FROM public.ServiceDetail WHERE ServiceMasterID >= ? AND ServiceMasterID <= ?";
+        String query = "SELECT * FROM \"ServiceDetail\" WHERE \"ServiceMasterID\" >= ? AND \"ServiceMasterID\" <= ?";
         List<ServiceDetail> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (ServiceDetail case1 : empList) {
             list.add((T) case1);

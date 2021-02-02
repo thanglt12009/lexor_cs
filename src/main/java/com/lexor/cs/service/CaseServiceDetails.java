@@ -23,7 +23,7 @@ public class CaseServiceDetails extends BaseService<CaseService> {
         CaseServiceDetail c = (CaseServiceDetail) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.CaseServiceSO (\"CaseServiceID\", \"CustomerSOID\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?)";
+                = "INSERT INTO \"CaseServiceSO\" (\"CaseServiceID\", \"CustomerSOID\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?)";
 
         return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseServiceID(), c.getCustomerSOID(), c.getCreatedDate(), c.getUpdatedDate());
     }
@@ -33,7 +33,7 @@ public class CaseServiceDetails extends BaseService<CaseService> {
         CaseServiceDetail c = (CaseServiceDetail) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"CaseServiceSO\" "
+                = "UPDATE \"CaseServiceSO\" "
                 + " SET \"CaseServiceID\"=?, \"CustomerSOID\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=? "
                 + " WHERE \"CaseServiceDetailID\"=?;";
 
@@ -44,7 +44,7 @@ public class CaseServiceDetails extends BaseService<CaseService> {
     public int remove(Object o) throws SQLException {
         CaseServiceDetail c = (CaseServiceDetail) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"CaseServiceSO\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"CaseServiceSO\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getCaseServiceID());
         } catch (Exception ex) {
@@ -89,7 +89,7 @@ public class CaseServiceDetails extends BaseService<CaseService> {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM public.CaseServiceSO";
+        String query = "SELECT COUNT(0) FROM \"CaseServiceSO\"";
         long count = runner.query(connection, query, scalarHandler);
         return count;
     }

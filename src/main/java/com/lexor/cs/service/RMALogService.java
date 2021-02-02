@@ -21,7 +21,7 @@ public class RMALogService extends BaseService<RMALog> {
         RMALog c = (RMALog) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.RMALog (\"RMAID\", \"LogMessage\",\"CreatedDate\" ) VALUES (?, ?, ?::timestamp)";
+                = "INSERT INTO RMALog (\"RMAID\", \"LogMessage\",\"CreatedDate\" ) VALUES (?, ?, ?::timestamp)";
 
         return runner.update(connection, insertSQL.toLowerCase(), c.getRMAID(), c.getLogMessage(), c.getCreatedDate());
     }
@@ -31,7 +31,7 @@ public class RMALogService extends BaseService<RMALog> {
         RMALog c = (RMALog) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"RMALog\" "
+                = "UPDATE \"RMALog\" "
                 + " SET \"RMAID\"=?, \"LogMessage\"=?, \"CreatedDate\"=? \""
                 + " WHERE \"LogID\"=?;";
 
@@ -42,7 +42,7 @@ public class RMALogService extends BaseService<RMALog> {
     public int remove(Object o) throws SQLException {
         RMALog c = (RMALog) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"RMALog\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"RMALog\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getRMAID());
         } catch (Exception ex) {
@@ -100,7 +100,7 @@ public class RMALogService extends BaseService<RMALog> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMALog>> resultHandler = new RMALoglHandler(connection);
         
-        String query = "SELECT * FROM public.RMALog WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?";
+        String query = "SELECT * FROM RMALog WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?";
         List<RMALog> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (RMALog case1 : empList) {
             list.add((T) case1);

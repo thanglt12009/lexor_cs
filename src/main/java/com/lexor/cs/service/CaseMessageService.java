@@ -33,7 +33,7 @@ public class CaseMessageService extends BaseService<CaseMessage> {
         CaseMessage c = (CaseMessage) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"CaseMessage\" "
+                = "UPDATE \"CaseMessage\" "
                 + " SET \"CaseID\"=?, \"SendTo\"=?, \"Subject\"=?, \"MessageBody\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=? "
                 + " WHERE \"MessageID\"=?;";
 
@@ -44,7 +44,7 @@ public class CaseMessageService extends BaseService<CaseMessage> {
     public int remove(Object o) throws SQLException {
         CaseMessage c = (CaseMessage) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"CaseMessage\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"CaseMessage\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getMessageID());
         } catch (Exception ex) {

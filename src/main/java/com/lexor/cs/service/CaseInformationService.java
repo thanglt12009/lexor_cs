@@ -21,7 +21,7 @@ public class CaseInformationService extends BaseService<CaseInformation> {
         CaseInformation c = (CaseInformation) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.CaseInformation ( \"CaseID\", \"DocCode\", \"Status\", \"Address\", \"CreatedDate\" ) VALUES (?, ?, ?, ?, ?::timestamp)";
+                = "INSERT INTO \"CaseInformation\" ( \"CaseID\", \"DocCode\", \"Status\", \"Address\", \"CreatedDate\" ) VALUES (?, ?, ?, ?, ?::timestamp)";
 
         return runner.update(connection, insertSQL.toLowerCase(), c.getCaseID(), c.getDocCode(), Integer.parseInt(c.getStatus()), c.getAddress(), c.getCreatedDate());
     }
@@ -31,7 +31,7 @@ public class CaseInformationService extends BaseService<CaseInformation> {
         CaseInformation c = (CaseInformation) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"CaseInformation\" "
+                = "UPDATE \"CaseInformation\" "
                 + " SET \"CaseID\"=?, \"DocCode\"=?, \"Status\"=?, \"Address\"=?, \"CreatedDate\"=? "
                 + " WHERE \"TransactionID\"=?;";
 
@@ -42,7 +42,7 @@ public class CaseInformationService extends BaseService<CaseInformation> {
     public int remove(Object o) throws SQLException {
         CaseInformation c = (CaseInformation) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"CaseInformation\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"CaseInformation\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getTransactionID());
         } catch (Exception ex) {
@@ -102,7 +102,7 @@ public class CaseInformationService extends BaseService<CaseInformation> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseInformation>> resultHandler = new CaseInformationHandler(connection);
         
-        String query = "SELECT * FROM public.CaseInformation WHERE \"CaseID\" >= ? AND  \"CaseID\" <= ?";
+        String query = "SELECT * FROM \"CaseInformation\" WHERE \"CaseID\" >= ? AND  \"CaseID\" <= ?";
         List<CaseInformation> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (CaseInformation case1 : empList) {
             list.add((T) case1);

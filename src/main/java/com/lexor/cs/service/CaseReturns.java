@@ -21,7 +21,7 @@ public class CaseReturns extends BaseService<CaseReturn> {
         CaseReturn c = (CaseReturn) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.CaseReturn (\"CaseID\", \"CustomerSOID\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?)";
+                = "INSERT INTO \"CaseReturn\" (\"CaseID\", \"CustomerSOID\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?)";
 
         return runner.update(connection, insertSQL.toLowerCase(), c.getCaseID(), c.getCustomerSOID(), c.getCreatedDate(), c.getUpdatedDate());
     }
@@ -31,7 +31,7 @@ public class CaseReturns extends BaseService<CaseReturn> {
         CaseReturn c = (CaseReturn) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"CaseReturn\" "
+                = "UPDATE \"CaseReturn\" "
                 + " SET \"CaseID\"=?, \"CustomerSOID\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=? "
                 + " WHERE \"CaseReturnID\"=?;";
 
@@ -42,7 +42,7 @@ public class CaseReturns extends BaseService<CaseReturn> {
     public int remove(Object o) throws SQLException {
         CaseReturn c = (CaseReturn) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"CaseReturn\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"CaseReturn\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getCaseReturnID());
         } catch (Exception ex) {
@@ -87,7 +87,7 @@ public class CaseReturns extends BaseService<CaseReturn> {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM public.CaseReturn";
+        String query = "SELECT COUNT(0) FROM \"CaseReturn\"";
         long count = runner.query(connection, query, scalarHandler);
         return count;
     }

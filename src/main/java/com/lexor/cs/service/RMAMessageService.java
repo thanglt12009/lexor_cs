@@ -31,7 +31,7 @@ public class RMAMessageService extends BaseService<RMAMessage> {
         RMAMessage c = (RMAMessage) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"RMAMessage\" "
+                = "UPDATE \"RMAMessage\" "
                 + " SET \"RMAID\"=?, \"SendTo\"=?, \"Subject\"=?, \"MessageBody\"=?, \"CreatedDate\"=?, \""
                 + " WHERE \"MessageID\"=?;";
 
@@ -42,7 +42,7 @@ public class RMAMessageService extends BaseService<RMAMessage> {
     public int remove(Object o) throws SQLException {
         RMAMessage c = (RMAMessage) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"RMAMessage\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"RMAMessage\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getMessageID());
         } catch (Exception ex) {

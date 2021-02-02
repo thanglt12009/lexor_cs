@@ -21,7 +21,7 @@ public class RMASOService extends BaseService<RMASO> {
         RMASO c = (RMASO) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.RMASO (\"RMAID\", \"Fee\", \"Total\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
+                = "INSERT INTO \"RMASO\" (\"RMAID\", \"Fee\", \"Total\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
 
         return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate());
     }
@@ -31,7 +31,7 @@ public class RMASOService extends BaseService<RMASO> {
         RMASO c = (RMASO) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.RMASO "
+                = "UPDATE RMASO "
                 + " SET \"RMAID\"=?, \"Fee\"=?, \"Total\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=?, \""
                 + " WHERE \"SOID\"=?;";
 
@@ -42,7 +42,7 @@ public class RMASOService extends BaseService<RMASO> {
     public int remove(Object o) throws SQLException {
         RMASO c = (RMASO) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"RMASO\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"RMASO\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getSOID());
         } catch (Exception ex) {

@@ -26,7 +26,7 @@ public class CaseServices extends BaseService<CaseService> {
         CaseService c = (CaseService) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.CaseService (\"CaseID\", \"CustomerSOID\", \"LogMessage\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
+                = "INSERT INTO CaseService (\"CaseID\", \"CustomerSOID\", \"LogMessage\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?)";
 
         return runner.insert(connection, insertSQL.toLowerCase(), new ScalarHandler<Integer>(), c.getCaseID(), c.getCustomerSOID(), c.getLogMessage(), c.getCreatedDate(), c.getUpdatedDate());
     }
@@ -36,7 +36,7 @@ public class CaseServices extends BaseService<CaseService> {
         CaseService c = (CaseService) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.\"CaseService\" "
+                = "UPDATE \"CaseService\" "
                 + " SET \"CaseID\"=?, \"CustomerSOID\"=?, \"LogMessage\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=? "
                 + " WHERE \"CaseServiceID\"=?;";
 
@@ -47,7 +47,7 @@ public class CaseServices extends BaseService<CaseService> {
     public int remove(Object o) throws SQLException {
         CaseService c = (CaseService) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.\"CaseService\" WHERE ?;";
+        String deleteSQL = "DELETE FROM \"CaseService\" WHERE ?;";
         try {
             return runner.execute(connection, deleteSQL, c.getCaseServiceID());
         } catch (Exception ex) {
@@ -62,7 +62,7 @@ public class CaseServices extends BaseService<CaseService> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
         
-        String query = "SELECT caseservice.*, servicemaster.* FROM public.CaseService inner join public.servicemaster on caseservice.caseserviceid = servicemaster.caseserviceid WHERE caseservice.caseserviceid = ?";
+        String query = "SELECT \"caseservice.*\", \"servicemaster.*\" FROM \"CaseService\" inner join \"servicemaster\" on \"caseservice\".\"caseserviceid\" = \"servicemaster\".\"caseserviceid\" WHERE \"caseservice\".\"caseserviceid\" = ?";
         /*List<CaseService> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
@@ -124,7 +124,7 @@ public class CaseServices extends BaseService<CaseService> {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM public.CaseService";
+        String query = "SELECT COUNT(0) FROM \"CaseService\"";
         long count = runner.query(connection, query, scalarHandler);
         return count;
     }

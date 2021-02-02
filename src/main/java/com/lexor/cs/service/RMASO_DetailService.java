@@ -21,7 +21,7 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         RMASO_Detail c = (RMASO_Detail) o;
         QueryRunner runner = new QueryRunner();
         String insertSQL
-                = "INSERT INTO public.RMASO_Detail (\"SOID\", \"RMAID\", \"ProductID\",\"Quantity\", \"Price\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?, ?)";
+                = "INSERT INTO \"RMASO_Detail\" (\"SOID\", \"RMAID\", \"ProductID\",\"Quantity\", \"Price\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?, ?)";
 
         return runner.update(connection, insertSQL.toLowerCase(), c.getSOID(), c.getRMAID(), c.getProductID(),  c.getQuantity(), c.getPrice(), c.getCreatedDate(), c.getUpdatedDate());
     }
@@ -31,7 +31,7 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         RMASO_Detail c = (RMASO_Detail) o;
         QueryRunner runner = new QueryRunner();
         String updateSQL
-                = "UPDATE public.RMASO_Detail "
+                = "UPDATE \"RMASO_Detail\" "
                 + " SET \"SOID\"=?, \"SODetail_ID\"=?, \"ProductID\"=?, \"Quantity\"=?, \"Price\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=?, \""
                 + " WHERE \"ProductID\"=?;";
 
@@ -42,7 +42,7 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
     public int remove(Object o) throws SQLException {
         RMASO_Detail c = (RMASO_Detail) o;
         QueryRunner runner = new QueryRunner();
-        String deleteSQL = "DELETE FROM public.RMASO_Detail WHERE SODetail_ID = ?";
+        String deleteSQL = "DELETE FROM \"RMASO_Detail\" WHERE SODetail_ID = ?";
         try {
             return runner.execute(connection, deleteSQL.toLowerCase() , c.getSODetail_ID());
         } catch (Exception ex) {
@@ -56,7 +56,7 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMASO_Detail>> resultHandler = new RMASO_DetailHandler(connection);
 
-        String query = "SELECT * FROM RMASO_Detail WHERE \"RMAID\" = ?";
+        String query = "SELECT * FROM \"RMASO_Detail\" WHERE \"RMAID\" = ?";
         List<RMASO_Detail> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
@@ -101,7 +101,7 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMASO_Detail>> resultHandler = new RMASO_DetailHandler(connection);
-        String query = "SELECT * FROM public.RMASO_Detail WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?";
+        String query = "SELECT * FROM \"RMASO_Detail\" WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?";
         
         List<RMASO_Detail> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (RMASO_Detail case1 : empList) {
