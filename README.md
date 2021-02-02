@@ -28,7 +28,7 @@
 ## RMA
 1. URL : http://localhost:8080/lexor_cs/pages/cs/purchaseorder/rma.html?user_id=1&rma_id=xx
 2. Co the change RMA status
-3. Co the add, remove product.
+3. Co the add, remove product nhung chua save duoc vi dang cho thong tin product de tinh toan
 4. Tab activity : co the xem activity sau khi save products
 
 # Task se update sau
