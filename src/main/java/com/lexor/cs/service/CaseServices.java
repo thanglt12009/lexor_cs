@@ -127,7 +127,7 @@ public class CaseServices extends BaseService<CaseService> {
 
         QueryRunner runner = new QueryRunner();
         String query = "SELECT COUNT(0) FROM \"public\".\"CaseService\";";
-        long count = runner.query(connection, query, scalarHandler);
+        long count = runner.query(connection, query.toLowerCase(), scalarHandler);
         return count;
     }
 

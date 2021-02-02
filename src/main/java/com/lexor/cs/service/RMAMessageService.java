@@ -102,8 +102,9 @@ public class RMAMessageService extends BaseService<RMAMessage> {
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMAMessage>> resultHandler = new RMAMessageHandler(connection);
+        String query = "SELECT * FROM \"public\".\"RMAMessage\" WHERE \"MessageID\" >= ? AND  \"MessageID\" <= ?;";
 
-        List<RMAMessage> empList = queryRunner.query(connection, "SELECT * FROM \"public\".\"RMAMessage\" WHERE \"MessageID\" >= ? AND  \"MessageID\" <= ?;", resultHandler, from, to);
+        List<RMAMessage> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
         for (RMAMessage case1 : empList) {
             list.add((T) case1);
         }
