@@ -186,7 +186,6 @@ function prepareProductToSave() {
             products[i].serviceMasterID = serviceMasterID;
             
             delete products[i].warehouse; 
-            console.log(products[i]);
             productToSave.push(products[i]);
         }
     }
@@ -501,19 +500,24 @@ function loadServices() {
 }
 
 function getServiceInformation(serviceId) {
-
     $.get({
         url: '/lexor_cs/api/case_service/detail/' + serviceId,
         success: function(data) {
             var text = "Service {name}-{status}";
             var serviceInformation = $(".service-info__status");
             caseServiceID = data.caseServiceID;
-            serviceMasterID = data.serviceMasterID;
+            
+            if (data.serviceMasterID) {
+                serviceMasterID = data.serviceMasterID;
+            } else {
+                createMasterProduct( data.caseServiceID);
+            }
+            
             getProducts();
             serviceInformation.html(text.replace('{name}', data.caseServiceID).replace('{status}', serviceStatus[data.status]));
         },
         contentType: 'application/json'
-   });
+    });
 }
 
 function reCalculateAmount() {
@@ -546,6 +550,21 @@ function loadPaymentMethod() {
         onChange: function(value) {
             paymentMethod = value;
         }
+    });
+}
+
+function createMasterProduct(caseServiceID) {
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/serviceMaster',
+        data: JSON.stringify({
+            status: 0,
+            caseServiceID: caseServiceID
+        }),
+        success: function (masterID) {
+           serviceMasterID = masterID;
+        },
+        contentType: 'application/json'
     });
 }
 

@@ -63,7 +63,7 @@ public class CaseServices extends BaseService<CaseService> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
         
-        String query = "SELECT \"public\".\"caseservice.*\", \"public\".\"servicemaster.*\" FROM \"public\".\"CaseService\" inner join \"public\".\"servicemaster\" on \"public\".\"caseservice\".\"caseserviceid\" = \"public\".\"servicemaster\".\"caseserviceid\" WHERE \"public\".\"caseservice\".\"caseserviceid\" = ?;";
+        String query = "SELECT public.caseservice.*, public.servicemaster.* FROM public.CaseService inner join public.servicemaster on public.caseservice.caseserviceid = public.servicemaster.caseserviceid WHERE public.caseservice.caseserviceid = ?;";
         /*List<CaseService> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);

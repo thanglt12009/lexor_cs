@@ -35,11 +35,11 @@ public class CaseReturnService extends BaseService<Case> {
         QueryRunner runner = new QueryRunner();
         String updateSQL
                 = "UPDATE  \"public\".\"Case\""
-                + " SET \"CaseName\"=?, \"CustomerID\"=?, \"SalonID\"=?, \"CasePriority\"=?, \"CaseType\"=?, \"Status\"=?, "
+                + " SET \"CaseName\"=?, \"CustomerID\"=?, \"SalonID\"=?, \"CasePriority\"=?, \"Status\"=?, "
                 + "\"CustomerServiceRep\"=?" 
                 + " WHERE \"CaseID\"=?;";
 
-        return runner.update(connection, updateSQL.toLowerCase(), c.getCaseName(), c.getCustomerID(), c.getSalonID(), c.getCasePriority(), c.getCaseType(), c.getStatus(), c.getCustomerServiceRep(), id);
+        return runner.update(connection, updateSQL.toLowerCase(), c.getCaseName(), c.getCustomerID(), c.getSalonID(), c.getCasePriority(), c.getStatus(), c.getCustomerServiceRep(), id);
     }
 
     @Override

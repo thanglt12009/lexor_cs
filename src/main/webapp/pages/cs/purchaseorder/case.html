@@ -25,7 +25,7 @@ and open the template in the editor.
     </head>
     <body>
         <div id="editSaleOrderDialog"></div>
-        <div class="easyui-dialog" id="editContactDialog" title="Edit contact" style="width:400px;height:400px;display: none"
+        <div class="easyui-dialog" id="editContactDialog" title="Edit contact" style="width:400px;height:420px;display: none"
              accesskey="" data-options="iconCls:'icon-save',resizable:true">
             <form>
                 <div class="form-group">
@@ -84,13 +84,13 @@ and open the template in the editor.
                         Service Type
                     </label>
                     <div class="checkbox-type">
-                        <input class="easyui-checkbox" labelPosition="after" name="BuyPart" value="Apple" label="BuyPart">
+                        <input class="easyui-checkbox" data-id="1" id="editBuyPart" labelPosition="after" name="BuyPart" value="Apple" label="BuyPart">
                     </div>
                     <div class="checkbox-type">
-                        <input class="easyui-checkbox" labelPosition="after" name="Service" value="Service" label="Service">
+                        <input class="easyui-checkbox" data-id="2" id="editService" labelPosition="after" name="Service" value="Service" label="Service">
                     </div>
                     <div class="checkbox-type">
-                        <input class="easyui-checkbox" labelPosition="after" name="Return" value="Return" label="Return">
+                        <input class="easyui-checkbox" data-id="3" id ="editReturnCK" labelPosition="after" name="Return" value="Return" label="Return">
                     </div>
                 </div>
                 <hr>

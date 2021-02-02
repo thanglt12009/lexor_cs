@@ -11,12 +11,17 @@ transactionType = {
     2: "Closed"
 };
 customerServiceRep = {
-    1: "Auto Rotation",
-    2: "Customer Service Rep 1",
-    3: "Customer Service Rep 2",
-    4: "Customer Service Rep 3",
-    5: "Customer Service Rep 4"
+    0: "Auto Rotation",
+    1: "Customer Service Rep 1",
+    2: "Customer Service Rep 2",
+    3: "Customer Service Rep 3",
+    4: "Customer Service Rep 4"
 };
+
+caseTypes = {};
+editCaseType = {};
+caseTypeValue = {};
+newCaseType = {};
 caseToUpdate = {};
 caseType = {};
 selectedSO = {};
@@ -109,6 +114,7 @@ $(document).ready(function () {
     });
 
     $("#editCase").on("click", function () {
+        getCaseType();
         $("#editMobilePhone").textbox({value: window.defaultUser.mobile_phone, required: true, validateOnCreate: false, width: 337});
         $("#editBusinessPhone").textbox({value: window.defaultUser.business_phone, required: true, validateOnCreate: false, width: 337});
         $('#editContactDialog').window('open');
@@ -134,6 +140,45 @@ function setEditCaseData(updateCase) {
     }).combo('setText', casePriority[updateCase.casePriority] || updateCase.casePriority);
 }
 
+function getCaseType() {
+     $.get({
+        url: '/lexor_cs/api/casetype/find/' + $.urlParam('case_id'),
+        success: function (data) {
+            editCaseType = {};
+            if ( data ) {
+                registerEditCaseType("editBuyPart", false);
+                registerEditCaseType("editService", false);
+                registerEditCaseType("editReturnCK", false);
+                for ( i = 0 ; i < data.length; i ++ ) {
+                    editCaseType[data[i].caseTypeValue] = data[i];
+                    switch (data[i].caseTypeValue) {
+                        case "1":
+                            registerEditCaseType("editBuyPart");
+                            break;
+                        case "2":
+                            registerEditCaseType("editService");
+                            break;
+                        case "3":
+                            registerEditCaseType("editReturnCK");
+                            break;
+                    }
+                } 
+            }
+        },
+        contentType: 'application/json'
+    });
+}
+
+function registerEditCaseType(id, isCheck = true) {
+    $('#' + id).checkbox({
+        checked: isCheck,
+        onChange: function(value) {
+            var id = $(this).attr('data-id');
+            newCaseType[id] = value;
+        } 
+    });
+}
+
 function reInitUser() {
     var users = [];
     users[0] = {
@@ -149,6 +194,40 @@ function reInitUser() {
     if (localStorage.getItem("users") === null) {
         localStorage.setItem("users", JSON.stringify(users));
     }
+}
+
+function editCaseTypeValue() {
+    if ( newCaseType ) {
+        for ( key in newCaseType ) {
+            if ( !editCaseType[key] ) {
+                createCaseTypeValue(key);
+            } else {
+                if ( newCaseType[key] === false ) {
+                    deleteCaseType(editCaseType[key].caseTypeID);
+                }
+            }
+        }
+    }
+}
+
+function createCaseTypeValue(typeValue) {
+     $.post({
+        type: "POST",
+        url: '/lexor_cs/api/casetype',
+        data: JSON.stringify({
+            "caseID": $.urlParam("case_id"),
+            "caseTypeValue" : typeValue
+        }),
+        contentType: 'application/json'
+    });
+}
+
+function deleteCaseType(caseTypeId) {
+    $.ajax({
+        contentType: 'application/json',
+        url: '/lexor_cs/api/casetype/' + caseTypeId,
+        type: 'DELETE'
+    });
 }
 
 function registerCaseTransactionDialog(dialogElement, title, path, defaultSaleOrder = {}) {
@@ -357,6 +436,7 @@ function getCaseInformation(caseId) {
             caseInformation.html(caseInformation.text().replace('{name}', data.caseID).replace('{status}', status[data.status]));
             
             setEditCaseData(caseToUpdate);
+            getCaseType();
         },
         contentType: 'application/json'
     });
@@ -389,6 +469,11 @@ function createServiceOrReturn(caseId, path, dialog, title) {
         success: function(caseServiceId) {
             if ( caseServiceId && saleOrderToSave ) {
                 var promises = [];
+
+                if ( Object.keys(saleOrderToSave).length === 0 ) {
+                    createMasterProduct(caseServiceId, {});
+                }
+
                 for (const key in saleOrderToSave) {
                     if (path === "/lexor_cs/api/case_service") {
                         if (saleOrderToSave[key]) {
@@ -582,6 +667,8 @@ function editCase(caseId) {
         type: 'PUT',
         success: function() {
             $('#editContactDialog').window('close');
+            editCaseTypeValue();
+            getCaseType();
         }
     });
 }

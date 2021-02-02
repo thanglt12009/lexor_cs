@@ -1,12 +1,15 @@
 package com.lexor.cs.service;
 
 import com.lexor.cs.beanhandler.CaseTypeHandler;
+import com.lexor.cs.domain.CaseService;
 import com.lexor.cs.domain.CaseType;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 public class CaseTypeService extends BaseService<CaseType> {
@@ -42,7 +45,7 @@ public class CaseTypeService extends BaseService<CaseType> {
     public int remove(Object o) throws SQLException {
         CaseType c = (CaseType) o;
         QueryRunner runner = new QueryRunner();
-        String query = "DELETE FROM \"public\".\"CaseType\" WHERE ?;";
+        String query = "DELETE FROM public.caseType WHERE caseTypeId = ?";
         
         try {
             return runner.execute(connection, query.toLowerCase(), c.getCaseTypeID());
@@ -58,10 +61,29 @@ public class CaseTypeService extends BaseService<CaseType> {
         ResultSetHandler<List<CaseType>> resultHandler = new CaseTypeHandler(connection);
         String query = "SELECT * FROM \"public\".\"CaseType\" WHERE \"CaseTypeID\" = ?;";
 
+        /*
         List<CaseType> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {
             return (T) empList.get(0);
         }
+        */
+        
+        List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler(), id);
+        List<T> list = new ArrayList<>();
+        
+        for(int i=0; i< empLists.size();i++) {
+            Map<String, Object> mapObj = (Map<String, Object>) empLists.get(i);
+            CaseType caseObj = new CaseType();
+            caseObj.setCaseID((Integer)mapObj.get("caseID"));
+            caseObj.setCaseTypeID((Integer)mapObj.get("caseTypeID"));
+            caseObj.setCaseTypeValue((String)mapObj.get("caseTypeValue"));
+            list.add((T) caseObj);
+        }
+        
+        if (list.size() > 0) {
+            return (T) list.get(0);
+        }
+        
         throw new SQLException("Record not found");
     }
     
@@ -73,12 +95,27 @@ public class CaseTypeService extends BaseService<CaseType> {
         ResultSetHandler<List<CaseType>> resultHandler = new CaseTypeHandler(connection);        
         String query = "SELECT * FROM \"public\".\"CaseType\" WHERE CaseID = ?;";
         
+        /*
         List<CaseType> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, status);
         List<T> list = new ArrayList<>();
         for (CaseType case1 : empList) {
             list.add((T) case1);
         }
         return list; 
+        */
+        List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler(), status);
+        List<T> list = new ArrayList<>();
+        
+        for(int i=0; i< empLists.size();i++) {
+            Map<String, Object> mapObj = (Map<String, Object>) empLists.get(i);
+            CaseType caseObj = new CaseType();
+            caseObj.setCaseID((Integer)mapObj.get("caseID"));
+            caseObj.setCaseTypeID((Integer)mapObj.get("caseTypeID"));
+            caseObj.setCaseTypeValue((String)mapObj.get("caseTypeValue"));
+            list.add((T) caseObj);
+        }
+        
+        return list;
     }
     
     @Override
