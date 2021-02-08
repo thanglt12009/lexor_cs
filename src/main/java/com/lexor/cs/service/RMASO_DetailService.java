@@ -1,12 +1,15 @@
 package com.lexor.cs.service;
 
 import com.lexor.cs.beanhandler.RMASO_DetailHandler;
+import com.lexor.cs.domain.RMA;
 import com.lexor.cs.domain.RMASO_Detail;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 public class RMASO_DetailService extends BaseService<RMASO_Detail> {
@@ -21,9 +24,9 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         RMASO_Detail c = (RMASO_Detail) o;
         QueryRunner runner = new QueryRunner();
         String query
-                = "INSERT INTO \"public\".\"RMASO_Detail\" (\"SOID\", \"RMAID\", \"ProductID\",\"Quantity\", \"Price\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?, ?);";
+                = "INSERT INTO \"public\".\"RMASO_Detail\" (\"RMASOID\", \"RMAID\", \"ProductID\",\"Quantity\", \"Price\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?, ?);";
 
-        return runner.update(connection, query.toLowerCase(), c.getSOID(), c.getRMAID(), c.getProductID(),  c.getQuantity(), c.getPrice(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.update(connection, query.toLowerCase(), c.getRMASOID(), c.getRMAID(), c.getProductID(),  c.getQuantity(), c.getPrice(), c.getCreatedDate(), c.getUpdatedDate());
     }
 
     @Override
@@ -55,12 +58,23 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
     public <T> T find(Class<T> type, Object o) throws SQLException {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<RMASO_Detail>> resultHandler = new RMASO_DetailHandler(connection);
-        String query = "SELECT * FROM \"public\".\"RMASO_Detail\" WHERE \"RMAID\" = ?;";
+        //ResultSetHandler<List<RMASO_Detail>> resultHandler = new RMASO_DetailHandler(connection);
+        String query = "SELECT * FROM \"public\".\"RMASO_Detail\" WHERE \"SODetail_ID\" = ?;";
         
-        List<RMASO_Detail> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
-        if (empList.size() > 0) {
-            return (T) empList.get(0);
+        //List<RMASO_Detail> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
+        List<T> list = new ArrayList<>();
+        List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler(), id);
+        for(int i=0; i< empLists.size();i++) {
+            Map<String, Object> mapObj = (Map<String, Object>) empLists.get(i);
+            RMASO_Detail caseObj = new RMASO_Detail();
+            caseObj.setSODetail_ID((Integer)mapObj.get("SODetail_ID"));
+            caseObj.setRMAID((Integer)mapObj.get("RMAID"));
+            caseObj.setProductID((Integer)mapObj.get("productID"));
+            caseObj.setPrice((Double)mapObj.get("price")); 
+            list.add((T) caseObj);
+        }
+        if (list.size() > 0) {
+            return (T) list.get(0);
         }
         throw new SQLException("Record not found");
     }
@@ -102,13 +116,21 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         Integer to = range[1];
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<RMASO_Detail>> resultHandler = new RMASO_DetailHandler(connection);
-        String query = "SELECT * FROM \"public\".\"RMASO_Detail\" WHERE \"RMAID\" >= ? AND  \"RMAID\" <= ?;";
+        String query = "SELECT * FROM public.RMASO_Detail JOIN public.RMASO ON RMASO.RMASOID = RMASO_Detail.RMASOID WHERE RMASO_Detail.RMAID >= ? AND  RMASO_Detail.RMAID <= ?;";
         
-        List<RMASO_Detail> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
-        for (RMASO_Detail case1 : empList) {
-            list.add((T) case1);
+        List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler(), from, to);
+            for(int i=0; i< empLists.size();i++) {
+            Map<String, Object> mapObj = (Map<String, Object>) empLists.get(i);
+            RMASO_Detail caseObj = new RMASO_Detail();
+            caseObj.setSODetail_ID((Integer)mapObj.get("SODetail_ID"));
+            caseObj.setRMAID((Integer)mapObj.get("RMAID"));
+            caseObj.setSOID((Integer)mapObj.get("SOID"));
+            caseObj.setRMASOID((Integer)mapObj.get("RMASOID"));
+            caseObj.setProductID((Integer)mapObj.get("productID"));
+            caseObj.setPrice((Double)mapObj.get("price")); 
+            list.add((T) caseObj);
         }
+        
         return list;
     }
 }

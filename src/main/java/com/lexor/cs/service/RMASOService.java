@@ -21,9 +21,9 @@ public class RMASOService extends BaseService<RMASO> {
         RMASO c = (RMASO) o;
         QueryRunner runner = new QueryRunner();
         String query
-                = "INSERT INTO \"public\".\"RMASO\" (\"RMAID\", \"Fee\", \"Total\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?);";
+                = "INSERT INTO \"public\".\"RMASO\" (\"SOID\", \"RMAID\", \"Fee\", \"Total\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?);";
 
-        return runner.insert(connection, query.toLowerCase(), new ScalarHandler<Integer>(), c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.insert(connection, query.toLowerCase(), new ScalarHandler<Integer>(), c.getSOID(), c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate());
     }
 
     @Override
@@ -33,7 +33,7 @@ public class RMASOService extends BaseService<RMASO> {
         String query
                 = "UPDATE \"public\".\"RMASO\" "
                 + " SET \"RMAID\"=?, \"Fee\"=?, \"Total\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=?, \""
-                + " WHERE \"SOID\"=?;";
+                + " WHERE \"RMASOID\"=?;";
 
         return runner.update(connection, query.toLowerCase(), c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate(), id);
     }

@@ -25,82 +25,8 @@ and open the template in the editor.
     </head>
     <body>
         <div id="editSaleOrderDialog"></div>
-        <div class="easyui-dialog" id="editContactDialog" title="Edit contact" style="width:400px;height:420px;display: none"
-             accesskey="" data-options="iconCls:'icon-save',resizable:true">
-            <form>
-                <div class="form-group">
-                    <label>
-                        Mobile Phone:
-                    </label>
-                    <div class="col-sm-12">       
-                        <input style="width:100%" id="editMobilePhone" name="editMobilePhone">
-                    </div>                        
-                </div>
-                <div class="form-group">
-                    <label>
-                        Business Phone:
-                    </label>
-                    <div class="col-sm-12">       
-                        <input style="width:100%" id="editBusinessPhone" name="editBusinessPhone">
-                    </div>                        
-                </div>
-                <div class="form-group">
-                    <label>
-                        Email:
-                    </label>
-                    <div class="col-sm-12">       
-                        <input style="width:100%" class="easyui-textbox" data-options="validType:'email', validateOnCreate:false">
-                    </div>                        
-                </div>
-                <div class="form-group">
-                    <label>
-                        Case priority:
-                    </label>
-                    <div class="col-sm-12 combobox">     
-                        <select id="editCasePriority" class="easyui-combobox" name="editCasePriority"  data-options="valueField:'id',textField:'text'" name="casePriority" style="width:100%">
-                            <option value="1">Low </option>
-                            <option value="2">Normal</option>
-                            <option value="3">High</option>
-                            <option value="4">Critical</option>
-                        </select>                       
-                    </div> 
-                </div>
-                <div class="form-group">
-                    <label>
-                        Customer Service Rep:
-                    </label>
-                    <div class="col-sm-12 combobox">     
-                        <select class="easyui-combobox" data-options="valueField:'id',textField:'text'" id="customerService" style="width:100%">
-                            <option value="1">Auto Rotation </option>
-                            <option value="2">Customer Service Rep 1 </option>
-                            <option value="3">Customer Service Rep 2 </option>
-                            <option value="4">Customer Service Rep 3 </option>
-                            <option value="5">Customer Service Rep 4 </option>
-                        </select>                       
-                    </div> 
-                </div>
-                <div class="form-group">
-                    <label>
-                        Service Type
-                    </label>
-                    <div class="checkbox-type">
-                        <input class="easyui-checkbox" data-id="1" id="editBuyPart" labelPosition="after" name="BuyPart" value="Apple" label="BuyPart">
-                    </div>
-                    <div class="checkbox-type">
-                        <input class="easyui-checkbox" data-id="2" id="editService" labelPosition="after" name="Service" value="Service" label="Service">
-                    </div>
-                    <div class="checkbox-type">
-                        <input class="easyui-checkbox" data-id="3" id ="editReturnCK" labelPosition="after" name="Return" value="Return" label="Return">
-                    </div>
-                </div>
-                <hr>
-                <div class="form-group">
-                    <div class="col-sm-12">  
-                        <a id="editUser" href="javascript:void(0)" class="easyui-linkbutton  float-right submit" data-options="iconCls:'icon-save'">Save</a>
-                    </div>
-                </div>
-            </form>
-        </div>
+        <div id="editCaseDialog"></div>
+        <div id="editContactDialog"></div>
         <div class="container">
             <div class="row">
                 <div class="col-sm-12 case-info">
@@ -134,7 +60,7 @@ and open the template in the editor.
                             </ul>
                             <hr>
                             <div class="col-sm-12">
-                                <a href="javascript:void(0)" id="editCase" class="easyui-linkbutton float-right submit">Edit</a>
+                                <a href="javascript:void(0)" id="editContact" class="easyui-linkbutton float-right submit">Edit</a>
                             </div>
                         </div>
                     </div>
@@ -167,6 +93,10 @@ and open the template in the editor.
                         <div class="form-group">
                             <label class="type-bold">Priority:  </label>
                             <div class="col-sm-12"><input disabled="true" id="casePriorityText" class="easyui-textbox col-sm-12" value="Low"/></div>
+                        </div>
+                        <hr>
+                        <div class="col-sm-12">
+                            <a href="javascript:void(0)" id="editCase" class="easyui-linkbutton float-right submit">Edit</a>
                         </div>
                     </form>
                 </div>

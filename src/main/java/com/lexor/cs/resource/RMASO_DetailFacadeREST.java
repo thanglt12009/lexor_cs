@@ -44,7 +44,9 @@ public class RMASO_DetailFacadeREST extends AbstractFacade<RMASO_Detail> {
     @Path("/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     public int edit(@PathParam("id") Integer id, RMASO_Detail entity) throws SQLException {
-        return super.edit(id, entity);
+        RMASO_Detail rMASO_Detail = super.find(id);
+        
+        return super.remove(rMASO_Detail);
     }
 
     @DELETE

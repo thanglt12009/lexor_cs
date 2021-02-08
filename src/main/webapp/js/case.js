@@ -83,7 +83,6 @@ serviceType = {
 $(document).ready(function () {
     reInitUser();
     loadCase();
-    $('#editContactDialog').window('close');
     $("#addNew").on("click", function () {
         $('#addContactDialog').dialog({
             title: 'New Contact',
@@ -113,18 +112,44 @@ $(document).ready(function () {
         });
     });
 
-    $("#editCase").on("click", function () {
-        getCaseType();
-        $("#editMobilePhone").textbox({value: window.defaultUser.mobile_phone, required: true, validateOnCreate: false, width: 337});
-        $("#editBusinessPhone").textbox({value: window.defaultUser.business_phone, required: true, validateOnCreate: false, width: 337});
-        $('#editContactDialog').window('open');
-    });
-    
-    $("#editUser").on("click", function () {
-        editCase($.urlParam("case_id")); 
+    $("#editContact").on("click", function() {
+        $('#editContactDialog').dialog({
+            title: 'Edit Contact',
+            width: 400,
+            height: 400,
+            closed: false,
+            cache: false,
+            modal: true,
+            href: 'edit_user.html',
+            onLoad: function () {
+                $("#editMobilePhone").textbox({value: window.defaultUser.mobile_phone, required: true, validateOnCreate: false, width: 337});
+                $("#editBusinessPhone").textbox({value: window.defaultUser.business_phone, required: true, validateOnCreate: false, width: 337});
+                $("#editFirstName").textbox({value: window.defaultUser.first_name, required: true, validateOnCreate: false, width: 337});
+                $("#editLastName").textbox({value: window.defaultUser.last_name, required: true, validateOnCreate: false, width: 337});
+            }
+        });
     });
 
+    $("#editCase").on("click", function () {
+        $('#editCaseDialog').dialog({
+            title: 'Edit Case Information',
+            width: 400,
+            height: 400,
+            closed: false,
+            cache: false,
+            modal: true,
+            href: 'case_model.html',
+            onLoad: function () {
+               getCaseType();
+            }
+        });
+ 
+    });
 });
+
+function submitCaseForm() {
+    editCase($.urlParam("case_id")); 
+}
 
 function setEditCaseData(updateCase) {
     $('#customerService').combo({
@@ -184,7 +209,8 @@ function reInitUser() {
     users[0] = {
         doc_number: 1,
         case_status: 1,
-        name: "Customer 01",
+        first_name: "Customer",
+        last_name: "Name",
         mobile_phone: "0999-999-999",
         business_phone: "083-999-9999",
         service_rep_name: "Customer Service Rep 1",
@@ -414,9 +440,12 @@ function createUser(docNumber) {
         doc_number: docNumber,
         case_status: 2,
         name: "Customer " + docNumber,
+        first_name: $("[name='firstName']").val(),
+        last_name: $("[name='lastName']").val(),
         mobile_phone: $("[name='mobilePhone']").val(),
         business_phone: $("[name='businessPhone']").val(),
         service_rep_name: $("[name='customerService']").val(),
+        email: $("[name='email']").val(),
         action: '<a href="javascript:void(0)" onClick="createCase(' + docNumber + ')" class="easyui-linkbutton">Select</a>'
     });
 
@@ -573,7 +602,8 @@ function createRMASaleOrder(rmaId, soId) {
             type: "POST",
             url: '/lexor_cs/api/rma_so',
             data: JSON.stringify({
-                "RMAID": rmaId
+                "RMAID": rmaId,
+                "SOID" : soId
             }),
             success: function (response) {
                 if (rmaProductList[soId] && withOutSaveOrder === false) {
@@ -601,7 +631,7 @@ function createProducts(caseServiceID, products ) {
 
 function createRMAProducts(soId, rmaID, products) {
     products['RMAID'] = parseInt(rmaID);
-    products['SOID'] = parseInt(soId);
+    products['RMASOID'] = parseInt(soId);
     $.post({
         type: "POST",
         url: '/lexor_cs/api/rma_soDetail',
@@ -643,6 +673,14 @@ function createTransaction(caseId, documentCode, address) {
 }
 
 function loadCaseType(caseId) {
+    
+    for ( key in serviceType) {
+        $("#" + serviceType[key]).checkbox({
+            disabled: true,
+            checked: false
+        });
+    }
+    
     $.get({
         url: "/lexor_cs/api/casetype/find/" + caseId,
         success: function (data) {
@@ -666,9 +704,9 @@ function editCase(caseId) {
         data: JSON.stringify(caseToUpdate),
         type: 'PUT',
         success: function() {
-            $('#editContactDialog').window('close');
+            $('#editCaseDialog').window('close');
             editCaseTypeValue();
-            getCaseType();
+            loadCase();
         }
     });
 }

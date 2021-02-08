@@ -41,6 +41,10 @@ label {
     margin-bottom: 10px;
 }
 
+.height-20 {
+    height: 20px !important;
+}
+
 .height-170 {
     height: 175px !important;
 }

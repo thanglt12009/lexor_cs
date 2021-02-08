@@ -11,6 +11,8 @@ public class RMASO implements Serializable {
     
     private static final long serialVersionUID = 1L;
     
+    private Integer RMASOID;
+    
     private Integer RMAID;
     
     private Integer SOID;
@@ -27,12 +29,12 @@ public class RMASO implements Serializable {
     
     }
     
-    public RMASO(int RMAID) {
-        this.RMAID = RMAID;
+    public RMASO(int RMASOID) {
+        this.RMASOID = RMASOID;
     }
     
-    public RMASO(int RMAID, int SOID) {
-        this.RMAID = RMAID;
+    public RMASO(int RMASOID, int SOID) {
+        this.RMASOID = RMASOID;
         this.SOID = SOID;
     }        
     
@@ -83,4 +85,19 @@ public class RMASO implements Serializable {
     public void setUpdatedDate(String updatedDate) {
         this.updatedDate = updatedDate;
     }
+
+    /**
+     * @return the RMASOID
+     */
+    public Integer getRMASOID() {
+        return RMASOID;
+    }
+
+    /**
+     * @param RMASOID the RMASOID to set
+     */
+    public void setRMASOID(Integer RMASOID) {
+        this.RMASOID = RMASOID;
+    }
+    
 }
