@@ -11,12 +11,17 @@ transactionType = {
     2: "Closed"
 };
 customerServiceRep = {
-    1: "Auto Rotation",
-    2: "Customer Service Rep 1",
-    3: "Customer Service Rep 2",
-    4: "Customer Service Rep 3",
-    5: "Customer Service Rep 4"
+    0: "Auto Rotation",
+    1: "Customer Service Rep 1",
+    2: "Customer Service Rep 2",
+    3: "Customer Service Rep 3",
+    4: "Customer Service Rep 4"
 };
+
+caseTypes = {};
+editCaseType = {};
+caseTypeValue = {};
+newCaseType = {};
 caseToUpdate = {};
 caseType = {};
 selectedSO = {};
@@ -78,7 +83,6 @@ serviceType = {
 $(document).ready(function () {
     reInitUser();
     loadCase();
-    $('#editContactDialog').window('close');
     $("#addNew").on("click", function () {
         $('#addContactDialog').dialog({
             title: 'New Contact',
@@ -87,6 +91,7 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
+            inline: true,
             href: 'user.html',
             onLoad: function () {
                 $(".easyui-checkbox").checkbox({
@@ -108,17 +113,47 @@ $(document).ready(function () {
         });
     });
 
-    $("#editCase").on("click", function () {
-        $("#editMobilePhone").textbox({value: window.defaultUser.mobile_phone, required: true, validateOnCreate: false, width: 337});
-        $("#editBusinessPhone").textbox({value: window.defaultUser.business_phone, required: true, validateOnCreate: false, width: 337});
-        $('#editContactDialog').window('open');
-    });
-    
-    $("#editUser").on("click", function () {
-        editCase($.urlParam("case_id")); 
+    $("#editContact").on("click", function() {
+        $('#editContactDialog').dialog({
+            title: 'Edit Contact',
+            width: 400,
+            height: 400,
+            closed: false,
+            cache: false,
+            modal: true,
+            inline: true,
+            href: 'edit_user.html',
+            onLoad: function () {
+                $("#editMobilePhone").textbox({value: window.defaultUser.mobile_phone, required: true, validateOnCreate: false, width: 337});
+                $("#editBusinessPhone").textbox({value: window.defaultUser.business_phone, required: true, validateOnCreate: false, width: 337});
+                $("#editFirstName").textbox({value: window.defaultUser.first_name, required: true, validateOnCreate: false, width: 337});
+                $("#editLastName").textbox({value: window.defaultUser.last_name, required: true, validateOnCreate: false, width: 337});
+            }
+        });
+        $('#editContactDialog').dialog("move", {top: 100});
     });
 
+    $("#editCase").on("click", function () {
+        $('#editCaseDialog').dialog({
+            title: 'Edit Case Information',
+            width: 400,
+            height: 400,
+            closed: false,
+            cache: false,
+            modal: true,
+            inline: true,
+            href: 'case_model.html',
+            onLoad: function () {
+               getCaseType();
+            }
+        });
+        $('#editCaseDialog').dialog("move", {top: 100});
+    });
 });
+
+function submitCaseForm() {
+    editCase($.urlParam("case_id")); 
+}
 
 function setEditCaseData(updateCase) {
     $('#customerService').combo({
@@ -134,12 +169,52 @@ function setEditCaseData(updateCase) {
     }).combo('setText', casePriority[updateCase.casePriority] || updateCase.casePriority);
 }
 
+function getCaseType() {
+     $.get({
+        url: '/lexor_cs/api/casetype/find/' + $.urlParam('case_id'),
+        success: function (data) {
+            editCaseType = {};
+            if ( data ) {
+                registerEditCaseType("editBuyPart", false);
+                registerEditCaseType("editService", false);
+                registerEditCaseType("editReturnCK", false);
+                for ( i = 0 ; i < data.length; i ++ ) {
+                    editCaseType[data[i].caseTypeValue] = data[i];
+                    switch (data[i].caseTypeValue) {
+                        case "1":
+                            registerEditCaseType("editBuyPart");
+                            break;
+                        case "2":
+                            registerEditCaseType("editService");
+                            break;
+                        case "3":
+                            registerEditCaseType("editReturnCK");
+                            break;
+                    }
+                } 
+            }
+        },
+        contentType: 'application/json'
+    });
+}
+
+function registerEditCaseType(id, isCheck = true) {
+    $('#' + id).checkbox({
+        checked: isCheck,
+        onChange: function(value) {
+            var id = $(this).attr('data-id');
+            newCaseType[id] = value;
+        } 
+    });
+}
+
 function reInitUser() {
     var users = [];
     users[0] = {
         doc_number: 1,
         case_status: 1,
-        name: "Customer 01",
+        first_name: "Customer",
+        last_name: "Name",
         mobile_phone: "0999-999-999",
         business_phone: "083-999-9999",
         service_rep_name: "Customer Service Rep 1",
@@ -149,6 +224,40 @@ function reInitUser() {
     if (localStorage.getItem("users") === null) {
         localStorage.setItem("users", JSON.stringify(users));
     }
+}
+
+function editCaseTypeValue() {
+    if ( newCaseType ) {
+        for ( key in newCaseType ) {
+            if ( !editCaseType[key] ) {
+                createCaseTypeValue(key);
+            } else {
+                if ( newCaseType[key] === false ) {
+                    deleteCaseType(editCaseType[key].caseTypeID);
+                }
+            }
+        }
+    }
+}
+
+function createCaseTypeValue(typeValue) {
+     $.post({
+        type: "POST",
+        url: '/lexor_cs/api/casetype',
+        data: JSON.stringify({
+            "caseID": $.urlParam("case_id"),
+            "caseTypeValue" : typeValue
+        }),
+        contentType: 'application/json'
+    });
+}
+
+function deleteCaseType(caseTypeId) {
+    $.ajax({
+        contentType: 'application/json',
+        url: '/lexor_cs/api/casetype/' + caseTypeId,
+        type: 'DELETE'
+    });
 }
 
 function registerCaseTransactionDialog(dialogElement, title, path, defaultSaleOrder = {}) {
@@ -161,6 +270,7 @@ function registerCaseTransactionDialog(dialogElement, title, path, defaultSaleOr
         closed: false,
         cache: false,
         modal: true,
+        inline: true,
         href: 'case_service.html',
         onLoad: function () {
             registerAddSaleOrder(defaultSaleOrder);
@@ -168,6 +278,7 @@ function registerCaseTransactionDialog(dialogElement, title, path, defaultSaleOr
             registerSaveCaseService(path, dialogElement, title);
         }
     });
+    $(element).dialog("move", {top: 100});
 }
 
 function registerSaveCaseService(path, dialogElement, title) {
@@ -335,9 +446,12 @@ function createUser(docNumber) {
         doc_number: docNumber,
         case_status: 2,
         name: "Customer " + docNumber,
+        first_name: $("[name='firstName']").val(),
+        last_name: $("[name='lastName']").val(),
         mobile_phone: $("[name='mobilePhone']").val(),
         business_phone: $("[name='businessPhone']").val(),
         service_rep_name: $("[name='customerService']").val(),
+        email: $("[name='email']").val(),
         action: '<a href="javascript:void(0)" onClick="createCase(' + docNumber + ')" class="easyui-linkbutton">Select</a>'
     });
 
@@ -357,6 +471,7 @@ function getCaseInformation(caseId) {
             caseInformation.html(caseInformation.text().replace('{name}', data.caseID).replace('{status}', status[data.status]));
             
             setEditCaseData(caseToUpdate);
+            getCaseType();
         },
         contentType: 'application/json'
     });
@@ -389,6 +504,11 @@ function createServiceOrReturn(caseId, path, dialog, title) {
         success: function(caseServiceId) {
             if ( caseServiceId && saleOrderToSave ) {
                 var promises = [];
+
+                if ( Object.keys(saleOrderToSave).length === 0 ) {
+                    createMasterProduct(caseServiceId, {});
+                }
+
                 for (const key in saleOrderToSave) {
                     if (path === "/lexor_cs/api/case_service") {
                         if (saleOrderToSave[key]) {
@@ -488,7 +608,8 @@ function createRMASaleOrder(rmaId, soId) {
             type: "POST",
             url: '/lexor_cs/api/rma_so',
             data: JSON.stringify({
-                "RMAID": rmaId
+                "RMAID": rmaId,
+                "SOID" : soId
             }),
             success: function (response) {
                 if (rmaProductList[soId] && withOutSaveOrder === false) {
@@ -516,7 +637,7 @@ function createProducts(caseServiceID, products ) {
 
 function createRMAProducts(soId, rmaID, products) {
     products['RMAID'] = parseInt(rmaID);
-    products['SOID'] = parseInt(soId);
+    products['RMASOID'] = parseInt(soId);
     $.post({
         type: "POST",
         url: '/lexor_cs/api/rma_soDetail',
@@ -558,6 +679,14 @@ function createTransaction(caseId, documentCode, address) {
 }
 
 function loadCaseType(caseId) {
+    
+    for ( key in serviceType) {
+        $("#" + serviceType[key]).checkbox({
+            disabled: true,
+            checked: false
+        });
+    }
+    
     $.get({
         url: "/lexor_cs/api/casetype/find/" + caseId,
         success: function (data) {
@@ -581,7 +710,9 @@ function editCase(caseId) {
         data: JSON.stringify(caseToUpdate),
         type: 'PUT',
         success: function() {
-            $('#editContactDialog').window('close');
+            $('#editCaseDialog').window('close');
+            editCaseTypeValue();
+            loadCase();
         }
     });
 }

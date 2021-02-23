@@ -48,7 +48,8 @@ removeTagProduct[2] = 2;
 dateBoxProduct[1] = "25/01/2021";
 dateBoxProduct[2] = "25/01/2021";
 
-discount = 1000;
+rmaSO = {};
+discount = 0;
 total = 0;
 totalAmount = 0;
 shippingAmount = 0;
@@ -78,6 +79,7 @@ $(document).ready(function () {
             modal: true,
             href: 'rma_status.html'
         });
+        $('#editRMADialog').dialog("move", {top: 100});
        rmaTempStatus = $(this).attr('data-id');
     });
     
@@ -93,7 +95,7 @@ $(document).ready(function () {
     
     $("#addSaleOrder").on("click", function(){
        $('#editServiceDialog').dialog({
-            title: 'Add Service',
+            title: 'Add Product',
             width: 700,
             height: 400,
             closed: false,
@@ -109,6 +111,7 @@ $(document).ready(function () {
                 });
             }
         });
+        $('#editServiceDialog').dialog("move", {top: 100});
     });
     $("#editSalon").on("click", function () {
         $('#editSalonDialog').dialog({
@@ -120,6 +123,7 @@ $(document).ready(function () {
             modal: true,
             href: 'salon_information.html'
         });
+        $('#editSalonDialog').dialog("move", {top: 100});
     });
     $("#editProducts").on("click", function () {
         $("#addSaleOrder").show();
@@ -195,12 +199,13 @@ function getProducts() {
             productDatas.rows = [];
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
-                    serviceMasterID = data[i]['serviceMasterID'];
+                    rmaSO[data[i]['SOID']] = data[i]['RMASOID'];
                     data[i]['no'] = data[i]['productID'];
+                    data[i]['quantity'] = 1;
                     data[i]['reveiver'] = data[i]['reveiver'] ? isWarrantyOptions[data[i]['reveiver']] : isWarrantyOptions[1];
                     data[i]['warehouse'] = data[i]['warehouse'] || variableOptions[1];
                     data[i]['image'] = productImages[data[i].productID] || productImages[3];
-                    data[i]['price'] = "$" + (parseFloat(data[i]['quantity']) * parseFloat(data[i]['price'])).toString();
+                    data[i]['price'] = "$" + parseFloat(parseFloat(data[i]['price'])).toString();
                     productDatas.rows.push(data[i]); 
                 }
             }
@@ -253,7 +258,8 @@ function addProduct() {
         shiping_day: "25/01/2021",
         original_so: "001",
         service_for_product: "Service for Product 003",
-        receiver: "Y"
+        receiver: "Y",
+        RMAID: false
     };
     
     if ( productDatas.rows.find(
@@ -382,6 +388,7 @@ function reCalculateAmount() {
     var pattern = /[^0-9.-]+/g;
 
     for( i = 0; i < productDatas.rows.length; i++ ) {
+        console.log(productDatas.rows[i].price, productDatas.rows[i].price.replace(pattern, ''));
         amount += parseFloat(productDatas.rows[i].price.replace(pattern, ''));
     }
     
@@ -407,9 +414,10 @@ function prepareProductToSave() {
     var productToSave = [];
     for ( let i = 0; i < products.length; i++ ) {
         if (products[i].RMAID === false) {
-            products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
-            products[i].RMAID = $.urlParam("RMAID")
+            products[i].price = parseFloat(products[i].price.replace("$", '')).toFixed(2);
+            products[i].RMAID = $.urlParam("rma_id");
             products[i].SOID = 1;
+            products[i].RMASOID = rmaSO[1];
            
             productToSave.push(products[i]);
         }
@@ -477,6 +485,17 @@ function editProduct() {
     }
 }
 
+function createRMASO(soID) {
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/rma_so',
+        data: JSON.stringify({
+            "RMAID": $.urlParam("rma_id"), 
+            "SOID" : soID
+        }),
+        contentType: 'application/json'
+   });
+}
 function updatePaymentMethod() {
     $.post({
         type: "POST",

@@ -8,16 +8,8 @@ and open the template in the editor.
     Author     : ChiPU
 */
 
-body {
-    padding: 0px 25px;
-}
-
 label {
     margin-left: 15px;
-}
-
-.container {
-    margin-top: 50px;
 }
 
 .auto-height {
@@ -122,4 +114,28 @@ hr {
 
 .combobox input {
     width: 100% !important;
+}
+
+[class*=sidebar-dark] .brand-link, [class*=sidebar-dark] .brand-link .pushmenu {
+    background: #fff;
+}
+
+.content-header {
+    padding: 0px;
+}
+
+.content {
+    background-color: #fff;
+}
+
+.container {
+    margin-top: 10px;
+}
+
+.content-header-title {
+    padding: 5px 0px 0px 6px;
+}
+
+.content-wrapper {
+    min-height: 1000px !important;
 }

@@ -1,10 +1,26 @@
 <form id="userForm">
     <div class="form-group">
         <label>
+            First Name:
+        </label>
+        <div class="col-sm-12">       
+            <input style="width:100%" class="easyui-textbox" name="firstName" data-options="required:true, validateOnCreate:false">
+        </div>                        
+    </div>
+    <div class="form-group">
+        <label>
+            Last Name:
+        </label>
+        <div class="col-sm-12">       
+            <input style="width:100%" class="easyui-textbox" name="lastName" data-options="required:true, validateOnCreate:false">
+        </div>                        
+    </div>
+    <div class="form-group">
+        <label>
             Mobile Phone:
         </label>
         <div class="col-sm-12">       
-            <input style="width:100%" class="easyui-textbox" name="mobilePhone" data-options="required:true, validateOnCreate:false">
+            <input style="width:100%" class="easyui-maskedbox" mask="(999) 999-9999"  name="mobilePhone" data-options="required:true, validateOnCreate:false">
         </div>                        
     </div>
     <div class="form-group">
@@ -12,7 +28,7 @@
             Business Phone:
         </label>
         <div class="col-sm-12">       
-            <input style="width:100%" class="easyui-textbox" name="businessPhone" data-options="required:true, validateOnCreate:false">
+            <input style="width:100%" class="easyui-maskedbox" mask="(999) 999-9999"  name="businessPhone" data-options="required:true, validateOnCreate:false">
         </div>                        
     </div>
     <div class="form-group">
@@ -70,4 +86,5 @@
             <a onClick="submitUserForm()" href="javascript:void(0)" class="easyui-linkbutton  float-right submit" data-options="iconCls:'icon-save'">Save</a>
         </div>
     </div>
+    <div class="form-group"><div class="col-sm-12 height-20"> </div></div>
 </form>

@@ -91,6 +91,7 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
+            inline: true,
             href: 'user.html',
             onLoad: function () {
                 $(".easyui-checkbox").checkbox({
@@ -120,6 +121,7 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
+            inline: true,
             href: 'edit_user.html',
             onLoad: function () {
                 $("#editMobilePhone").textbox({value: window.defaultUser.mobile_phone, required: true, validateOnCreate: false, width: 337});
@@ -128,6 +130,7 @@ $(document).ready(function () {
                 $("#editLastName").textbox({value: window.defaultUser.last_name, required: true, validateOnCreate: false, width: 337});
             }
         });
+        $('#editContactDialog').dialog("move", {top: 100});
     });
 
     $("#editCase").on("click", function () {
@@ -138,12 +141,13 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
+            inline: true,
             href: 'case_model.html',
             onLoad: function () {
                getCaseType();
             }
         });
- 
+        $('#editCaseDialog').dialog("move", {top: 100});
     });
 });
 
@@ -266,6 +270,7 @@ function registerCaseTransactionDialog(dialogElement, title, path, defaultSaleOr
         closed: false,
         cache: false,
         modal: true,
+        inline: true,
         href: 'case_service.html',
         onLoad: function () {
             registerAddSaleOrder(defaultSaleOrder);
@@ -273,6 +278,7 @@ function registerCaseTransactionDialog(dialogElement, title, path, defaultSaleOr
             registerSaveCaseService(path, dialogElement, title);
         }
     });
+    $(element).dialog("move", {top: 100});
 }
 
 function registerSaveCaseService(path, dialogElement, title) {

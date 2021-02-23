@@ -89,6 +89,7 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
+            inline: true,
             href: 'sale_order.html',
             onLoad: function() {
                 $('#serviceGrid').datagrid({
@@ -99,6 +100,8 @@ $(document).ready(function () {
                 });
             }
         });
+        $('#editServiceDialog').dialog("move", {top: 100});
+
     });
     $("#editSalon").on("click", function () {
         $('#editSalonDialog').dialog({
@@ -108,8 +111,10 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
+            inline: true,
             href: 'salon_information.html'
         });
+        $('#editSalonDialog').dialog("move", {top: 100});
     });
     $("#editProducts").on("click", function () {
         $("#addSaleOrder").show();

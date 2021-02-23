@@ -89,6 +89,7 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
+            inline: true,
             href: 'sale_order.html',
             onLoad: function() {
                 $('#serviceGrid').datagrid({
@@ -99,6 +100,8 @@ $(document).ready(function () {
                 });
             }
         });
+        $('#editServiceDialog').dialog("move", {top: 100});
+
     });
     $("#editSalon").on("click", function () {
         $('#editSalonDialog').dialog({
@@ -108,8 +111,10 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
+            inline: true,
             href: 'salon_information.html'
         });
+        $('#editSalonDialog').dialog("move", {top: 100});
     });
     $("#editProducts").on("click", function () {
         $("#addSaleOrder").show();
@@ -167,7 +172,7 @@ function removeListProduct() {
             if (id = removedProductList[product].serviceDetailID) {
                 $.ajax({
                     contentType: 'application/json',
-                    url: '/lexor_cs/api/rma_soDetail/' + id,
+                    url: '/lexor_cs/api/serviceDetail/' + id,
                     type: 'DELETE'
                 });
             }
@@ -186,7 +191,6 @@ function prepareProductToSave() {
             products[i].serviceMasterID = serviceMasterID;
             
             delete products[i].warehouse; 
-            console.log(products[i]);
             productToSave.push(products[i]);
         }
     }
@@ -501,19 +505,24 @@ function loadServices() {
 }
 
 function getServiceInformation(serviceId) {
-
     $.get({
         url: '/lexor_cs/api/case_service/detail/' + serviceId,
         success: function(data) {
             var text = "Service {name}-{status}";
             var serviceInformation = $(".service-info__status");
             caseServiceID = data.caseServiceID;
-            serviceMasterID = data.serviceMasterID;
+            
+            if (data.serviceMasterID) {
+                serviceMasterID = data.serviceMasterID;
+            } else {
+                createMasterProduct( data.caseServiceID);
+            }
+            
             getProducts();
             serviceInformation.html(text.replace('{name}', data.caseServiceID).replace('{status}', serviceStatus[data.status]));
         },
         contentType: 'application/json'
-   });
+    });
 }
 
 function reCalculateAmount() {
@@ -546,6 +555,21 @@ function loadPaymentMethod() {
         onChange: function(value) {
             paymentMethod = value;
         }
+    });
+}
+
+function createMasterProduct(caseServiceID) {
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/serviceMaster',
+        data: JSON.stringify({
+            status: 0,
+            caseServiceID: caseServiceID
+        }),
+        success: function (masterID) {
+           serviceMasterID = masterID;
+        },
+        contentType: 'application/json'
     });
 }
 
