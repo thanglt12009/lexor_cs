@@ -81,7 +81,6 @@ serviceType = {
 };
 
 $(document).ready(function () {
-    reInitUser();
     loadCase();
     $("#addNew").on("click", function () {
         $('#addContactDialog').dialog({
@@ -208,24 +207,6 @@ function registerEditCaseType(id, isCheck = true) {
     });
 }
 
-function reInitUser() {
-    var users = [];
-    users[0] = {
-        doc_number: 1,
-        case_status: 1,
-        first_name: "Customer",
-        last_name: "Name",
-        mobile_phone: "0999-999-999",
-        business_phone: "083-999-9999",
-        service_rep_name: "Customer Service Rep 1",
-        action: '<a href="javascript:void(0)" onClick="createCase(1)" class="easyui-linkbutton">Select</a>'
-    };
-
-    if (localStorage.getItem("users") === null) {
-        localStorage.setItem("users", JSON.stringify(users));
-    }
-}
-
 function editCaseTypeValue() {
     if ( newCaseType ) {
         for ( key in newCaseType ) {
@@ -291,17 +272,14 @@ function registerSaveCaseService(path, dialogElement, title) {
 
 function registerCaseSeviceAutoComplete() {
     var options = {
-        getValue: "name",
-        data: soList,
-        list: {
-            match: {
-                enabled: true
-            },
-            onClickEvent: function () {
-                selectedSO['value'] = $("#saleOrderSearch").getSelectedItemData().code;
-            }
+        url: function(orderId) {
+            return "/lexor_cs/api/apiSO/find/" + orderId;
+	},
+        getValue: "code",
+        ajaxSettings: {
+            dataType: "json",
+            method: "GET"
         },
-
         theme: "square"
     };
     $("#saleOrderSearch").easyAutocomplete(options);
@@ -321,7 +299,7 @@ function registerAddSaleOrder(saleOrder = {}) {
             return;
         }
 
-        registerSOCheckbox(selectedSO['value'], name);
+        registerSOCheckbox(name, name);
         saleOrders[name] = true;
         $("#saleOrderSearch").val(null);
     });
@@ -400,21 +378,6 @@ function createCasesType(caseTypes, caseId) {
     }
 }
 
-function createSaleOrder(caseServiceID, customerSOID) {
-    $.post({
-        type: "POST",
-        url: '/lexor_cs/api/case_service_detail',
-        data: JSON.stringify({
-            "caseServiceID": caseServiceID,
-            "customerSOID": customerSOID
-        }),
-        success: function () {
-            resolve(true);
-        },
-        contentType: 'application/json'
-    });
-}
-
 function createServiceDetails(caseServiceID, customerSOID) {
     $.post({
         type: "POST",
@@ -423,9 +386,6 @@ function createServiceDetails(caseServiceID, customerSOID) {
             "caseServiceID": caseServiceID,
             "customerSOID": customerSOID
         }),
-        success: function () {
-            resolve(true);
-        },
         contentType: 'application/json'
     });
 }
@@ -507,27 +467,29 @@ function createServiceOrReturn(caseId, path, dialog, title) {
 
                 if ( Object.keys(saleOrderToSave).length === 0 ) {
                     createMasterProduct(caseServiceId, {});
-                }
+                } else {
+                    const productList = getProductsBySaleOrder(saleOrderToSave).then(function(soList) {
+                        for (const key in saleOrderToSave) {
+                            if (path === "/lexor_cs/api/case_service") {
+                                if (saleOrderToSave[key]) {
+                                    promises.push(createServiceDetails(caseServiceId, key));
+                                }
 
-                for (const key in saleOrderToSave) {
-                    if (path === "/lexor_cs/api/case_service") {
-                        if (saleOrderToSave[key]) {
-                            promises.push(createSaleOrder(caseServiceId, key));
+                                if (soList[key]) {
+                                    createMasterProduct(caseServiceId, soList[key]);
+                                }
+                            } else {
+                                if (saleOrderToSave[key]) {
+                                    promises.push(createRMASaleOrder(caseServiceId, key));
+                                }
+                            }
                         }
 
-                        if (productList[key]) {
-                            createMasterProduct(caseServiceId, productList[key]);
-                        }
-                    } else {
-                        if (saleOrderToSave[key]) {
-                            promises.push(createRMASaleOrder(caseServiceId, key));
-                        }
-                    }
+                        Promise.all(promises).then(function() {
+                            $('#' + dialog).window('close');
+                        });
+                    });
                 }
-                
-                Promise.all(promises).then(function() {
-                    $('#' + dialog).window('close');
-                });
             }
             createTransaction(caseId, title, "Address");
             createActivity(caseId, "Create " + title);
@@ -552,8 +514,15 @@ function loadCase() {
         loadActivity(caseId);
         getUserInfo();
     } else {
+        const users = JSON.parse(localStorage.getItem('users')).map(function(user) {
+           user = user.contactInfo;
+           user['name'] = user['firstName'] + " " + user['lastName'];   
+           user['action'] = '<a href="javascript:void(0)" onClick="createCase('+user.id+')" class="easyui-linkbutton">Select</a>';
+
+           return user;
+        });
         $('#userGrid').datagrid({
-            data: JSON.parse(localStorage.getItem('users')),
+            data: users,
             onLoadSuccess: function () {
                 $(".easyui-linkbutton").linkbutton();
             }
@@ -585,23 +554,6 @@ function loadTransaction(caseId) {
     });
 }
 
-function createSaleOrder(customerSOID, caseServiceID) {
-    return new Promise(function (resolve) {
-        $.post({
-            type: "POST",
-            url: '/lexor_cs/api/case_service_detail',
-            data: JSON.stringify({
-                "caseServiceID": caseServiceID,
-                "customerSOID": customerSOID,
-            }),
-            success: function () {
-                resolve(true);
-            },
-            contentType: 'application/json'
-        });
-    });
-}
-
 function createRMASaleOrder(rmaId, soId) {
     return new Promise(function (resolve) {
         $.post({
@@ -627,6 +579,10 @@ function createRMASaleOrder(rmaId, soId) {
 
 function createProducts(caseServiceID, products ) {
     products['serviceMasterID'] = parseInt(caseServiceID);
+    products['productID'] = Math.floor(Math.random() * 1000) + 1;
+    products['soldPrice'] = products['price'];
+    products['totalWeight'] = 1000;
+    products['amount'] =  products['price'] *  products['quantity'];
     $.post({
         type: "POST",
         url: '/lexor_cs/api/serviceDetail',
@@ -715,13 +671,4 @@ function editCase(caseId) {
             loadCase();
         }
     });
-}
-
-
-$.urlParam = function (name) {
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results === null) {
-        return null;
-    }
-    return decodeURI(results[1]) || 0;
 }

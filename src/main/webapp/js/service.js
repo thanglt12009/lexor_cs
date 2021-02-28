@@ -67,6 +67,7 @@ var caseServiceID = 0;
 $(document).ready(function () {
     loadServices();
     loadPaymentMethod();
+    getServiceSO();
     $("#editProducts").on("click", function(){
        reloadList();
     });
@@ -92,15 +93,35 @@ $(document).ready(function () {
             inline: true,
             href: 'sale_order.html',
             onLoad: function() {
-                $('#serviceGrid').datagrid({
-                    data: servicesData,
-                    onLoadSuccess: function() {
-                        $(".easyui-linkbutton").linkbutton();
+                getSOProductList().then(function(template){
+                    $("#addProductDialogTab").html(template.join(""));
+                    $('#addProductDialogTab').tabs({
+                        border:false
+                    });
+                    for ( let key in productSaleOrder ) {
+                        $('#' + key).datagrid({
+                            pagination:true,
+                            pageSize:20,
+                            showFooter: true,
+                            data: productSaleOrder[key],
+                            columns: [[
+                                {field:'product_name',title:'Product Name',width:200},
+                                {field:'under_warranty',title:'Under Warranty',width:100},
+                                {field:'warranty_issue',title:'Warranty Issued',width:100},
+                                {field:'warranty_expire',title:'Warranty Expired',width:100},
+                                {field:'action',title:'Code',width:100}
+                            ]],
+                            onLoadSuccess: function() {
+                                $(".easyui-linkbutton").linkbutton();
+                            }
+                        }).datagrid('clientPaging');
                     }
                 });
+                
             }
         });
         $('#editServiceDialog').dialog("move", {top: 100});
+        $('#editServiceDialog').show();
 
     });
     $("#editSalon").on("click", function () {
@@ -251,6 +272,9 @@ function loadShipping(shippingDetail = {}) {
         }
     }
     $('#shippingGrid').datagrid({
+        pagination:true,
+        pageSize:20,
+        showFooter: true,
         data: datas,
         showFooter: true,
         onLoadSuccess: function() {
@@ -267,7 +291,7 @@ function loadShipping(shippingDetail = {}) {
                 width: 140
             });
         }
-    });
+    }).datagrid('clientPaging');
 }
 
 function loadService() {
@@ -287,11 +311,14 @@ function loadService() {
                 }
 
                 $("#serviceGrid").datagrid({
+                    pagination:true,
+                    pageSize:20,
+                    showFooter: true,
                     data: services,
                     onLoadSuccess: function() {
                         $(".easyui-linkbutton").linkbutton();
                     }
-                });
+                }).datagrid('clientPaging');
             }
         },
         contentType: 'application/json'
@@ -303,7 +330,7 @@ function openService(serviceId) {
 }
 
 function refreshProduct() {
-    $('#productGrid').datagrid('data', productDatas);
+    $('#productGrid').datagrid('data', productDatas).datagrid('clientPaging');
 }
 
 function loadProducts() {
@@ -334,6 +361,8 @@ function loadProducts() {
     
     reCalculateAmount();
     $('#productGrid').datagrid({
+        pagination:true,
+        pageSize:20,
         showFooter: true,
         data: productDatas,
         onLoadSuccess: function() {
@@ -355,7 +384,7 @@ function loadProducts() {
                 });
             });
         }
-    });
+    }).datagrid('clientPaging');
 }
 
 function addProduct() {
@@ -547,7 +576,7 @@ function updatePaymentMethod() {
             "paymentMethod": paymentMethod, 
         }),
         contentType: 'application/json'
-   });
+    });
 }
 
 function loadPaymentMethod() {
@@ -573,10 +602,55 @@ function createMasterProduct(caseServiceID) {
     });
 }
 
-$.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results === null) {
-       return null;
+function getCaseServiceDetail() {
+    $.post({
+        type: "GET",
+        url: '/lexor_cs/api/case_service_detail',
+        data: JSON.stringify({
+            status: 0,
+            caseServiceID: caseServiceID
+        }),
+        success: function (caseServiceDetail) {
+           caseServiceDetail = caseServiceDetail;
+        },
+        contentType: 'application/json'
+    });
+}
+
+productSaleOrder = {};
+function getServiceSO() {
+    const serviceId = $.urlParam('service_id');
+    $.get({
+        type: "GET",
+        url: '/lexor_cs/api/case_service_detail/' + serviceId + "/" + serviceId,
+        success: function (serviceSO) {console.log(serviceSO)
+           if ( serviceSO ) {
+                const listSO = {};
+                for ( let i = 0 ; i < serviceSO.length; i ++) {
+                   listSO[serviceSO[i].customerSOID] = serviceSO[i].customerSOID;
+                }
+                getProductsBySaleOrder(listSO).then(function(result) {
+                    productSaleOrder = result;
+                });
+           }
+        },
+        contentType: 'application/json'
+    });
+}
+
+function getSOProductList() {
+    let promise = [];
+    const template = '<div title=":title" style="padding:20px;">' +
+        '<table id=":id" style="width: 100%" pagination="true">' +
+        '</table>' +
+        '</div>';
+    
+    for ( let key in productSaleOrder ) {
+        promise.push(new Promise(function(resolve) {
+            let layout = template;
+            resolve(layout.replace(":title", key).replace(":id", key));
+        }));
     }
-    return decodeURI(results[1]) || 0;
-};
+    
+    return Promise.all(promise);
+}

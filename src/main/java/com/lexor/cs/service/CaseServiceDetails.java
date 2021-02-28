@@ -7,8 +7,10 @@ import com.lexor.cs.domain.CaseServiceDetail;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 public class CaseServiceDetails extends BaseService<CaseService> {
@@ -102,13 +104,29 @@ public class CaseServiceDetails extends BaseService<CaseService> {
         Integer to = range[1];
         List<T> list = new ArrayList<>();
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
-        String query = "SELECT * FROM \"public\".\"CaseService\" WHERE \"CaseServiceID\" >= ? AND  \"CaseServiceID\" <= ?;";
+        //ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
+        String query = "SELECT * FROM \"public\".\"CaseServiceSO\" WHERE \"CaseServiceID\" >= ? AND  \"CaseServiceID\" <= ?;";
 
-        List<CaseService> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
-        for (CaseService case1 : empList) {
-            list.add((T) case1);
+        //List<CaseService> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, from, to);
+        //for (CaseService case1 : empList) {
+            //list.add((T) case1);
+        //}
+        //return list;
+        
+        List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler(), from, to);
+        
+        for(int i=0; i< empLists.size();i++) {
+            Map<String, Object> mapObj = (Map<String, Object>) empLists.get(i);
+            CaseServiceDetail caseObj = new CaseServiceDetail();
+            caseObj.setCaseServiceID((Integer)mapObj.get("caseServiceID"));
+            caseObj.setCustomerSOID((Integer)mapObj.get("customerSOID"));
+            list.add((T) caseObj);
         }
-        return list;
+        
+        if (list.size() > 0) {
+            return list;
+        }
+        
+        throw new SQLException("Record not found");
     }
 }

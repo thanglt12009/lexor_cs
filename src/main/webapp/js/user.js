@@ -1,16 +1,17 @@
 window.defaultUser = {};
 $(document).ready(function () {
-  $('#userSearch').textbox({
-       inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
-           keyup: function(event){
-               if(event.keyCode === 13){
-                   event.preventDefault();
+    reInitUser();
+    $('#userSearch').textbox({
+        inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+            keyup: function(event){
+                if(event.keyCode === 13){
+                    event.preventDefault();
 
-                   searchUser($(event.data.target).textbox('getText'));
-               }
-           }
-       })
-   });
+                    searchUser($(event.data.target).textbox('getText'));
+                }
+            }
+        })
+    });
 });
 
 function editUserInformation() {
@@ -33,7 +34,9 @@ function getUserInfo() {
    var user = findUser($.urlParam('user_id')).shift();
    if (user) {
        window.defaultUser = user;
-       $("#userInformation").html("<li>First Name: " + user.first_name + " </li><li>Last Name : " + user.last_name + " </li><li>Mobile Phone : " + user.mobile_phone + "</li><li>Business Phone : " + user.business_phone + "</li><li>Email : " + user.email + "</li> ");
+        $("#contactId").html(user.contactInfo.id);
+        $("#salonInformation").html("<li>Salon Name : "+ user.salonInfo.company +"</li><li>Salon Address : "+ user.salonInfo.address +" </li><li>Suite Number : "+ user.salonInfo.suite +" </li>");
+        $("#userInformation").html("<li>First Name: " + user.contactInfo.firstName + " </li><li>Last Name : " + user.contactInfo.lastName + " </li><li>Mobile Phone : " + user.contactInfo.cellPhone + "</li><li>Business Phone : " + user.contactInfo.busPhone + "</li><li>Email : " + user.contactInfo.email + "</li> ");
    }
 }
 
@@ -49,5 +52,37 @@ function searchUser(userId) {
 function findUser(userId) {
   var users = JSON.parse(localStorage.getItem("users"));
   
-  return userId.trim() === '' ? users : [users.find(x => x.doc_number == userId)];
+  return userId.trim() === '' ? users : [users.find(x => x.contactInfo.id == userId)];
+}
+
+function reInitUser() {
+    var users = [{
+        "contactInfo": {
+            "firstName": "Sharon",
+            "lastName": "Dau",
+            "id": 87503,
+            "cellPhone": "9097936610",
+            "busPhone": "9097936610",
+            "email": "uoc.lexor@gmail.com"
+        },
+        "salonInfo": {
+            "id": 110387,
+            "address": "138 N Brand Blvd, Glendale, CA 91203, US",
+            "street": "138 N Brand Blvd",
+            "company": "Marci’s Hair Nail & Spa",
+            "busPhone": "",
+            "cellPhone": "",
+            "suite": "14",
+            "firstName": "",
+            "lastName": "",
+            "idUSZip": 46922,
+            "qa": "",
+            "ra": "",
+            "postalCode": "91203"
+        },
+    }];
+
+    if (localStorage.getItem("users") === null) {
+        localStorage.setItem("users", JSON.stringify(users));
+    }
 }

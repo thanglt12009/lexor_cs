@@ -139,3 +139,21 @@ hr {
 .content-wrapper {
     min-height: 1000px !important;
 }
+
+#addProductDialogTab .datagrid-view td:nth-child(1){
+    width: 200px;
+}
+
+#addProductDialogTab .datagrid-view td:nth-child(2){
+    width: 100px;
+}
+
+#addProductDialogTab .datagrid-view td:nth-child(3){
+    width: 120px;
+}
+#addProductDialogTab .datagrid-view td:nth-child(4){
+    width: 120px;
+}
+#addProductDialogTab .datagrid-view td:nth-child(5){
+    width: 100px;
+}
