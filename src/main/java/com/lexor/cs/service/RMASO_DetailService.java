@@ -128,6 +128,7 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
             caseObj.setRMASOID((Integer)mapObj.get("RMASOID"));
             caseObj.setProductID((Integer)mapObj.get("productID"));
             caseObj.setPrice((Double)mapObj.get("price")); 
+            caseObj.setQuantity((Integer)mapObj.get("quantity")); 
             list.add((T) caseObj);
         }
         

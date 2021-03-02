@@ -23,19 +23,31 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
         String query
                 = "INSERT INTO \"public\".\"RMAPayment\" (\"RMAID\", \"PaymentType\", \"PaymentAmount\", \"PaymentStatus\" ) VALUES (?, ?, ?, ?);";
 
-        return runner.update(connection, query.toLowerCase(), c.getRMAID(), c.getPaymentType(), c.getPaymentAmount(), c.getPaymentStatus());
+        return runner.insert(connection, query.toLowerCase(), new ScalarHandler<Integer>(), c.getRMAID(), c.getPaymentType(), c.getPaymentAmount(), c.getPaymentStatus());
     }
 
     @Override
     public int update(Integer id, Object o) throws SQLException {
         RMAPayment c = (RMAPayment) o;
         QueryRunner runner = new QueryRunner();
+        
+        List<String> param = new ArrayList<>();
+        List<Object> condition = new ArrayList<>();
+        Object[] paramObject;
+         
+        if (c.getPaymentType()!= null) {
+            param.add("PaymentType=?") ;
+            condition.add(c.getPaymentType());
+        }
+        
+        condition.add(id);
+        paramObject = condition.toArray();
         String query
                 = "UPDATE \"public\".\"RMAPayment\" "
-                + " SET \"RMAID\"=?, \"PaymentType\"=?, \"PaymentAmount\"=?, \"PaymentStatus\"=? \""
-                + " WHERE \"PaymentID\"=?;";
+                + " SET "  + String.join(" ,", param.toArray(new String[0]))
+                + " WHERE \"RMAID\"=?;";
 
-        return runner.update(connection, query.toLowerCase(), c.getRMAID(), c.getPaymentType(), c.getPaymentAmount(), c.getPaymentStatus(), id);
+        return runner.update(connection, query.toLowerCase(), paramObject);
     }
 
     @Override
@@ -56,7 +68,7 @@ public class RMAPaymentService extends BaseService<RMAPayment> {
         Integer id = (Integer) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<RMAPayment>> resultHandler = new RMAPaymentHandler(connection);
-        String query = "SELECT * FROM \"public\".\"RMAPayment\" WHERE \"PaymentID\" = ?;";
+        String query = "SELECT * FROM \"public\".\"RMAPayment\" WHERE \"RMAID\" = ?;";
 
         List<RMAPayment> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler, id);
         if (empList.size() > 0) {

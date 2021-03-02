@@ -23,8 +23,10 @@ public class ServiceMaster implements Serializable {
     
     private Short isSubmittedProduction; 
     
-    private Integer status;      
+    private Integer status;
     
+    private Integer paymentType;      
+
     private Date updatedDate;
 
     public ServiceMaster() {
@@ -64,7 +66,7 @@ public class ServiceMaster implements Serializable {
     }
     
     public void setTotal(Double subTotal) {
-        this.total = total;
+        this.total = subTotal;
     }
     
     public Double getTotal() {
@@ -143,6 +145,20 @@ public class ServiceMaster implements Serializable {
     @Override
     public String toString() {
         return "com.lexor.cs.domain.Case[ serviceMasterID=" + serviceMasterID + " ]";
+    }
+
+    /**
+     * @return the paymentType
+     */
+    public Integer getPaymentType() {
+        return paymentType;
+    }
+
+    /**
+     * @param paymentType the paymentType to set
+     */
+    public void setPaymentType(Integer paymentType) {
+        this.paymentType = paymentType;
     }
     
 }

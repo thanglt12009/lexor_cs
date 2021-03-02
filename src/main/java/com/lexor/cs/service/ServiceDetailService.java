@@ -23,11 +23,11 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         ServiceDetail c = (ServiceDetail) o;
         QueryRunner runner = new QueryRunner();
         String query
-                = "INSERT INTO \"ServiceDetail\" (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"warehouse\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?);";
+                = "INSERT INTO \"ServiceDetail\" (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"WareHouse\", \"ShipingDay\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
         return runner.update(connection, query.toLowerCase(), c.getServiceMasterID(), c.getProductID(), c.getQuantity(),c.getSoldPrice(),
                 c.getAmount(),  c.getTotalWeight(), c.getSerialNumber(), c.getIsWarrantly(),
-                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), c.getWarehouse());
+                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), c.getWareHouse(), c.getShipingDay());
     }
 
     @Override
@@ -36,12 +36,12 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         QueryRunner runner = new QueryRunner();
         String query
                 = "UPDATE \"public\".\"ServiceDetail\" "
-                + " SET \"ServiceMasterID\"=?, \"ProductID\"=?, \"Quantity\"=?, \"SoldPrice\"=?, \"Amount\"=?, \"TotalWeight\"=?, \"SerialNumber\"=?, \"IsWarrantly\"=?, \"WarrantyStartDate\"=?, \"WarrantyEndDate\"=?, \"PaymentType\"=?"
-                + " WHERE \"ServiceMasterID\"=?;";
+                + " SET \"ServiceMasterID\"=?, \"ProductID\"=?, \"Quantity\"=?, \"SoldPrice\"=?, \"Amount\"=?, \"TotalWeight\"=?, \"SerialNumber\"=?, \"IsWarrantly\"=?, \"WarrantyStartDate\"=?, \"WarrantyEndDate\"=?, \"PaymentType\"=?, \"WareHouse\"=?, \"ShipingDay\"=?"
+                + " WHERE \"ServiceDetailID\"=?;";
 
         return runner.update(connection, query.toLowerCase(), c.getServiceMasterID(), c.getProductID(), c.getQuantity(),c.getSoldPrice(),
                 c.getAmount(),  c.getTotalWeight(), c.getSerialNumber(), c.getIsWarrantly(),
-                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), id);
+                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), c.getWareHouse() ,c.getShipingDay(), id);
     }
 
     @Override

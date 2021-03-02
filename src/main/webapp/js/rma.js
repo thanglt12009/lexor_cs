@@ -63,9 +63,11 @@ productImages = {
     3: "<img width='60px' height='60px' src='../../../images/product03.jpg' />"
 };
 paymentMethod = 1;
+rmaPayment = {};
 var removedProductList = [];
 $(document).ready(function () {
     loadServices();
+    registerUpdatePaymentMethod();
     getProducts();
     loadPaymentMethod();
     
@@ -103,10 +105,28 @@ $(document).ready(function () {
             modal: true,
             href: 'sale_order.html',
             onLoad: function() {
-                $('#serviceGrid').datagrid({
-                    data: servicesData,
-                    onLoadSuccess: function() {
-                        $(".easyui-linkbutton").linkbutton();
+                getSOProductList().then(function(template){
+                    $("#addProductDialogTab").html(template.join(""));
+                    $('#addProductDialogTab').tabs({
+                        border:false
+                    });
+                    for ( let key in productSaleOrder ) {
+                        $('#' + key).datagrid({
+                            pagination:true,
+                            pageSize:20,
+                            showFooter: true,
+                            data: productSaleOrder[key],
+                            columns: [[
+                                {field:'product_name',title:'Product Name',width:200},
+                                {field:'under_warranty',title:'Under Warranty',width:100},
+                                {field:'warranty_issue',title:'Warranty Issued',width:100},
+                                {field:'warranty_expire',title:'Warranty Expired',width:100},
+                                {field:'action',title:'Code',width:100}
+                            ]],
+                            onLoadSuccess: function() {
+                                $(".easyui-linkbutton").linkbutton();
+                            }
+                        }).datagrid('clientPaging');
                     }
                 });
             }
@@ -138,6 +158,7 @@ $(document).ready(function () {
             saveProduct(),
             editProduct(),
             removeListProduct(),
+            updateTotal(),
             createRMAActivity($.urlParam('rma_id'), "Edit product")
         ]).then(function() {
             getProducts();
@@ -201,10 +222,11 @@ function getProducts() {
                 for ( i = 0; i < data.length; i++ ) {
                     rmaSO[data[i]['SOID']] = data[i]['RMASOID'];
                     data[i]['no'] = data[i]['productID'];
-                    data[i]['quantity'] = 1;
+                    data[i]['quantity'] = data[i]['quantity'];
                     data[i]['reveiver'] = data[i]['reveiver'] ? isWarrantyOptions[data[i]['reveiver']] : isWarrantyOptions[1];
                     data[i]['warehouse'] = data[i]['warehouse'] || variableOptions[1];
-                    data[i]['image'] = productImages[data[i].productID] || productImages[3];
+                    data[i]['image'] = productImages[data[i].productID] || productImages[3]; 
+                    data[i]['amount'] = "$" + parseFloat(parseFloat(data[i]['price']) * parseFloat(data[i]['quantity'])).toString();
                     data[i]['price'] = "$" + parseFloat(parseFloat(data[i]['price'])).toString();
                     productDatas.rows.push(data[i]); 
                 }
@@ -216,12 +238,17 @@ function getProducts() {
     });
 }
 
+productSaleOrder = {};
 function loadProducts() {    
     reCalculateAmount();
     $('#productGrid').datagrid({
         showFooter: true,
         data: productDatas,
         onLoadSuccess: function() {
+            resgisterSoList();
+            getProductsBySaleOrder(rmaSO).then(function(result) {
+                productSaleOrder = result;
+            });
             initRemove();
             registerComboboxAction();
             $('.date-box').each(function(){
@@ -240,41 +267,42 @@ function loadProducts() {
             });
         }
     });
+   
 }
 
-function addProduct() {
-    var id = Math.floor(Math.random() * 1000) + 1;
-    var newProduct = {
-        productID: id,
-        no: id,
-        image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
-        product: "Product 003 </br> Serial Number: 123-456-789",
-        quantity: "1",
-        soldPrice: "$1,000.00",
-        price: "$2,000.00",
-        stockAvaiable: "20",
-        totalWeight: "1000",
-        warehouse: "CA",
-        shiping_day: "25/01/2021",
-        original_so: "001",
-        service_for_product: "Service for Product 003",
-        receiver: "Y",
-        RMAID: false
-    };
-    
-    if ( productDatas.rows.find(
-            function(element) {
-                return element.productId === id;
-            }
-        ) === undefined) {
-        productDatas.rows.push(newProduct);
+function resgisterSoList() {
+    let data = [];
+    let position = 1;
+    for (let key in rmaSO) {
+        data.push({
+           no:  position,
+           so: key
+        });
+        position++;
     }
-    
-    comboBoxedProduct[id] = "Y";
-    removeTagProduct[id] = id;
-    reloadShippingAmount(function(){
-        reloadList(true, false);
+    $('#soGrid').datagrid({
+        data: data
     });
+}
+
+function addProduct(SOID, position) {
+    setTimeout(function(){
+        if ( productDatas.rows.find(
+                function(element) {
+                    return element.productID === productSaleOrder[SOID][position].productID;
+                }
+            ) === undefined) {
+            let newProduct = productSaleOrder[SOID][position];
+            let price = "$" + newProduct.price;
+            newProduct.price = price;
+            productDatas.rows.push(newProduct);
+            comboBoxedProduct[newProduct.productID] = "CA";
+            removeTagProduct[newProduct.productID] = newProduct.productID;
+            reloadShippingAmount(function(){
+                reloadList(true, false);
+            });
+        }
+    }, 1000);
 }
 
 function removeProduct(key) {;
@@ -362,6 +390,7 @@ function reloadShippingAmount(callback) {
 function loadServices() {
     var serviceId = null;
     if (serviceId = $.urlParam('rma_id')) {
+        loadRMAPayment();
         loadRMAActivity(serviceId);
         getServiceInformation(serviceId);
         getUserInfo();
@@ -388,8 +417,7 @@ function reCalculateAmount() {
     var pattern = /[^0-9.-]+/g;
 
     for( i = 0; i < productDatas.rows.length; i++ ) {
-        console.log(productDatas.rows[i].price, productDatas.rows[i].price.replace(pattern, ''));
-        amount += parseFloat(productDatas.rows[i].price.replace(pattern, ''));
+        amount += parseFloat(productDatas.rows[i].amount.replace(pattern, ''));
     }
     
 
@@ -416,9 +444,7 @@ function prepareProductToSave() {
         if (products[i].RMAID === false) {
             products[i].price = parseFloat(products[i].price.replace("$", '')).toFixed(2);
             products[i].RMAID = $.urlParam("rma_id");
-            products[i].SOID = 1;
-            products[i].RMASOID = rmaSO[1];
-           
+            products[i].RMASOID = rmaSO[products[i].originalSo];
             productToSave.push(products[i]);
         }
     }
@@ -523,10 +549,55 @@ function updateRMAStatus(status) {
     });
 }
 
-$.urlParam = function(name){
-    var results = new RegExp('[\?&]' + name + '=([^&#]*)').exec(window.location.href);
-    if (results === null) {
-       return null;
+function registerUpdatePaymentMethod() {
+    $("#updatePaymentMethod").click(function(){
+        $.ajax({
+            type: "PUT",
+            url: '/lexor_cs/api/rma_payment/' + $.urlParam('rma_id'),
+            data: JSON.stringify({
+                paymentType: $("#paymentMethod").val()
+            }),
+            contentType: 'application/json'
+        });
+    });
+}
+
+function loadRMAPayment() {
+    $.ajax({
+        type: "GET",
+        url: '/lexor_cs/api/rma_payment/detail/' + $.urlParam('rma_id'),
+        success: function(serviceMasterRES) {
+            rmaPayment = serviceMasterRES;
+            $('#paymentMethod').combobox('setValue', rmaPayment.paymentType);
+        },
+        contentType: 'application/json'
+    });
+}
+
+function getSOProductList() {
+    let promise = [];
+    const template = '<div title=":title" style="padding:20px;">' +
+        '<table id=":id" style="width: 100%" pagination="true">' +
+        '</table>' +
+        '</div>';
+    
+    for ( let key in productSaleOrder ) {
+        promise.push(new Promise(function(resolve) {
+            let layout = template;
+            resolve(layout.replace(":title", key).replace(":id", key));
+        }));
     }
-    return decodeURI(results[1]) || 0;
-};
+    
+    return Promise.all(promise);
+}
+
+function updateTotal() {
+    $.ajax({
+        type: "PUT",
+        url: '/lexor_cs/api/rma_so/' + $.urlParam('rma_id'),
+        data: JSON.stringify({
+            total: total
+        }),
+        contentType: 'application/json'
+    });
+}

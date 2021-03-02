@@ -19,10 +19,13 @@
         <link rel="stylesheet" type="text/css" href="../../../css/style.css">
 
         <style type="text/css">/* Chart.js */
+            body {
+                height: 1500px !important;
+            }
             @keyframes chartjs-render-animation{from{opacity:.99}to{opacity:1}}.chartjs-render-monitor{animation:chartjs-render-animation 1ms}.chartjs-size-monitor,.chartjs-size-monitor-expand,.chartjs-size-monitor-shrink{position:absolute;direction:ltr;left:0;top:0;right:0;bottom:0;overflow:hidden;pointer-events:none;visibility:hidden;z-index:-1}.chartjs-size-monitor-expand>div{position:absolute;width:1000000px;height:1000000px;left:0;top:0}.chartjs-size-monitor-shrink>div{position:absolute;width:200%;height:200%;left:0;top:0}
         </style>
     </head>
-    <body class="sidebar-mini layout-fixed" style="height: auto;">
+    <body class="sidebar-mini layout-fixed" style="height: 1500px !important;">
         <div class="wrapper">
             <div id="editServiceDialog" style="display: none;">
                 <form class="height-100">
@@ -166,7 +169,7 @@
                                             <th style="width: 10%" data-options="field:'amount', sortable:true">Amount</th>
                                             <th style="width: 7%;" data-options="field:'stockAvaiable', nowrap: false">Stock </br>Available</th>
                                             <th style="width: 7%;" data-options="field:'totalWeight'">Total Weight (lbs)</th>
-                                            <th style="width: 7%;" data-options="field:'warehouse'">Warehouse</th>
+                                            <th style="width: 7%;" data-options="field:'wareHouse'">Warehouse</th>
                                             <th style="width: 10%" data-options="field:'shipingDay'">Shipping Day</th>
                                             <th style="width: 7%" data-options="field:'originalSo'">Original SO</th>
                                             <th style="width: 10%" data-options="field:'serviceForProduct'">Service for </br>Product (qty1)</th>
@@ -192,7 +195,7 @@
                                                 <option value="2">Credit Card / Debit</option>
                                                 <option value="3">Check</option>
                                             </select>
-                                            <a href="javascript:void(0)" id="sendMail" class="easyui-linkbutton">Add</a>
+                                            <a href="javascript:void(0)" id="updatePaymentMethod" class="easyui-linkbutton">Add</a>
                                         </div>   
                                     </div>
                                 </form>
@@ -202,7 +205,7 @@
                                     <thead>
                                         <tr>
                                             <th data-options="field:'no', fixed:true, width: 100">#</th>
-                                            <th data-options="field:'warehouse',sortable:true, fixed:true, width: 200">Warehouse</th>
+                                            <th data-options="field:'wareHouse',sortable:true, fixed:true, width: 200">Warehouse</th>
                                             <th data-options="field:'shipping_day', fixed:true, width: 230">Shipping Day</th>
                                             <th data-options="field:'shipping_weight', fixed:true, width: 230">Shipping Weight (lbs)</th>
                                             <th data-options="field:'shipping_type', fixed:true, width: 150">Shipping Type</th>

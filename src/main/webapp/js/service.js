@@ -1,9 +1,9 @@
 productDatas = {
     "total" : 2,
     "footer":[
-	{"shipingDay":'<strong>Subtotal</strong>', "originalSo":"$3000.00"},
+	{"shipingDay":'<strong>Subtotal</strong>', "originalSo":"$0.00"},
 	{"shipingDay":'<strong>Shipping Fee</strong>',"originalSo":"$0.00"},
-        {"shipingDay":'<strong>Manager Discount</strong>',"originalSo":'<strong>-$1000.00</strong>'},
+        {"shipingDay":'<strong>Manager Discount</strong>',"originalSo":'<strong>-$0.00</strong>'},
         {"shipingDay":'<strong>Total</strong>',"originalSo":'<strong> $0.00</strong>'}
     ],
     "rows":[]
@@ -17,27 +17,23 @@ servicesData = [{
     action: '<a href="javascript:void(0)" onClick="addProduct()" class="easyui-linkbutton">Add</a>'
 }];
 
+discountShiping = 20;
+shippingFee = 0;
 shippingDatas = {
     "total" : 2,
     "rows":[
-        {
-            no: 1,
-            warehouse: "CA",
-            shipping_day: "15/01/2021",
-            shipping_weight: "800",
-            shipping_type: '<input id="shippingOrder" name="shippingOrder" value="">',
-            shipping_cost: "$100.00"    
-        }
     ],
     "footer":[
-	{"shipping_type":'<strong>Total Shipping Cost</strong>',"shipping_cost":"$10.00"},
-	{"shipping_type":'<strong>Shipping Discount</strong>',"shipping_cost":"-$<input style='width:100px' value='5.00' />"},
-        {"shipping_type":'<strong>Shipping Fee</strong>',"shipping_cost":'<strong>$5.00</strong>'}
+	{"shipping_type":'<strong>Total Shipping Cost</strong>',"shipping_cost":"$0.00"},
+	{"shipping_type":'<strong>Shipping Discount</strong>',"shipping_cost":"-$<input style='width:70px' value='"+discountShiping+".00' />"},
+        {"shipping_type":'<strong>Shipping Fee</strong>',"shipping_cost":'<strong>$0.00</strong>'}
     ]
 };
 
+serviceMaster = {};
 serviceStatus = { 1: 'Closed', 0: "Processing", 2: "Submitted To Production" };
-variableOptions = {1 :'CA', 2: 'CB'};
+variableOptions = {1 :'CA', 2: 'CB' };
+wareHouseExchange = {'CA' : 1, 'CB': 2 };
 isWarrantyOptions = {1 : "Y", 0: "N"};
 productImages = {
     1: "<img width='60px' height='60px' src='../../../images/product01.jpg' />",
@@ -49,14 +45,9 @@ comboBoxedProduct = {};
 dateBoxProduct = {};
 removeTagProduct = {};
 shippingDetail = {};
-comboBoxedProduct[1] = "CA";
 removeTagProduct[1] = 1;
-comboBoxedProduct[2] = "CB";
 removeTagProduct[2] = 2;
-dateBoxProduct[1] = "25/01/2021";
-dateBoxProduct[2] = "25/01/2021";
-
-discount = 1000;
+discount = 0;
 total = 0;
 totalAmount = 0;
 shippingAmount = 0;
@@ -68,12 +59,13 @@ $(document).ready(function () {
     loadServices();
     loadPaymentMethod();
     getServiceSO();
+    registerUpdatePaymentMethod();
     $("#editProducts").on("click", function(){
        reloadList();
     });
     
     $(".editServiceStatus").on("click", function(){
-        updateServiceStatus($(this).attr('data-id'), 1);
+        updateServiceStatus($(this).attr('data-id'), $(this).attr('data-id'));
     });
     
     $("#saveProducts").on("click", function(){
@@ -117,7 +109,7 @@ $(document).ready(function () {
                         }).datagrid('clientPaging');
                     }
                 });
-                
+
             }
         });
         $('#editServiceDialog').dialog("move", {top: 100});
@@ -149,7 +141,8 @@ $(document).ready(function () {
         Promise.all([ 
             saveProduct(),
             editProduct(),
-            removeListProduct()
+            removeListProduct(),
+            saveShippingFee()
         ]).then(function() {
             getProducts();
         });       
@@ -203,15 +196,12 @@ function removeListProduct() {
 
 function prepareProductToSave() {
     var products = productDatas.rows;
-
     var productToSave = [];
     for ( let i = 0; i < products.length; i++ ) {
         if (products[i].serviceMasterID === false) {
             products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
             products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", '')).toFixed(2);
             products[i].serviceMasterID = serviceMasterID;
-            
-            delete products[i].warehouse; 
             productToSave.push(products[i]);
         }
     }
@@ -226,8 +216,8 @@ function prepareProductToEdit() {
         if (products[i].serviceDetailID) {
             products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
             products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", '')).toFixed(2);
-            
-            delete products[i].warehouse; 
+            products[i].shipingDay = dateBoxProduct[products[i].productID];
+            products[i].wareHouse =  wareHouseExchange[products[i].wareHouse];
             productToSave.push(products[i]);
         } 
     };
@@ -242,10 +232,13 @@ function getProducts() {
             productDatas.rows = [];
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
+                    dateBoxProduct[data[i]['productID']] = data[i]['shipingDay'];
+                    comboBoxedProduct[data[i]['productID']] = variableOptions[data[i]['wareHouse']];
                     serviceMasterID = data[i]['serviceMasterID'];
+                    data[i]['product_name'] = data[i]['serialnumber'];
                     data[i]['no'] = data[i]['productID'];
                     data[i]['isWarranty'] = data[i]['isWarranty'] ? isWarrantyOptions[data[i]['isWarranty']] : isWarrantyOptions[1];
-                    data[i]['warehouse'] = data[i]['warehouse'] || variableOptions[1];
+                    data[i]['wareHouse'] = variableOptions[data[i]['wareHouse']] || variableOptions[1];
                     data[i]['image'] = productImages[data[i].productID] || productImages[3];
                     data[i]['amount'] = "$" + (parseFloat(data[i]['quantity']) * parseFloat(data[i]['soldPrice'])).toString();
                     data[i]['soldPrice'] = "$" + data[i]['soldPrice'];
@@ -263,20 +256,14 @@ function submitSalonForm() {
     $('#editSalonDialog').window('close');
 }
 
-function loadShipping(shippingDetail = {}) {
-    var datas = shippingDatas;
-    if (shippingDetail) {
-        datas.rows = [];
-        for (const shipping in shippingDetail) {
-            datas.rows.push(shippingDetail[shipping]);
-        }
-    }
+function loadShipping(shippingDetail = [{}]) {
+
     $('#shippingGrid').datagrid({
         pagination:true,
         pageSize:20,
+        height: 400,
         showFooter: true,
-        data: datas,
-        showFooter: true,
+        data: shippingDetail,
         onLoadSuccess: function() {
             $('.shippingOrder').combobox({
                 data:[
@@ -337,7 +324,7 @@ function loadProducts() {
     shippingDetail = [];
     productDatas.total = productDatas.rows.length;
     for(i = 0 ; i < productDatas.rows.length; i++) {
-        var wareHouse = productDatas.rows[i].warehouse;
+        var wareHouse = productDatas.rows[i].wareHouse;
         var shipDate = productDatas.rows[i].shipingDay;        
         var key = wareHouse + shipDate;
         var weight = 0;
@@ -351,13 +338,27 @@ function loadProducts() {
 
         shippingDetail[key] = {
             no : id,
-            warehouse : wareHouse,
+            wareHouse : wareHouse,
             shipping_type: '<input class="shippingOrder" name="shippingOrder" value="">',
-            shipping_cost: "$0",
+            shipping_cost: "$20",
             shipping_weight: weight,
             shipping_day: shipDate
         };
     }
+    
+   
+    var datas = shippingDatas;
+    var totalShippingCost = 0;
+    if (shippingDetail) {
+        datas.rows = [];
+        for (const shipping in shippingDetail) {
+            datas.rows.push(shippingDetail[shipping]);
+            totalShippingCost += parseInt(shippingDetail[shipping].shipping_cost.replace("$", ''));
+        }
+    }
+    shippingFee = (totalShippingCost - discountShiping);
+    datas.footer[0].shipping_cost = '<strong> $'+totalShippingCost+'.00</strong>';
+    datas.footer[2].shipping_cost = '<strong> $'+ (shippingFee) +'.00</strong>';
     
     reCalculateAmount();
     $('#productGrid').datagrid({
@@ -366,14 +367,15 @@ function loadProducts() {
         showFooter: true,
         data: productDatas,
         onLoadSuccess: function() {
-            loadShipping(shippingDetail);
+            loadShipping(datas);
             initRemove();
             registerComboboxAction();
+            $("#newAmount").val(shippingFee);
             $('.date-box').each(function(){
                  $(this).datebox({
                     required: true,
-                    onSelect: function(date){
-                        dateBoxProduct[$(this).attr('data-id')] = date.getDate() +"/"+ date.getMonth()+ 1+ "/"+ date.getFullYear();
+                    onSelect: function(date){alert(date.getDate() + "/" + (date.getMonth()+ 1) + "/" + date.getFullYear())
+                        dateBoxProduct[$(this).attr('data-id')] = date.getDate() + "/" + (date.getMonth()+ 1) + "/" + date.getFullYear();
                     }
                  }).datebox('calendar').calendar({
                     validator: function(date){
@@ -387,39 +389,24 @@ function loadProducts() {
     }).datagrid('clientPaging');
 }
 
-function addProduct() {
-    var id = Math.floor(Math.random() * 1000) + 1;
-    var newProduct = {
-        productID: id,
-        no: id,
-        image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />", 
-        serialNumber: "Product 003 </br> Serial Number: 123-456-789",
-        quantity: "1",
-        soldPrice: "$1000.00",
-        amount: "$2000.00",
-        stockAvaiable: "20",
-        totalWeight: "1000",
-        wareHouse: "CA",
-        shipingDay: "25/01/2021",
-        originalSo: "001",
-        serviceForProduct: "Service for Product 003",
-        isWarranty: isWarrantyOptions[1],
-        serviceMasterID: false
-    };
-
-    if ( productDatas.rows.find(
-            function(element) {
-                return element.productId === id;
-            }
-        ) === undefined) {
-        productDatas.rows.push(newProduct);
-    }
-    
-    comboBoxedProduct[id] = "CA";
-    removeTagProduct[id] = id;
-    reloadShippingAmount(function(){
-        reloadList(true, false);
-    });
+function addProduct(SOID, position) {
+    setTimeout(function(){
+        if ( productDatas.rows.find(
+                function(element) {
+                    return element.productID === productSaleOrder[SOID][position].productID;
+                }
+            ) === undefined) {
+            let newProduct = productSaleOrder[SOID][position];
+            let price = "$" + newProduct.price;
+            newProduct.price = price;
+            productDatas.rows.push(newProduct);
+            comboBoxedProduct[newProduct.productID] = "CA";
+            removeTagProduct[newProduct.productID] = newProduct.productID;
+            reloadShippingAmount(function(){
+                reloadList(true, false);
+            });
+        }
+    }, 1000);
 }
 
 function removeProduct(key) {
@@ -462,7 +449,7 @@ function registerComboboxAction() {
 }
 
 function getEditAmountTemplate(amount) {
-    return '$<input type="text" style="width:70px" id="newAmount" value="'+ parseFloat(amount.replace("$", '')) +'" />';
+    return '$<input type="text" style="width:60px" id="newAmount" value="'+ parseFloat(amount.replace("$", '')) +'" />';
 }
 
 function getRemoveTemplate(id) {
@@ -470,30 +457,29 @@ function getRemoveTemplate(id) {
 }
 
 function getDateBoxTemplate(id, value) {
-    return '<input class="date-box" style="width: 110px" data-id="'+ id +'" type="text" value="'+ value +'">';
+    return '<input class="date-box" style="width: 100px" data-id="'+ id +'" type="text" value="'+ value +'">';
 }
 
 function reloadList(isCombobox = true, isReSetup = true) {
-    productDatas.rows = productDatas.rows.map( function(product) { 
+    productDatas.rows = productDatas.rows.map( function(product) {
        if ( isCombobox ) {
-            product.warehouse = getComboboxTemplate(product.productID);
+            product.wareHouse = getComboboxTemplate(product.productID);
             product.no = getRemoveTemplate(product.productID);
             product.shipingDay = getDateBoxTemplate(product.productID, product.shipingDay);
 
        } else {
-            product.warehouse = comboBoxedProduct[product.productID];
+            product.wareHouse = comboBoxedProduct[product.productID];
             product.no = removeTagProduct[product.productID];
             product.shipingDay = dateBoxProduct[product.productID];
        }
-       
        return product;
     });
     
-    if ( isReSetup ) {
+    if ( isReSetup ) {console.log("Fee", shippingFee, isCombobox);
         if (isCombobox) {
             productDatas.footer[1].originalSo = getEditAmountTemplate(productDatas.footer[1].originalSo);
         } else {
-            productDatas.footer[1].originalSo = shippingAmount;
+            productDatas.footer[1].originalSo = '<strong> $'+ (shippingFee) +'.00</strong>';
         }
     }
     loadProducts();
@@ -508,7 +494,7 @@ function reloadShippingAmount(callback) {
     callback();
 }
 
-function updateServiceStatus(status, isSubmit = 1) {
+function updateServiceStatus(status, isSubmit = 0) {
     $.ajax({
         contentType: 'application/json',
         url: '/lexor_cs/api/serviceMaster/' + caseServiceID,
@@ -528,6 +514,7 @@ function loadServices() {
     if (serviceId = $.urlParam('service_id')) {
         getServiceInformation(serviceId);
         getUserInfo();
+        loadServiceMaster();
     } else {
         loadService();
     }
@@ -544,7 +531,7 @@ function getServiceInformation(serviceId) {
             if (data.serviceMasterID) {
                 serviceMasterID = data.serviceMasterID;
             } else {
-                createMasterProduct( data.caseServiceID);
+                createMasterProduct( data.caseServiceID );
             }
             
             getProducts();
@@ -561,9 +548,8 @@ function reCalculateAmount() {
     for( i = 0; i < productDatas.rows.length; i++ ) {
         amount += parseFloat(productDatas.rows[i].amount.replace(pattern, ''));
     }
-    
     totalAmount = amount;
-    total = totalAmount - discount + parseFloat(shippingAmount);
+    total = totalAmount - discount + parseFloat(shippingAmount) + parseFloat(shippingFee);
     productDatas.footer[0].originalSo = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
     productDatas.footer[3].originalSo = "<strong>$" + total.toFixed(2) + " </strong>";
 }
@@ -623,7 +609,7 @@ function getServiceSO() {
     $.get({
         type: "GET",
         url: '/lexor_cs/api/case_service_detail/' + serviceId + "/" + serviceId,
-        success: function (serviceSO) {console.log(serviceSO)
+        success: function (serviceSO) {
            if ( serviceSO ) {
                 const listSO = {};
                 for ( let i = 0 ; i < serviceSO.length; i ++) {
@@ -653,4 +639,42 @@ function getSOProductList() {
     }
     
     return Promise.all(promise);
+}
+
+function registerUpdatePaymentMethod() {
+    $("#updatePaymentMethod").click(function(){
+        $.ajax({
+            type: "PUT",
+            url: '/lexor_cs/api/serviceMaster/' + $.urlParam('service_id'),
+            data: JSON.stringify({
+                paymentType: $("#paymentMethod").val()
+            }),
+            contentType: 'application/json'
+        });
+    });
+}
+
+function loadServiceMaster() {
+    $.ajax({
+        type: "GET",
+        url: '/lexor_cs/api/serviceMaster/detail/' + $.urlParam('service_id'),
+        success: function(serviceMasterRES) {
+            serviceMaster = serviceMasterRES;
+            $('#paymentMethod').combobox('setValue', serviceMaster.paymentType);
+        },
+        contentType: 'application/json'
+    });
+}
+
+function saveShippingFee() {
+    $.ajax({
+        type: "PUT",
+        url: '/lexor_cs/api/serviceMaster/' + $.urlParam('service_id'),
+        data: JSON.stringify({
+            shippingFee: shippingFee,
+            total: total,
+            subTotal: totalAmount
+        }),
+        contentType: 'application/json'
+    });
 }

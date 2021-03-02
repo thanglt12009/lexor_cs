@@ -30,12 +30,30 @@ public class RMASOService extends BaseService<RMASO> {
     public int update(Integer id, Object o) throws SQLException {
         RMASO c = (RMASO) o;
         QueryRunner runner = new QueryRunner();
+        List<String> param = new ArrayList<>();
+        List<Object> condition = new ArrayList<>();
+        Object[] paramObject;
+         
+        if (0.0d != c.getFee()) {
+            param.add("Fee=?") ;
+            condition.add(c.getFee());
+        }
+        
+        if (0.0d != c.getTotal()) {
+            param.add("Total=?") ;
+            condition.add(c.getTotal());
+        }
+        
+        
+        condition.add(id);
+        paramObject = condition.toArray();
+        
         String query
                 = "UPDATE \"public\".\"RMASO\" "
-                + " SET \"RMAID\"=?, \"Fee\"=?, \"Total\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=?, \""
-                + " WHERE \"RMASOID\"=?;";
+                + " SET "  + String.join(" ,", param.toArray(new String[0]))
+                + " WHERE \"RMAID\"=?;";
 
-        return runner.update(connection, query.toLowerCase(), c.getRMAID(), c.getFee(), c.getTotal(), c.getCreatedDate(), c.getUpdatedDate(), id);
+        return runner.update(connection, query.toLowerCase(), paramObject);
     }
 
     @Override

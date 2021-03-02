@@ -35,7 +35,9 @@ public class ServiceDetail implements Serializable {
     
     private Date createdDate;
     
-    private Integer warehouse;
+    private String shipingDay;
+    
+    private Integer wareHouse;
 
     public ServiceDetail() {
         
@@ -161,14 +163,15 @@ public class ServiceDetail implements Serializable {
     public void setCreatedDate(Date createdDate) {
         this.createdDate = createdDate;
     }    
+   
     
-    public Integer getWarehouse() {
-        return warehouse;
+    public String getShipingDay() {
+        return shipingDay;
     }
- 
-    public void setWarehouse(int warehouse) {
-        this.warehouse = warehouse;
-    }
+
+    public void setShipingDay(String shipingDay) {
+        this.shipingDay = shipingDay;
+    }    
     
     @Override
     public int hashCode() {
@@ -193,6 +196,19 @@ public class ServiceDetail implements Serializable {
     @Override
     public String toString() {
         return "com.lexor.cs.domain.Case[ serviceDetailID=" + serviceDetailID + " ]";
+    }    
+
+    /**
+     * @return the wareHouse
+     */
+    public Integer getWareHouse() {
+        return wareHouse;
     }
-    
+
+    /**
+     * @param wareHouse the wareHouse to set
+     */
+    public void setWareHouse(Integer wareHouse) {
+        this.wareHouse = wareHouse;
+    }
 }

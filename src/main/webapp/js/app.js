@@ -107,6 +107,7 @@ $.urlParam = function(name){
     return decodeURI(results[1]) || 0;
 };
 
+isWarrantyOptions = {1 : "Y", 0: "N"};
 function getProductsBySaleOrder(listOfSO) {
     const promise = [];
 
@@ -130,15 +131,26 @@ function getProductsBySaleOrder(listOfSO) {
         for (let i = 0; i < results.length; i++) {
             result[results[i].SOID] = results[i].products.map(function(product){
                 return {
+                    RMAID: false,
+                    price: product['price'],
+                    serialNumber: product['name'],
+                    quantity: product['quantity'],
+                    productID: Math.floor(Math.random() * 10000) + 1,
+                    soldPrice: "$" + product['price'],
+                    amount: "$" + (product['price'] * product['quantity']),
+                    image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />",
                     product_name: product['name'],
                     under_warranty: "Y",
                     warranty_issue: "25/01/2021",
                     warranty_expire: "25/01/2021",
-                    action: '<a href="javascript:void(0)" onClick="addProduct()" class="easyui-linkbutton">Add</a>'
+                    isWarranty: isWarrantyOptions[1],
+                    originalSo: results[i].SOID,
+                    serviceMasterID: false,
+                    totalWeight: 1000,
+                    action: '<a href="javascript:void(0)" onClick="addProduct('+results[i].SOID+', '+i+')" class="easyui-linkbutton">Add</a>'
                 }
-            })
+            });
         }
-        
         return new Promise(function(resolve) {
             resolve(result);
         });

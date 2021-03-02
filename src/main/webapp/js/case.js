@@ -459,7 +459,8 @@ function createServiceOrReturn(caseId, path, dialog, title) {
         data: JSON.stringify({
             "caseID": caseId,
             "customerSOID": 1,
-            "logMessage": title
+            "logMessage": title,
+            "status": 1
         }),
         success: function(caseServiceId) {
             if ( caseServiceId && saleOrderToSave ) {
@@ -479,15 +480,23 @@ function createServiceOrReturn(caseId, path, dialog, title) {
                                     createMasterProduct(caseServiceId, soList[key]);
                                 }
                             } else {
-                                if (saleOrderToSave[key]) {
-                                    promises.push(createRMASaleOrder(caseServiceId, key));
+                                if (soList[key]) {
+                                    promises.push(createRMASaleOrder(caseServiceId, key, soList[key]));
                                 }
+                              
                             }
                         }
 
                         Promise.all(promises).then(function() {
                             $('#' + dialog).window('close');
                         });
+                    });
+                }
+                
+                if (path !== "/lexor_cs/api/case_service") {
+                    promises.push(createRMAPayment(caseServiceId))
+                    Promise.all(promises).then(function() {
+                         $('#' + dialog).window('close');
                     });
                 }
             }
@@ -554,7 +563,7 @@ function loadTransaction(caseId) {
     });
 }
 
-function createRMASaleOrder(rmaId, soId) {
+function createRMASaleOrder(rmaId, soId, soList) {
     return new Promise(function (resolve) {
         $.post({
             type: "POST",
@@ -564,12 +573,30 @@ function createRMASaleOrder(rmaId, soId) {
                 "SOID" : soId
             }),
             success: function (response) {
-                if (rmaProductList[soId] && withOutSaveOrder === false) {
-                    let productList = rmaProductList[soId];
+                if (soList && withOutSaveOrder === false) {
+                    let productList = soList;
                     for (const soKey in productList) {
                         createRMAProducts(response, rmaId, productList[soKey]);
                     }
                 }
+                resolve();
+            },
+            contentType: 'application/json'
+        });
+    });
+}
+
+function createRMAPayment(rmaId) {
+    return new Promise(function (resolve) {
+        $.post({
+            type: "POST",
+            url: '/lexor_cs/api/rma_payment',
+            data: JSON.stringify({
+                "RMAID": rmaId,
+                "paymentType" : 1,
+                "paymentStatus": 1
+            }),
+            success: function (response) {
                 resolve();
             },
             contentType: 'application/json'

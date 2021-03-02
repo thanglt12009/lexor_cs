@@ -69,6 +69,10 @@ public class RMAPayment implements Serializable {
     public Integer getPaymentStatus() {
         return PaymentStatus;
     }
+     
+    public void setPaymentStatus(Integer PaymentStatus) {
+        this.PaymentStatus = PaymentStatus;
+    }
     
     public void setTotal(Integer PaymentStatus) {
         this.PaymentStatus = PaymentStatus;
