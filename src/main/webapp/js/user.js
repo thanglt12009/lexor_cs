@@ -18,11 +18,11 @@ function editUserInformation() {
     var users = JSON.parse(localStorage.getItem("users"));
     var user = users.find(x => x.doc_number == $.urlParam("user_id"));
     var index = users.indexOf(user);
-    user.mobile_phone = $("#editMobilePhone").val();
-    user.business_phone = $("#editBusinessPhone").val();         
-    user.last_name = $("#editLastName").val();
-    user.first_name = $("#editFirstName").val();   
-    user.email = $("#editEmail").val();   
+    user.contactInfo.cellPhone = $("#editMobilePhone").val();
+    user.contactInfo.busPhone = $("#editBusinessPhone").val();         
+    user.contactInfo.lastName = $("#editLastName").val();
+    user.contactInfo.firstName = $("#editFirstName").val();   
+    user.contactInfo.email = $("#editEmail").val();   
     users.fill(user, index, index++); 
 
     localStorage.setItem("users", JSON.stringify(users));

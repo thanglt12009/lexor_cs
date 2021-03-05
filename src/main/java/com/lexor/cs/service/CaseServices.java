@@ -95,8 +95,9 @@ public class CaseServices extends BaseService<CaseService> {
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
 
-        String query = "SELECT * FROM \"public\".\"CaseService\" WHERE CONCAT_WS(' ', \"CustomerSOID\", \"CaseServiceID\", \"CaseID\") LIKE '%1%' order by CaseServiceID desc;";
-        
+        //String query = "SELECT * FROM \"public\".\"CaseService\" WHERE CONCAT_WS(' ', \"CustomerSOID\", \"CaseServiceID\", \"CaseID\") LIKE '%*%' order by CaseServiceID desc;";
+        String query = "SELECT * FROM \"public\".\"CaseService\" order by CaseServiceID desc;";
+
         //List<CaseService> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler);
         List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler());
         List<T> list = new ArrayList<>();
