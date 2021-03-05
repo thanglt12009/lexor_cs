@@ -36,6 +36,8 @@ shippingDatas = {
     ]
 };
 
+isSumFee = {};
+productList = {};
 paymentMethod = 1;
 comboBoxedProduct = {};
 dateBoxProduct = {};
@@ -56,7 +58,8 @@ shippingAmount = 0;
 rmaStatus = 1;
 rmaTempStatus = 1;
 isWarrantyOptions = {1 : "Y", 0: "N"};
-variableOptions = {1 :'CA', 2: 'CB'};
+variableOptions = {};
+wareHouseExchange = {'CA' : 1, 'CB': 2 };
 productImages = {
     1: "<img width='60px' height='60px' src='../../../images/product01.jpg' />",
     2: "<img width='60px' height='60px' src='../../../images/product02.jpg' />",
@@ -83,6 +86,12 @@ $(document).ready(function () {
         });
         $('#editRMADialog').dialog("move", {top: 100});
        rmaTempStatus = $(this).attr('data-id');
+    });
+    
+    $("#editReturn").on("click", function () {
+        registerCaseTransactionDialog('editSaleOrderDialog', 'Return', $(this).attr("path"), {
+            withOutSaveOrder: true
+        });
     });
     
     $("#editProducts").on("click", function(){
@@ -168,6 +177,144 @@ $(document).ready(function () {
         $(this).hide();
     });
 });
+
+function registerCaseTransactionDialog(dialogElement, title, path, defaultSaleOrder = {}) {
+
+    var element = $('#' + dialogElement);
+    element.dialog({
+        title: title,
+        width: 400,
+        height: 320,
+        closed: false,
+        cache: false,
+        modal: true,
+        inline: true,
+        href: 'case_service.html',
+        onLoad: function () {
+            registerAddSaleOrder(defaultSaleOrder);
+            registerCaseSeviceAutoComplete();
+            registerSaveCaseService(path, dialogElement, title);
+        }
+    });
+    $(element).dialog("move", {top: 100});
+}
+
+function registerCaseSeviceAutoComplete() {
+    var options = {
+        url: function(orderId) {
+            return "/lexor_cs/api/apiSO/find/" + orderId;
+	},
+        getValue: "code",
+        ajaxSettings: {
+            dataType: "json",
+            method: "GET"
+        },
+        theme: "square"
+    };
+    $("#saleOrderSearch").easyAutocomplete(options);
+}
+
+function registerSaveCaseService(path, dialogElement, title) {
+    $("#saveCaseService").on("click", function () {
+        if ($.urlParam('rma_id')) {
+            createServiceOrReturn($.urlParam('rma_id'), dialogElement);
+        }
+    });
+}
+
+function createServiceOrReturn(caseServiceId, dialog) {console.log(saleOrderToSave);
+    const promises = [];
+    const productList = getProductsBySaleOrder(saleOrderToSave).then(function(soList) {
+        for (const key in saleOrderToSave) {
+            if (soList[key]) {
+                promises.push(createRMASaleOrder(caseServiceId, key, soList[key]));
+            }
+
+            Promise.all(promises).then(function() {
+                $('#' + dialog).window('close');
+            });
+        };
+    });
+}
+
+function createRMASaleOrder(rmaId, soId, soList) {
+    return new Promise(function (resolve) {
+        $.post({
+            type: "POST",
+            url: '/lexor_cs/api/rma_so',
+            data: JSON.stringify({
+                "RMAID": rmaId,
+                "SOID" : soId
+            }),
+            success: function (response) {
+                if (soList) {
+                    let productList = soList;
+                    for (const soKey in productList) {
+                        createRMAProducts(response, rmaId, productList[soKey]);
+                    }
+                }
+                resolve();
+            },
+            contentType: 'application/json'
+        });
+    });
+}
+
+function createRMAProducts(soId, rmaID, products) {
+    products['RMAID'] = parseInt(rmaID);
+    products['RMASOID'] = parseInt(soId);
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/rma_soDetail',
+        data: JSON.stringify(products),
+        contentType: 'application/json',
+        success: function() {
+           getProducts();
+        }
+    });
+}
+
+function registerAddSaleOrder(saleOrder = {}) {
+    saleOrderToSave = {};
+    saleOrders = saleOrder;
+
+    if (saleOrder && saleOrder.withOutSaveOrder === false) {
+        //registerSOCheckbox("withOutSaveOrder", "Without Sale Order");
+    }
+
+    $("#addSaleOrder").on("click", function () {
+        var name = $("#saleOrderSearch").val();
+        if (saleOrders[name] || name.trim() === '') {
+            return;
+        }
+
+        registerSOCheckbox(name, name);
+        saleOrders[name] = true;
+        $("#saleOrderSearch").val(null);
+    });
+}
+
+function registerSOCheckbox(id, name) {
+    var template = '<div class="checkbox-type"><input id=":id" class="easyui-checkbox saleOrder" labelPosition="after" name=":name" value=":name"></div>';
+
+    $('#selectionSaleOrder').append(template.replace(':id', id).replace(':name', id).replace(':name', id));
+    $('#' + id).checkbox({
+        label: name,
+        value: id,
+        checked: false,
+        onChange: function (value) {
+            if (($(this)[0].defaultValue === "withOutSaveOrder")) {
+                withOutSaveOrder = value;
+            } else {
+                if (value) {
+                    saleOrderToSave[id] = true;
+                } else {
+                    saleOrderToSave[id] = false;
+                }
+            }       
+        }
+    });
+}
 
 function submitRMAForm() {
     var quality = $("input[name='quality']").val();
@@ -323,10 +470,11 @@ function initRemove() {
 }
 
 function getComboboxTemplate(id) {
-    var vaiableOptions = ['Y', 'N'];
+    var vaiableOptions = ['CA', 'CB'];
     var options = '<select data-id="' + id + '" class="easyui-combobox" name="dept" style="width:50px;">:selections</select>';
     
     var selections = vaiableOptions.map(function(value) {
+        isSumFee[value] = 1;
         if (comboBoxedProduct[id] === value) {
             return '<option selected="selected" value="'+ value +'">' + value + '</option>';
         } else {
@@ -337,11 +485,15 @@ function getComboboxTemplate(id) {
     return options.replace(':selections', selections);
 }
 
+
 function registerComboboxAction() {
     $(".easyui-combobox").on('change', function(){
         comboBoxedProduct[$(this).attr('data-id')] = $(this).val();
+        isSumFee[$(this).val()] = 1;
+        
+        discount = 20 * Object.keys(isSumFee).length;
+        console.log(discount, Object.keys(isSumFee).length, isSumFee);
     });
-    
 }
 
 function getEditAmountTemplate(amount) {
@@ -359,11 +511,11 @@ function getDateBoxTemplate(id, value) {
 function reloadList(isCombobox = true, isReSetup = true) {
     productDatas.rows = productDatas.rows.map( function(product) { 
        if ( isCombobox ) {
-            product.receiver = getComboboxTemplate(product.productID);
+            product.warehouse = getComboboxTemplate(product.productID);
             product.no = getRemoveTemplate(product.productID);
 
        } else {
-            product.receiver = comboBoxedProduct[product.productID];
+            product.warehouse = comboBoxedProduct[product.productID];
             product.no = removeTagProduct[product.productID];
        }
        return product;
@@ -422,7 +574,7 @@ function reCalculateAmount() {
     
 
     totalAmount = amount;
-    total = totalAmount - discount;
+    total = totalAmount + discount;
     productDatas.footer[0].warehouse = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
     productDatas.footer[1].warehouse = "<strong>$" + discount.toFixed(2) + " </strong>";
     productDatas.footer[2].warehouse = "<strong>$" + total.toFixed(2) + " </strong>";
