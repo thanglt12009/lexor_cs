@@ -58,7 +58,6 @@ var caseServiceID = 0;
 $(document).ready(function () {
     loadServices();
     loadPaymentMethod();
-    getServiceSO();
     registerUpdatePaymentMethod();
     $("#editProducts").on("click", function(){
        reloadList();
@@ -293,7 +292,7 @@ function loadService() {
                         service_number: data[i].caseServiceID,
                         original_case: data[i].caseID,
                         customer_name: data[i].customerSOID,
-                        action: '<a href="javascript:void(0)" onClick="openService( '+ data[i].caseServiceID +')" class="easyui-linkbutton">Select</a>'
+                        action: '<a href="javascript:void(0)" onClick="openService( '+ data[i].caseServiceID +' , '+ data[i].customerSOID +')" class="easyui-linkbutton">Select</a>'
                     }); 
                 }
 
@@ -312,8 +311,8 @@ function loadService() {
     });
 }
 
-function openService(serviceId) {
-    window.location.href = "/lexor_cs/pages/cs/purchaseorder/service.html?user_id=1&service_id=" + serviceId;
+function openService(serviceId, userId) {
+    window.location.href = "/lexor_cs/pages/cs/purchaseorder/service.html?user_id="+userId+"&service_id=" + serviceId;
 }
 
 function refreshProduct() {
@@ -515,6 +514,7 @@ function loadServices() {
         getServiceInformation(serviceId);
         getUserInfo();
         loadServiceMaster();
+        getServiceSO();
     } else {
         loadService();
     }

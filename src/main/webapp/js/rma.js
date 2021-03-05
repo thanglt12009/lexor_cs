@@ -71,7 +71,6 @@ var removedProductList = [];
 $(document).ready(function () {
     loadServices();
     registerUpdatePaymentMethod();
-    getProducts();
     loadPaymentMethod();
     
     $(".editRMAStatus").on("click", function(){
@@ -336,7 +335,7 @@ function loadService() {
                         service_number: data[i].RMAID,
                         original_case: data[i].caseID,
                         customer_name: data[i].customerSOID,
-                        action: '<a href="javascript:void(0)" onClick="openService('+data[i].RMAID+')" class="easyui-linkbutton">Select</a>'
+                        action: '<a href="javascript:void(0)" onClick="openService('+data[i].RMAID+', '+ data[i].customerSOID +')" class="easyui-linkbutton">Select</a>'
                     }); 
                 }
 
@@ -352,8 +351,8 @@ function loadService() {
     });
 }
 
-function openService(RMAID) {
-    window.location.href = "/lexor_cs/pages/cs/purchaseorder/rma.html?rma_id="+RMAID+"&user_id=1";
+function openService(RMAID, userId) {
+    window.location.href = "/lexor_cs/pages/cs/purchaseorder/rma.html?rma_id="+RMAID+"&user_id=" + userId;
 }
 
 function refreshProduct() {
@@ -546,6 +545,7 @@ function loadServices() {
         loadRMAActivity(serviceId);
         getServiceInformation(serviceId);
         getUserInfo();
+        getProducts();
     } else {
         loadService();
     }

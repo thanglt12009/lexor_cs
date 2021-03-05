@@ -41,12 +41,14 @@ function getUserInfo() {
 }
 
 function searchUser(userId) {
-   $('#userGrid').datagrid({
-       data: findUser(userId),
-       onLoadSuccess: function() {
-           $(".easyui-linkbutton").linkbutton();
-       }
-   });
+    if ( user = findUser(userId) ) {
+        $('#userGrid').datagrid({
+            data: user,
+            onLoadSuccess: function() {
+                $(".easyui-linkbutton").linkbutton();
+            }
+        });
+    }
 }
 
 function findUser(userId) {

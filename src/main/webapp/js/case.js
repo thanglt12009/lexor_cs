@@ -458,7 +458,7 @@ function createServiceOrReturn(caseId, path, dialog, title) {
         url: path,
         data: JSON.stringify({
             "caseID": caseId,
-            "customerSOID": 1,
+            "customerSOID": $.urlParam('user_id'),
             "logMessage": title,
             "status": 1
         }),
