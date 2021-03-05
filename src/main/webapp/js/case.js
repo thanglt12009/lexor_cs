@@ -90,7 +90,6 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
-            inline: true,
             href: 'user.html',
             onLoad: function () {
                 $(".easyui-checkbox").checkbox({
@@ -120,7 +119,6 @@ $(document).ready(function () {
             closed: false,
             cache: false,
             modal: true,
-            inline: true,
             href: 'edit_user.html',
             onLoad: function () {
                 $("#editMobilePhone").textbox({value: window.defaultUser.mobile_phone, required: true, validateOnCreate: false, width: 337});
