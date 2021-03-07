@@ -1,8 +1,9 @@
 package com.lexor.cs.resource;
 
-import com.lexor.cs.domain.RMASO_Detail;
-import com.lexor.cs.service.RMASO_DetailService;
+import com.lexor.cs.domain.RMALog;
+import com.lexor.cs.domain.ServiceLog;
 import com.lexor.cs.service.Service;
+import com.lexor.cs.service.ServiceLogService;
 import java.sql.SQLException;
 import java.util.List;
 import javax.ejb.Stateless;
@@ -18,14 +19,14 @@ import javax.ws.rs.core.MediaType;
 
 
 @Stateless
-@Path("/rma_soDetail")
-public class RMASO_DetailFacadeREST extends AbstractFacade<RMASO_Detail> {
+@Path("/service_log")
+public class ServiceLogFacadeREST extends AbstractFacade<ServiceLog> {
     
-    private RMASO_DetailService service;
+    private ServiceLogService service;
 
-    public RMASO_DetailFacadeREST() {
-        super(RMASO_Detail.class);
-        this.service = new RMASO_DetailService();
+    public ServiceLogFacadeREST() {
+        super(ServiceLog.class);
+        this.service = new ServiceLogService();
     }
 
     @Override
@@ -36,43 +37,43 @@ public class RMASO_DetailFacadeREST extends AbstractFacade<RMASO_Detail> {
     @POST
     @Override
     @Consumes({MediaType.APPLICATION_JSON})
-    public int create(RMASO_Detail entity) throws SQLException {
+    public int create(ServiceLog entity) throws SQLException {
         return super.create(entity);
     }
 
     @PUT
     @Path("/{id}")
     @Consumes({MediaType.APPLICATION_JSON})
-    public int edit(@PathParam("id") Integer id, RMASO_Detail entity) throws SQLException {
-       return super.edit(id, entity);
+    public int edit(@PathParam("id") Integer id, ServiceLog entity) throws SQLException {
+        return super.edit(id, entity);
     }
 
     @DELETE
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON})
     public int remove(@PathParam("id") Integer id) throws SQLException {
-        RMASO_Detail entity = super.find(id);
+        ServiceLog entity = super.find(id);
         return super.remove(entity);
     }
 
     @GET
     @Path("/detail/{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public RMASO_Detail find(@PathParam("id") Integer id) throws SQLException {
+    public ServiceLog find(@PathParam("id") Integer id) throws SQLException {
         return super.find(id);
     }
     
     @GET
-    @Path("/find/{keyword}")
+    @Path("/find/{message}")
     @Produces({MediaType.APPLICATION_JSON})
-    public List<RMASO_Detail> findByKeyWord(@PathParam("productID") Integer productID) throws SQLException {        
-        return super.findByKeyWord(productID);
+    public List<ServiceLog> findByKeyWord(@PathParam("message") String message) throws SQLException {        
+        return super.findByKeyWord(message);
     }
 
     @GET
     @Path("/{from}/{to}")
     @Produces({MediaType.APPLICATION_JSON})
-    public List<RMASO_Detail> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) throws SQLException {
+    public List<ServiceLog> findRange(@PathParam("from") Integer from, @PathParam("to") Integer to) throws SQLException {
         return super.findRange(new int[]{from, to});
     }
 

@@ -132,6 +132,7 @@ function getProductsBySaleOrder(listOfSO) {
             result[results[i].SOID] = results[i].products.map(function(product){
                 return {
                     RMAID: false,
+                    wareHouse: 1,
                     price: product['price'],
                     serialNumber: product['name'],
                     quantity: product['quantity'],

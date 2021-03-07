@@ -24,21 +24,33 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         RMASO_Detail c = (RMASO_Detail) o;
         QueryRunner runner = new QueryRunner();
         String query
-                = "INSERT INTO \"public\".\"RMASO_Detail\" (\"RMASOID\", \"RMAID\", \"ProductID\",\"Quantity\", \"Price\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?, ?);";
+                = "INSERT INTO \"public\".\"RMASO_Detail\" (\"RMASOID\", \"RMAID\", \"ProductID\",\"Quantity\", \"Price\", \"WareHouse\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
 
-        return runner.update(connection, query.toLowerCase(), c.getRMASOID(), c.getRMAID(), c.getProductID(),  c.getQuantity(), c.getPrice(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.update(connection, query.toLowerCase(), c.getRMASOID(), c.getRMAID(), c.getProductID(),  c.getQuantity(), c.getPrice(), c.getWareHouse(), c.getCreatedDate(), c.getUpdatedDate());
     }
 
     @Override
     public int update(Integer id, Object o) throws SQLException {
         RMASO_Detail c = (RMASO_Detail) o;
         QueryRunner runner = new QueryRunner();
+        List<String> param = new ArrayList<>();
+        List<Object> condition = new ArrayList<>();
+        Object[] paramObject;
+         
+        if (c.getWareHouse() != null) {
+            param.add("WareHouse=?") ;
+            condition.add(c.getWareHouse());
+        }
+  
+        condition.add(id);
+        paramObject = condition.toArray();
+        
         String query
                 = "UPDATE \"public\".\"RMASO_Detail\" "
-                + " SET \"SOID\"=?, \"SODetail_ID\"=?, \"ProductID\"=?, \"Quantity\"=?, \"Price\"=?, \"CreatedDate\"=?, \"UpdatedDate\"=?, \""
-                + " WHERE \"ProductID\"=?;";
+                + " SET "  + String.join(" ,", param.toArray(new String[0]))
+                + " WHERE \"SODetail_ID\"=?;";
 
-        return runner.update(connection, query.toLowerCase(), c.getSOID(), c.getSODetail_ID(), c.getProductID(), c.getQuantity(), c.getPrice(), c.getCreatedDate(), c.getUpdatedDate(), id);
+        return runner.update(connection, query.toLowerCase(), paramObject);
     }
 
     @Override
@@ -129,6 +141,7 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
             caseObj.setProductID((Integer)mapObj.get("productID"));
             caseObj.setPrice((Double)mapObj.get("price")); 
             caseObj.setQuantity((Integer)mapObj.get("quantity")); 
+            caseObj.setWareHouse((Integer)mapObj.get("warehouse"));
             list.add((T) caseObj);
         }
         

@@ -31,22 +31,56 @@ function loadActivity(caseId) {
 }
 
 function createRMAActivity(caseId, message) {
-    $.post({
-        type: "POST",
-        url: '/lexor_cs/api/rma_log',
-        data: JSON.stringify({
-            "RMAID": caseId,
-            "logMessage": message,
-            "createdDate": getCurrentTime(),
-            "updatedDate": getCurrentTime()
-        }),
-        contentType: 'application/json'
-    });
+    return [
+        $.post({
+            type: "POST",
+            url: '/lexor_cs/api/rma_log',
+            data: JSON.stringify({
+                "RMAID": parseInt(caseId),
+                "logMessage": message,
+                "createdDate": getCurrentTime(),
+                "updatedDate": getCurrentTime()
+            }),
+            contentType: 'application/json'
+        })
+    ];
 }
 
 function loadRMAActivity(caseId) {
     $.get({
         url: "/lexor_cs/api/rma_log/" + caseId + "/" + caseId,
+        success: function (data) {
+            if (data) {
+                var hitory = $("#logHistory");
+                hitory.val("");
+                data.forEach(function (data) {
+                    hitory.val(hitory.val() + data.logMessage + " " + data.createdDate + '\r\n');
+                });
+            }
+        },
+        contentType: 'application/json'
+    });
+}
+
+function createServiceActivity(caseId, message) {
+    return [
+        $.post({
+            type: "POST",
+            url: '/lexor_cs/api/service_log',
+            data: JSON.stringify({
+                "serviceID": parseInt(caseId),
+                "logMessage": message,
+                "createdDate": getCurrentTime(),
+                "updatedDate": getCurrentTime()
+            }),
+            contentType: 'application/json'
+        })
+    ];
+}
+
+function loadServiceActivity(caseId) {
+    $.get({
+        url: "/lexor_cs/api/service_log/" + caseId + "/" + caseId,
         success: function (data) {
             let tableData = [];
             if (data) {
@@ -60,6 +94,7 @@ function loadRMAActivity(caseId) {
         contentType: 'application/json'
     });
 }
+
 
 
 function getCurrentTime() {

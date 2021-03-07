@@ -112,6 +112,7 @@ public class ServiceMasterService extends BaseService<ServiceMaster> {
             serviceMaster.setCaseServiceID((Integer)mapObj.get("caseServiceID"));
             serviceMaster.setPaymentType((Integer)mapObj.get("paymentType"));
             serviceMaster.setServiceMasterID((Integer)mapObj.get("serviceMasterID"));
+            serviceMaster.setShippingFee((Double)mapObj.get("shippingFee"));
             list.add((T) serviceMaster);
         }
         if (list.size() > 0) {

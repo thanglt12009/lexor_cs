@@ -23,6 +23,8 @@ public class RMASO_Detail implements Serializable {
     
     private Integer Quantity;
     
+    private Integer wareHouse;
+    
     private double Price; 
     
     private String createdDate;
@@ -118,5 +120,19 @@ public class RMASO_Detail implements Serializable {
      */
     public void setRMASOID(Integer RMASOID) {
         this.RMASOID = RMASOID;
+    }
+
+    /**
+     * @return the wareHouse
+     */
+    public Integer getWareHouse() {
+        return wareHouse;
+    }
+
+    /**
+     * @param wareHouse the wareHouse to set
+     */
+    public void setWareHouse(Integer wareHouse) {
+        this.wareHouse = wareHouse;
     }
 }

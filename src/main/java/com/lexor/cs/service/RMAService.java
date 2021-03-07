@@ -87,19 +87,15 @@ public class RMAService extends BaseService<RMA> {
     
     @Override
     public <T> List<T> findByKeyWord(Object o) throws SQLException {
-        Integer status = (Integer) o;
+        String keyword = (String) o;
         QueryRunner queryRunner = new QueryRunner(); 
-        String query = "SELECT * FROM \"public\".\"RMA\" order by \"RMAID\" desc;";
-
-         /*
-        List<RMA> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler);
         
-        List<T> list = new ArrayList<>();
-        for (RMA case1 : empList) {
-            list.add((T) case1);
+        if ( "all".equals(keyword) ) {
+            keyword = "";
         }
-        return list;
-        */
+         
+        String query = "SELECT * FROM \"public\".\"RMA\" WHERE CONCAT_WS(' ', \"CustomerSOID\", \"RMAID\", \"CaseID\") ILIKE '%"+ keyword +"%' order by RMAID desc;";
+
         List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler());
         List<T> list = new ArrayList<>();
         for(int i=0; i< empLists.size();i++) {
@@ -112,9 +108,6 @@ public class RMAService extends BaseService<RMA> {
             list.add((T) caseObj);
         }
         
-       /* for (CaseService case1 : empList) {
-            list.add((T) case1);
-        }*/
         return list; 
     }    
     

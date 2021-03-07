@@ -1,9 +1,9 @@
 productDatas = {
     "total" : 2,
     "footer":[
-	{"price":'<strong>Subtotal</strong>', "warehouse":"$3000.00"},
-	{"price":'<strong>Restocking Fee</strong>',"warehouse":"$0.00"},
-        {"price":'<strong>Total</strong>',"warehouse":'<strong> $0.00</strong>'}
+	{"price":'<strong>Subtotal</strong>', "wareHouse":"$3000.00"},
+	{"price":'<strong>Restocking Fee</strong>',"wareHouse":"$0.00"},
+        {"price":'<strong>Total</strong>',"wareHouse":'<strong> $0.00</strong>'}
     ],
     "rows":[]
     
@@ -58,7 +58,7 @@ shippingAmount = 0;
 rmaStatus = 1;
 rmaTempStatus = 1;
 isWarrantyOptions = {1 : "Y", 0: "N"};
-variableOptions = {};
+variableOptions = {1 :'CA', 2: 'CB' };
 wareHouseExchange = {'CA' : 1, 'CB': 2 };
 productImages = {
     1: "<img width='60px' height='60px' src='../../../images/product01.jpg' />",
@@ -162,16 +162,19 @@ $(document).ready(function () {
         $("#addSaleOrder").hide();
         $("#editProducts").show();
         
+        const promises = saveProduct().concat(editProduct()).concat(removeListProduct()).concat(updateTotal()).concat(createRMAActivity($.urlParam('rma_id'), "Edit product"));
         Promise.all([
             saveProduct(),
             editProduct(),
             removeListProduct(),
-            updateTotal(),
-            createRMAActivity($.urlParam('rma_id'), "Edit product")
+            updateTotal()
         ]).then(function() {
             getProducts();
             loadRMAActivity($.urlParam('rma_id'));
-        }); 
+        }).catch(function() {
+            getProducts();
+            loadRMAActivity($.urlParam('rma_id'));
+        }); ; 
         
         $(this).hide();
     });
@@ -221,7 +224,7 @@ function registerSaveCaseService(path, dialogElement, title) {
     });
 }
 
-function createServiceOrReturn(caseServiceId, dialog) {console.log(saleOrderToSave);
+function createServiceOrReturn(caseServiceId, dialog) {
     const promises = [];
     const productList = getProductsBySaleOrder(saleOrderToSave).then(function(soList) {
         for (const key in saleOrderToSave) {
@@ -323,11 +326,11 @@ function submitRMAForm() {
     $('#editRMADialog').window('close');
 }
 
-function loadService() {
+function loadService(keyword = "all") {
     var services = [];
 
     $.get({
-        url: "/lexor_cs/api/rma/find/1",
+        url: "/lexor_cs/api/rma/find/" + keyword,
         success: function(data) {
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
@@ -367,17 +370,18 @@ function getProducts() {
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
                     rmaSO[data[i]['SOID']] = data[i]['RMASOID'];
+                    comboBoxedProduct[data[i]['productID']] = variableOptions[data[i]['wareHouse']];
                     data[i]['no'] = data[i]['productID'];
                     data[i]['quantity'] = data[i]['quantity'];
                     data[i]['reveiver'] = data[i]['reveiver'] ? isWarrantyOptions[data[i]['reveiver']] : isWarrantyOptions[1];
-                    data[i]['warehouse'] = data[i]['warehouse'] || variableOptions[1];
+                    data[i]['wareHouse'] = variableOptions[data[i]['wareHouse']] || variableOptions[1];
                     data[i]['image'] = productImages[data[i].productID] || productImages[3]; 
                     data[i]['amount'] = "$" + parseFloat(parseFloat(data[i]['price']) * parseFloat(data[i]['quantity'])).toString();
                     data[i]['price'] = "$" + parseFloat(parseFloat(data[i]['price'])).toString();
                     productDatas.rows.push(data[i]); 
                 }
             }
-
+            
             loadProducts();
         },
         contentType: 'application/json'
@@ -397,20 +401,6 @@ function loadProducts() {
             });
             initRemove();
             registerComboboxAction();
-            $('.date-box').each(function(){
-                 $(this).datebox({
-                    required: true,
-                    onSelect: function(date){
-                        dateBoxProduct[$(this).attr('data-id')] = date.getDate() +"/"+ date.getMonth()+ 1+ "/"+ date.getFullYear();
-                    }
-                 }).datebox('calendar').calendar({
-                    validator: function(date){
-                        var now = new Date();
-                        var d1 = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-                        return d1 <= date;
-                    }
-                });
-            });
         }
     });
    
@@ -491,7 +481,6 @@ function registerComboboxAction() {
         isSumFee[$(this).val()] = 1;
         
         discount = 20 * Object.keys(isSumFee).length;
-        console.log(discount, Object.keys(isSumFee).length, isSumFee);
     });
 }
 
@@ -510,11 +499,11 @@ function getDateBoxTemplate(id, value) {
 function reloadList(isCombobox = true, isReSetup = true) {
     productDatas.rows = productDatas.rows.map( function(product) { 
        if ( isCombobox ) {
-            product.warehouse = getComboboxTemplate(product.productID);
+            product.wareHouse = getComboboxTemplate(product.productID);
             product.no = getRemoveTemplate(product.productID);
 
        } else {
-            product.warehouse = comboBoxedProduct[product.productID];
+            product.wareHouse = comboBoxedProduct[product.productID] || variableOptions[1];
             product.no = removeTagProduct[product.productID];
        }
        return product;
@@ -522,7 +511,7 @@ function reloadList(isCombobox = true, isReSetup = true) {
     
     if ( isReSetup ) {
         if (isCombobox) {
-            productDatas.footer[1].warehouse = getEditAmountTemplate(productDatas.footer[1].warehouse);
+            productDatas.footer[1].wareHouse = getEditAmountTemplate(productDatas.footer[1].wareHouse);
         }
     }
     
@@ -547,6 +536,7 @@ function loadServices() {
         getUserInfo();
         getProducts();
     } else {
+        registerServiceSearch();
         loadService();
     }
 }
@@ -575,9 +565,9 @@ function reCalculateAmount() {
 
     totalAmount = amount;
     total = totalAmount + discount;
-    productDatas.footer[0].warehouse = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
-    productDatas.footer[1].warehouse = "<strong>$" + discount.toFixed(2) + " </strong>";
-    productDatas.footer[2].warehouse = "<strong>$" + total.toFixed(2) + " </strong>";
+    productDatas.footer[0].wareHouse = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
+    productDatas.footer[1].wareHouse = "<strong>$" + discount.toFixed(2) + " </strong>";
+    productDatas.footer[2].wareHouse = "<strong>$" + total.toFixed(2) + " </strong>";
 }
 
 function loadPaymentMethod() {
@@ -608,59 +598,80 @@ function prepareProductToEdit() {
     var products = productDatas.rows;
     var productToSave = [];
     for ( let i = 0; i < products.length; i++ ) {
-        if (products[i].serviceDetailID) {
-            products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
-            products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", '')).toFixed(2);
+        if (products[i].SODetail_ID) {
+            products[i].wareHouse = wareHouseExchange[products[i].wareHouse];
+            if ( !Number.isInteger( products[i].amount ) ) {
+                products[i].amount = parseFloat(products[i].amount.replace("$", ""));
+            }
+            
+            if ( !Number.isInteger( products[i].price )) {
+                products[i].price = parseFloat(products[i].price.replace("$", ""));
+            }
             
             productToSave.push(products[i]);
         } 
-    };
+    }
     
     return productToSave;
 }
 
 function removeListProduct() {
+    const promise = [];
     if ( removedProductList ) {
         for ( var product in removedProductList) {
             if (id = removedProductList[product].SODetail_ID) {
-                $.ajax({
-                    contentType: 'application/json',
-                    url: '/lexor_cs/api/rma_soDetail/' + id,
-                    type: 'DELETE'
-                });
+                promise.push(
+                    $.ajax({
+                        contentType: 'application/json',
+                        url: '/lexor_cs/api/rma_soDetail/' + id,
+                        type: 'DELETE'               
+                    })
+                );
             }
         }
     }
+    
+    return promise;
 }
 
 function saveProduct() {
     var products = prepareProductToSave();
     
+    const promise = [];
     if ( products ) {
         for ( let i = 0 ; i < products.length; i++ ) {
-             $.post({
-                type: "POST",
-                url: '/lexor_cs/api/rma_soDetail',
-                data: JSON.stringify(products[i]),
-                contentType: 'application/json'
-            });
+            promise.push(
+                $.post({
+                    type: "POST",
+                    url: '/lexor_cs/api/rma_soDetail',
+                    data: JSON.stringify(products[i]),
+                    contentType: 'application/json'
+                })
+            );
         }
     }
+    
+    return promise;
 }
 
 function editProduct() {
     var products = prepareProductToEdit();
     
+    const promise = [];
     if ( products ) {
         for ( let i = 0 ; i < products.length; i++ ) {
-            $.ajax({
-                contentType: 'application/json',
-                url: '/lexor_cs/api/rma_soDetail/' + products[i].SODetail_ID,
-                data: JSON.stringify(products[i]),
-                type: 'PUT'
-            });
+            promise.push(
+                $.ajax({
+                    contentType: 'application/json',
+                    url: '/lexor_cs/api/rma_soDetail/' + products[i].SODetail_ID,
+                    data: JSON.stringify(products[i]),
+                    type: 'PUT'
+                })
+            );
         }
     }
+    
+    return promise;
 }
 
 function createRMASO(soID) {
@@ -744,12 +755,33 @@ function getSOProductList() {
 }
 
 function updateTotal() {
-    $.ajax({
-        type: "PUT",
-        url: '/lexor_cs/api/rma_so/' + $.urlParam('rma_id'),
-        data: JSON.stringify({
-            total: total
-        }),
-        contentType: 'application/json'
+    return [
+        $.ajax({
+            type: "PUT",
+            url: '/lexor_cs/api/rma_so/' + $.urlParam('rma_id'),
+            data: JSON.stringify({
+                total: total
+            }),
+            contentType: 'application/json'
+        })
+    ];
+}
+
+function registerServiceSearch() {
+    $('#rmaSearch').textbox({
+        inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+            keyup: function(event){
+                if(event.keyCode === 13){
+                    event.preventDefault();
+
+                    let keyword= $(event.data.target).textbox('getText');
+                    searchService(keyword.trim() == "" ? "all" : keyword);
+                }
+            }
+        })
     });
+}
+
+function searchService(keyword) {
+   loadService(keyword);
 }

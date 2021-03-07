@@ -137,13 +137,13 @@ $(document).ready(function () {
         $("#addSaleOrder").hide();
         $("#editProducts").show();
         
-        Promise.all([ 
-            saveProduct(),
-            editProduct(),
-            removeListProduct(),
-            saveShippingFee()
-        ]).then(function() {
+        const promises = saveProduct().concat(editProduct()).concat(removeListProduct()).concat(saveShippingFee()).concat(createServiceActivity($.urlParam('service_id'), "Edit product"));
+        Promise.all(promises.map(Promise.all.bind(Promise))).then(function() {
             getProducts();
+            loadServiceActivity($.urlParam('service_id'));
+        }).catch(function() {
+            getProducts();
+            loadServiceActivity($.urlParam('service_id'));
         });       
         $(this).hide();
     });
@@ -152,45 +152,66 @@ $(document).ready(function () {
 function saveProduct() {
     var products = prepareProductToSave();
     
+    const promise = [];
     if ( products ) {
         for ( let i = 0 ; i < products.length; i++ ) {
-             $.post({
-                type: "POST",
-                url: '/lexor_cs/api/serviceDetail',
-                data: JSON.stringify(products[i]),
-                contentType: 'application/json'
-            });
+            promise.push(
+                $.post({
+                    type: "POST",
+                    url: '/lexor_cs/api/serviceDetail',
+                    data: JSON.stringify(products[i]),
+                    contentType: 'application/json'
+                })
+            ); 
         }
     }
+    
+    return promise;
 }
 
 function editProduct() {
     var products = prepareProductToEdit();
     
+    const promise = [];
     if ( products ) {
         for ( let i = 0 ; i < products.length; i++ ) {
-            $.ajax({
-                contentType: 'application/json',
-                url: '/lexor_cs/api/serviceDetail/' + products[i].serviceDetailID,
-                data: JSON.stringify(products[i]),
-                type: 'PUT'
-            });
+            promise.push(
+                $.ajax({
+                    contentType: 'application/json',
+                    url: '/lexor_cs/api/serviceDetail/' + products[i].serviceDetailID,
+                    data: JSON.stringify(products[i]),
+                    type: 'PUT',
+                    sussess : function() {
+                        resolve(true);
+                    }
+                })
+            );    
         }
     }
+    
+    return promise;
 }
 
 function removeListProduct() {
+    const promise = [];
     if ( removedProductList ) {
         for ( var product in removedProductList) {
             if (id = removedProductList[product].serviceDetailID) {
-                $.ajax({
-                    contentType: 'application/json',
-                    url: '/lexor_cs/api/serviceDetail/' + id,
-                    type: 'DELETE'
-                });
+                promise.push(
+                    $.ajax({
+                        contentType: 'application/json',
+                        url: '/lexor_cs/api/serviceDetail/' + id,
+                        type: 'DELETE',
+                        sussess : function() {
+                            resolve(true);
+                        }
+                    })
+                );
             }
         }
     }
+    
+    return promise;
 }
 
 function prepareProductToSave() {
@@ -210,18 +231,17 @@ function prepareProductToSave() {
 
 function prepareProductToEdit() {    
     var products = productDatas.rows;
-    var productToSave = [];
+    var productToEdit = [];
     for ( let i = 0; i < products.length; i++ ) {
         if (products[i].serviceDetailID) {
-            products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
-            products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", '')).toFixed(2);
-            products[i].shipingDay = dateBoxProduct[products[i].productID];
-            products[i].wareHouse =  wareHouseExchange[products[i].wareHouse];
-            productToSave.push(products[i]);
+            products[i].wareHouse = wareHouseExchange[products[i].wareHouse];
+            products[i].amount = parseFloat(products[i].amount.replace("$", ""));
+            products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", ""));
+            productToEdit.push(products[i]);
         } 
     };
     
-    return productToSave;
+    return productToEdit;
 }
 
 function getProducts() {
@@ -280,11 +300,11 @@ function loadShipping(shippingDetail = [{}]) {
     }).datagrid('clientPaging');
 }
 
-function loadService() {
+function loadService(data = 'all') {
     var services = [];
 
     $.get({
-        url: "/lexor_cs/api/case_service/find/1",
+        url: "/lexor_cs/api/case_service/find/" + data,
         success: function(data) {
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
@@ -373,7 +393,7 @@ function loadProducts() {
             $('.date-box').each(function(){
                  $(this).datebox({
                     required: true,
-                    onSelect: function(date){alert(date.getDate() + "/" + (date.getMonth()+ 1) + "/" + date.getFullYear())
+                    onSelect: function(date){
                         dateBoxProduct[$(this).attr('data-id')] = date.getDate() + "/" + (date.getMonth()+ 1) + "/" + date.getFullYear();
                     }
                  }).datebox('calendar').calendar({
@@ -468,13 +488,13 @@ function reloadList(isCombobox = true, isReSetup = true) {
 
        } else {
             product.wareHouse = comboBoxedProduct[product.productID];
-            product.no = removeTagProduct[product.productID];
+            product.no = removeTagProduct[product.productID] || product.productID;
             product.shipingDay = dateBoxProduct[product.productID];
        }
        return product;
     });
     
-    if ( isReSetup ) {console.log("Fee", shippingFee, isCombobox);
+    if ( isReSetup ) {
         if (isCombobox) {
             productDatas.footer[1].originalSo = getEditAmountTemplate(productDatas.footer[1].originalSo);
         } else {
@@ -515,7 +535,9 @@ function loadServices() {
         getUserInfo();
         loadServiceMaster();
         getServiceSO();
+        loadServiceActivity(serviceId);
     } else {
+        registerServiceSearch();
         loadService();
     }
 }
@@ -667,14 +689,38 @@ function loadServiceMaster() {
 }
 
 function saveShippingFee() {
-    $.ajax({
-        type: "PUT",
-        url: '/lexor_cs/api/serviceMaster/' + $.urlParam('service_id'),
-        data: JSON.stringify({
-            shippingFee: shippingFee,
-            total: total,
-            subTotal: totalAmount
-        }),
-        contentType: 'application/json'
+    return [
+        $.ajax({
+            type: "PUT",
+            url: '/lexor_cs/api/serviceMaster/' + $.urlParam('service_id'),
+            data: JSON.stringify({
+                shippingFee: shippingFee,
+                total: total,
+                subTotal: totalAmount
+            }),
+            contentType: 'application/json',
+            success: function() {
+                resolve(true);
+            }
+        })
+    ];
+}
+
+function registerServiceSearch() {
+    $('#serviceSearch').textbox({
+        inputEvents: $.extend({}, $.fn.textbox.defaults.inputEvents, {
+            keyup: function(event){
+                if(event.keyCode === 13){
+                    event.preventDefault();
+                    let keyword = $(event.data.target).textbox('getText');
+                    
+                    searchService(keyword.trim() == "" ? "all" : keyword);
+                }
+            }
+        })
     });
+}
+
+function searchService(keyword) {
+   loadService(keyword);
 }

@@ -91,12 +91,14 @@ public class CaseServices extends BaseService<CaseService> {
     
     @Override
     public <T> List<T> findByKeyWord(Object o) throws SQLException {
-        Integer status = (Integer) o;
+        String keyword = o.toString();
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseService>> resultHandler = new CaseServiceHandler(connection);
-
-        //String query = "SELECT * FROM \"public\".\"CaseService\" WHERE CONCAT_WS(' ', \"CustomerSOID\", \"CaseServiceID\", \"CaseID\") LIKE '%*%' order by CaseServiceID desc;";
-        String query = "SELECT * FROM \"public\".\"CaseService\" order by CaseServiceID desc;";
+        
+        if ( "all".equals(keyword) ) {
+            keyword = "";
+        }
+        String query = "SELECT * FROM \"public\".\"CaseService\" WHERE CONCAT_WS(' ', \"CustomerSOID\", \"CaseServiceID\", \"CaseID\") ILIKE '%"+ keyword +"%' order by CaseServiceID desc;";
 
         //List<CaseService> empList = queryRunner.query(connection, query.toLowerCase(), resultHandler);
         List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler());
@@ -111,7 +113,7 @@ public class CaseServices extends BaseService<CaseService> {
             list.add((T) caseObj);
         }
         
-       /* for (CaseService case1 : empList) {
+        /* for (CaseService case1 : empList) {
             list.add((T) case1);
         }*/
         return list; 
