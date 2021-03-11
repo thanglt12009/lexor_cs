@@ -1,3 +1,5 @@
+HOSTNAME = "https://dev.chonail.com/lxerp";
+
 (function($){
     function pagerFilter(data){
         if ($.isArray(data)){    // is array
@@ -136,10 +138,11 @@ function getProductsBySaleOrder(listOfSO) {
                     price: product['price'],
                     serialNumber: product['name'],
                     quantity: product['quantity'],
-                    productID: Math.floor(Math.random() * 10000) + 1,
+                    productID: product['productID'],
                     soldPrice: "$" + product['price'],
                     amount: "$" + (product['price'] * product['quantity']),
-                    image: "<img width='60px' height='60px' src='../../../images/product02.jpg' />",
+                    productImage: product['image'], 
+                    image: "<img width='60px' height='60px' src='"+product['image']+"' />",
                     product_name: product['name'],
                     under_warranty: "Y",
                     warranty_issue: "25/01/2021",

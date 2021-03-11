@@ -117,12 +117,12 @@ public class RMAService extends BaseService<RMA> {
     }  
 
     @Override
-    public long count() throws SQLException {
+    public long count(Integer id) throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"public\".\"RMA\";";
+        String query = "SELECT COUNT(0) FROM \"public\".\"RMA\" where \"CaseID\" = ? ;";
         
-        long count = runner.query(connection, query.toLowerCase(), scalarHandler);
+        long count = runner.query(connection, query.toLowerCase(), scalarHandler, id);
         return count;
     }
 

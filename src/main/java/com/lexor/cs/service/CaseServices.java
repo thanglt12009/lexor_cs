@@ -125,12 +125,12 @@ public class CaseServices extends BaseService<CaseService> {
     }
 
     @Override
-    public long count() throws SQLException {
+    public long count(Integer id) throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
-        String query = "SELECT COUNT(0) FROM \"public\".\"CaseService\";";
-        long count = runner.query(connection, query.toLowerCase(), scalarHandler);
+        String query = "SELECT COUNT(0) FROM \"public\".\"CaseService\" where \"CaseID\" = ?;";
+        long count = runner.query(connection, query.toLowerCase(), scalarHandler, id);
         return count;
     }
 

@@ -46,7 +46,7 @@ public abstract class AbstractFacade<T> {
         return getService().findRange(entityClass, range);
     }
 
-    public long count() throws SQLException {
-        return getService().count();
+    public long count(Integer id) throws SQLException {
+        return getService().count(id);
     }
 }

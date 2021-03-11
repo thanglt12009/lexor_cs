@@ -258,7 +258,7 @@ function getProducts() {
                     data[i]['no'] = data[i]['productID'];
                     data[i]['isWarranty'] = data[i]['isWarranty'] ? isWarrantyOptions[data[i]['isWarranty']] : isWarrantyOptions[1];
                     data[i]['wareHouse'] = variableOptions[data[i]['wareHouse']] || variableOptions[1];
-                    data[i]['image'] = productImages[data[i].productID] || productImages[3];
+                    data[i]['image'] = "<img width='60px' height='60px' src='"+ HOSTNAME + (data[i]['productImage'] || null) + "' />",
                     data[i]['amount'] = "$" + (parseFloat(data[i]['quantity']) * parseFloat(data[i]['soldPrice'])).toString();
                     data[i]['soldPrice'] = "$" + data[i]['soldPrice'];
                     productDatas.rows.push(data[i]); 

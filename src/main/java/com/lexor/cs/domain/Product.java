@@ -13,16 +13,20 @@ public class Product implements Serializable {
     private String name;
     private Float price;
     private int quantity;
+    private int productID;
+    private String image;
 
     
     public Product() {
     
     }
     
-    public Product(String name, int quantity, Float price) {
+    public Product(String name, int quantity, Float price, String image, int productID) {
         this.name = name;
         this.quantity = quantity;
         this.price = price;
+        this.image = image;
+        this.productID = productID;
     }
 
     /**
@@ -65,6 +69,34 @@ public class Product implements Serializable {
      */
     public void setQuantity(int quantity) {
         this.quantity = quantity;
+    }
+
+    /**
+     * @return the productID
+     */
+    public int getProductID() {
+        return productID;
+    }
+
+    /**
+     * @param productID the productID to set
+     */
+    public void setProductID(int productID) {
+        this.productID = productID;
+    }
+
+    /**
+     * @return the image
+     */
+    public String getImage() {
+        return image;
+    }
+
+    /**
+     * @param image the image to set
+     */
+    public void setImage(String image) {
+        this.image = image;
     }
     
 }

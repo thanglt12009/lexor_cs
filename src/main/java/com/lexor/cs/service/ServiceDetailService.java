@@ -23,11 +23,11 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
         ServiceDetail c = (ServiceDetail) o;
         QueryRunner runner = new QueryRunner();
         String query
-                = "INSERT INTO \"ServiceDetail\" (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"WareHouse\", \"ShipingDay\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?);";
+                = "INSERT INTO \"ServiceDetail\" (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"WareHouse\", \"ShipingDay\", \"ProductImage\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";
 
         return runner.update(connection, query.toLowerCase(), c.getServiceMasterID(), c.getProductID(), c.getQuantity(),c.getSoldPrice(),
                 c.getAmount(),  c.getTotalWeight(), c.getSerialNumber(), c.getIsWarrantly(),
-                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), c.getWareHouse(), c.getShipingDay());
+                c.getwarrantyStartDate(), c.getWarrantyEndDate(), c.getPaymentType(), c.getWareHouse(), c.getShipingDay(), c.getProductImage());
     }
 
     @Override
@@ -118,7 +118,7 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
     }
 
     @Override
-    public long count() throws SQLException {
+    public long count(Integer id) throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
         QueryRunner runner = new QueryRunner();
         String query = "SELECT COUNT(0) FROM \"public\".\"ServiceDetail\";";

@@ -25,6 +25,7 @@ newCaseType = {};
 caseToUpdate = {};
 caseType = {};
 selectedSO = {};
+serviceMasterID = {};
 withOutSaveOrder = false;
 productList = {
     1: [
@@ -437,7 +438,7 @@ function getCaseInformation(caseId) {
 
 function getCount(service, assignElement) {
     $.get({
-        url: '/lexor_cs/api/' + service + '/count',
+        url: '/lexor_cs/api/' + service + '/count/' + $.urlParam("case_id"),
         success: function (count) {
             if (parseInt(count) > 0) {
                 $("." + assignElement).html("(" + count + ")");
@@ -464,32 +465,35 @@ function createServiceOrReturn(caseId, path, dialog, title) {
             if ( caseServiceId && saleOrderToSave ) {
                 var promises = [];
 
-                if ( Object.keys(saleOrderToSave).length === 0 ) {
-                    createMasterProduct(caseServiceId, {});
-                } else {
-                    const productList = getProductsBySaleOrder(saleOrderToSave).then(function(soList) {
-                        for (const key in saleOrderToSave) {
-                            if (path === "/lexor_cs/api/case_service") {
+                
+                const productList = getProductsBySaleOrder(saleOrderToSave).then(function(soList) {
+                    if ( path === "/lexor_cs/api/case_service" ) {
+                        createMasterProduct(caseServiceId, {}).then(function(masterId) {
+                            for (const key in saleOrderToSave) {
                                 if (saleOrderToSave[key]) {
                                     promises.push(createServiceDetails(caseServiceId, key));
                                 }
 
                                 if (soList[key]) {
-                                    createMasterProduct(caseServiceId, soList[key]);
+                                    for (const soKey in soList[key]) {
+                                        promises.push(createProducts(masterId, soList[key][soKey]));
+                                    }
                                 }
-                            } else {
-                                if (soList[key]) {
-                                    promises.push(createRMASaleOrder(caseServiceId, key, soList[key]));
-                                }
-                              
+                            }
+                        });
+                    } else {
+                        for (const key in saleOrderToSave) {
+                            if (soList[key]) {
+                                promises.push(createRMASaleOrder(caseServiceId, key, soList[key]));
                             }
                         }
-
-                        Promise.all(promises).then(function() {
-                            $('#' + dialog).window('close');
-                        });
+                    }
+                    
+                    Promise.all(promises).then(function() {
+                        $('#' + dialog).window('close');
                     });
-                }
+                    
+                });
                 
                 if (path !== "/lexor_cs/api/case_service") {
                     promises.push(createRMAPayment(caseServiceId))
@@ -627,22 +631,23 @@ function createRMAProducts(soId, rmaID, products) {
     });
 }
 
-function createMasterProduct(caseServiceID, productList) {
-    $.post({
-        type: "POST",
-        url: '/lexor_cs/api/serviceMaster',
-        data: JSON.stringify({
-            status: 0,
-            caseServiceID: caseServiceID
-        }),
-        success: function (serviceMasterID) {
-            for (const soKey in productList) {
-                createProducts(serviceMasterID, productList[soKey]);
-            }
-        },
-        contentType: 'application/json'
+function createMasterProduct(caseServiceID) {
+    return new Promise(function(resolve) {
+        $.post({
+            type: "POST",
+            url: '/lexor_cs/api/serviceMaster',
+            data: JSON.stringify({
+                status: 0,
+                caseServiceID: caseServiceID
+            }),
+            success: function (serviceMasterID) {
+                resolve(serviceMasterID);
+            },
+            contentType: 'application/json'
+        })
     });
 }
+
 
 function createTransaction(caseId, documentCode, address) {
     $.post({

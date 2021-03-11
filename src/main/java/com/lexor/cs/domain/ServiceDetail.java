@@ -38,6 +38,8 @@ public class ServiceDetail implements Serializable {
     private String shipingDay;
     
     private Integer wareHouse;
+    
+    private String productImage;
 
     public ServiceDetail() {
         
@@ -210,5 +212,19 @@ public class ServiceDetail implements Serializable {
      */
     public void setWareHouse(Integer wareHouse) {
         this.wareHouse = wareHouse;
+    }
+
+    /**
+     * @return the productImage
+     */
+    public String getProductImage() {
+        return productImage;
+    }
+
+    /**
+     * @param productImage the productImage to set
+     */
+    public void setProductImage(String productImage) {
+        this.productImage = productImage;
     }
 }

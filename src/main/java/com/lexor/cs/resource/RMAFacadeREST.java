@@ -78,9 +78,9 @@ public class RMAFacadeREST extends AbstractFacade<RMA> {
     }
 
     @GET
-    @Path("/count")
+    @Path("/count/{id}")
     @Produces(MediaType.TEXT_PLAIN)
-    public String countREST() throws SQLException {
-        return String.valueOf(super.count());
+    public String countREST(@PathParam("id") Integer id) throws SQLException {
+        return String.valueOf(super.count(id));
     }
 }

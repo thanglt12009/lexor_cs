@@ -20,5 +20,5 @@ public interface Service {
         
     public <T> List<T> findRange(Class<T> type, int[] range) throws SQLException;
     
-    public long count() throws SQLException;
+    public long count(Integer id) throws SQLException;
 }

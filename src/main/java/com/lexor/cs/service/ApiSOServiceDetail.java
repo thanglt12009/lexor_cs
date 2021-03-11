@@ -74,7 +74,9 @@ public class ApiSOServiceDetail extends BaseService<CaseInformation> {
                 productList.add(new Product(
                     product.getString("Product"), 
                     product.getInt("Quantity"), 
-                    product.getFloat("Price")
+                    product.getFloat("Price"),
+                    product.getString("Image"),                   
+                    product.getInt("IDProduct")
                 ));
             }
             
@@ -120,7 +122,7 @@ public class ApiSOServiceDetail extends BaseService<CaseInformation> {
 
 
     @Override
-    public long count() throws SQLException {
+    public long count(Integer id) throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
         QueryRunner runner = new QueryRunner();
         String query = "SELECT COUNT(0) FROM \"CaseInformation\";";

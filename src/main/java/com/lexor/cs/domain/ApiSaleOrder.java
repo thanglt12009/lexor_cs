@@ -12,6 +12,8 @@ public class ApiSaleOrder implements Serializable {
     
     private String name;
     private String code;
+    private String image;
+    private int productID;
     
     public ApiSaleOrder() {
     
@@ -48,6 +50,34 @@ public class ApiSaleOrder implements Serializable {
      */
     public void setCode(String code) {
         this.code = code;
+    }
+
+    /**
+     * @return the image
+     */
+    public String getImage() {
+        return image;
+    }
+
+    /**
+     * @param image the image to set
+     */
+    public void setImage(String image) {
+        this.image = image;
+    }
+
+    /**
+     * @return the productID
+     */
+    public int getProductID() {
+        return productID;
+    }
+
+    /**
+     * @param productID the productID to set
+     */
+    public void setProductID(int productID) {
+        this.productID = productID;
     }
     
 }

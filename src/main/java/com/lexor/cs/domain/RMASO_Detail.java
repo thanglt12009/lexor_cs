@@ -27,6 +27,8 @@ public class RMASO_Detail implements Serializable {
     
     private double Price; 
     
+    private String productImage;
+    
     private String createdDate;
     
     private String updatedDate;
@@ -135,4 +137,20 @@ public class RMASO_Detail implements Serializable {
     public void setWareHouse(Integer wareHouse) {
         this.wareHouse = wareHouse;
     }
+
+    /**
+     * @return the productImage
+     */
+    public String getProductImage() {
+        return productImage;
+    }
+
+    /**
+     * @param productImage the productImage to set
+     */
+    public void setProductImage(String productImage) {
+        this.productImage = productImage;
+    }
+    
+    
 }

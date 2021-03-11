@@ -24,9 +24,9 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
         RMASO_Detail c = (RMASO_Detail) o;
         QueryRunner runner = new QueryRunner();
         String query
-                = "INSERT INTO \"public\".\"RMASO_Detail\" (\"RMASOID\", \"RMAID\", \"ProductID\",\"Quantity\", \"Price\", \"WareHouse\", \"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?, ?, ?);";
+                = "INSERT INTO \"public\".\"RMASO_Detail\" (\"RMASOID\", \"RMAID\", \"ProductID\",\"Quantity\", \"Price\", \"WareHouse\", \"ProductImage\" ,\"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?);";
 
-        return runner.update(connection, query.toLowerCase(), c.getRMASOID(), c.getRMAID(), c.getProductID(),  c.getQuantity(), c.getPrice(), c.getWareHouse(), c.getCreatedDate(), c.getUpdatedDate());
+        return runner.update(connection, query.toLowerCase(), c.getRMASOID(), c.getRMAID(), c.getProductID(),  c.getQuantity(), c.getPrice(), c.getWareHouse(), c.getProductImage(), c.getCreatedDate(), c.getUpdatedDate());
     }
 
     @Override
@@ -113,7 +113,7 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
     }  
     
     @Override
-    public long count() throws SQLException {
+    public long count(Integer id) throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
         QueryRunner runner = new QueryRunner();
         String query = "SELECT COUNT(0) FROM \"public\".\"RMASO_Detail\";";
@@ -142,6 +142,7 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
             caseObj.setPrice((Double)mapObj.get("price")); 
             caseObj.setQuantity((Integer)mapObj.get("quantity")); 
             caseObj.setWareHouse((Integer)mapObj.get("warehouse"));
+            caseObj.setProductImage((String)mapObj.get("productImage"));
             list.add((T) caseObj);
         }
         

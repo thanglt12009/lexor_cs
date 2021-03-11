@@ -81,7 +81,7 @@ public class CaseTypeFacadeREST extends AbstractFacade<CaseType> {
     @GET
     @Path("/count")
     @Produces(MediaType.TEXT_PLAIN)
-    public String countREST() throws SQLException {
-        return String.valueOf(super.count());
+    public String countREST(@PathParam("id") Integer id) throws SQLException {
+        return String.valueOf(super.count(id));
     }
 }

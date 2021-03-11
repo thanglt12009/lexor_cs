@@ -85,7 +85,7 @@ public class CaseReturns extends BaseService<CaseReturn> {
     }
 
     @Override
-    public long count() throws SQLException {
+    public long count(Integer id) throws SQLException {
         ScalarHandler<Long> scalarHandler = new ScalarHandler<>();
 
         QueryRunner runner = new QueryRunner();
