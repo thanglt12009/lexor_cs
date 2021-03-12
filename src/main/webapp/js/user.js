@@ -1,4 +1,5 @@
 window.defaultUser = {};
+
 $(document).ready(function () {
     reInitUser();
     $('#userSearch').textbox({
@@ -58,6 +59,9 @@ function findUser(userId) {
 }
 
 function reInitUser() {
+    getUsers();
+
+    /*
     var users = [{
         "contactInfo": {
             "firstName": "Sharon",
@@ -87,4 +91,41 @@ function reInitUser() {
     if (localStorage.getItem("users") === null) {
         localStorage.setItem("users", JSON.stringify(users));
     }
+     */ 
+}
+
+function getUsers(params = 1) {
+    $.get({
+        url: '/lexor_cs/api/apiUser/find/' + params,
+        success: function(data) {
+            localStorage.setItem("users", JSON.stringify(data.map(function(result) {
+                return {
+                        "contactInfo": {
+                            "firstName": result.name,
+                            "lastName":  "",
+                            "id": result.ID,
+                            "cellPhone": "9097936610",
+                            "busPhone": "9097936610",
+                            "email": "uoc.lexor@gmail.com"
+                        },
+                        "salonInfo": {
+                            "id": 110387,
+                            "address": "138 N Brand Blvd, Glendale, CA 91203, US",
+                            "street": "138 N Brand Blvd",
+                            "company": "Marci’s Hair Nail & Spa",
+                            "busPhone": "",
+                            "cellPhone": "",
+                            "suite": "14",
+                            "firstName": "",
+                            "lastName": "",
+                            "idUSZip": 46922,
+                            "qa": "",
+                            "ra": "",
+                            "postalCode": "91203"
+                        },
+                    }
+            })));
+        },
+        contentType: 'application/json'
+   });
 }
