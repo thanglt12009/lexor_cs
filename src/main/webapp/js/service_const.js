@@ -42,9 +42,10 @@ totalShippingAmount = 0;
 oldProduct = {};
 
 // Shipping warehouse
-discountShiping = 20;
+discountShiping = 20;  // This is shipping price for default when user has only one warehouse
 variableOptions = {1 :'CA', 2: 'CB' };
 wareHouseExchange = {'CA' : 1, 'CB': 2 };
+// This is shipping price for each ware house
 shippingPrice = {
     1 : 20,
     2 : 40

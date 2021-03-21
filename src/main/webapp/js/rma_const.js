@@ -40,13 +40,16 @@ shippingAmount = 0;
 rmaStatus = 1;
 rmaTempStatus = 1;
 isWarrantyOptions = {1 : "Y", 0: "N"};
-variableOptions = {1 :'CA', 2: 'CB' };
-wareHouseExchange = {'CA' : 1, 'CB': 2 };
+
 paymentMethod = 1;
 rmaPayment = {};
 discount = 0;
-discountShipping = 20;
+discountShipping = 20; // This is shipping price for default when user has only one warehouse
 totalShippingAmount = 0;
+
+variableOptions = {1 :'CA', 2: 'CB' };
+wareHouseExchange = {'CA' : 1, 'CB': 2 };
+// This is shipping price for each ware house
 shippingPrice = {
     1 : 20,
     2 : 40
