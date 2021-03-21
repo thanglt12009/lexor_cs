@@ -84,7 +84,13 @@ $(document).ready(function () {
         $("#editProducts").show();
         
         const promises = saveProduct().concat(editProduct()).concat(removeListProduct()).concat(saveShippingFee()).concat(createServiceActivity($.urlParam('service_id'), "Edit product"));
-        Promise.all(promises.map(Promise.all.bind(Promise))).then(function() {
+        Promise.all([
+            saveProduct(),
+            editProduct(),
+            removeListProduct(),
+            saveShippingFee(),
+            createServiceActivity($.urlParam('service_id'), "Edit product")
+        ]).then(function() {
             getProducts();
             loadServiceActivity($.urlParam('service_id'));
         }).catch(function() {
@@ -182,8 +188,15 @@ function prepareProductToEdit() {
     for ( let i = 0; i < products.length; i++ ) {
         if (products[i].serviceDetailID) {
             products[i].wareHouse = wareHouseExchange[products[i].wareHouse];
-            products[i].amount = parseFloat(products[i].amount.replace("$", ""));
-            products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", ""));
+            
+            if (typeof products[i].amount == "string"){
+                products[i].amount = parseFloat(products[i].amount.replace("$", ""));
+            }
+            
+            if (typeof  products[i].soldPrice == "string"){ 
+                products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", ""));
+            }
+            
             productToEdit.push(products[i]);
         } 
     };
@@ -198,7 +211,7 @@ function getProducts() {
             productDatas.rows = [];
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
-                    dateBoxProduct[data[i]['productID']] = data[i]['shipingDay'] || new Date().toISOString().slice(0, 10);console.log(new Date().toISOString().slice(0, 10))
+                    dateBoxProduct[data[i]['productID']] = data[i]['shipingDay'] || new Date().toISOString().slice(0, 10);
                     comboBoxedProduct[data[i]['productID']] = variableOptions[data[i]['wareHouse']];
                     serviceMasterID = data[i]['serviceMasterID'];
                     data[i]['product_name'] = data[i]['serialnumber'];
@@ -532,8 +545,13 @@ function productWithCalculatedAmount() {
     var pattern = /[^0-9.-]+/g;
 
     for( i = 0; i < productDatas.rows.length; i++ ) {
-        amount += parseFloat(productDatas.rows[i].amount.replace(pattern, ''));
-    }console.log(amount);
+        
+        if (typeof productDatas.rows[i].amount == "string"){
+            amount += parseFloat(productDatas.rows[i].amount.replace(pattern, ''));
+        } else {
+            amount += parseFloat(productDatas.rows[i].amount);
+        }
+    }
     totalAmount = amount;
     total = totalAmount - discountShipping + parseFloat(totalShippingAmount);
 

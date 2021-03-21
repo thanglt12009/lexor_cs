@@ -29,6 +29,8 @@ public class RMASO_Detail implements Serializable {
     
     private String productImage;
     
+    private String serialNumber;
+    
     private String createdDate;
     
     private String updatedDate;
@@ -150,6 +152,20 @@ public class RMASO_Detail implements Serializable {
      */
     public void setProductImage(String productImage) {
         this.productImage = productImage;
+    }
+
+    /**
+     * @return the serialNumber
+     */
+    public String getSerialNumber() {
+        return serialNumber;
+    }
+
+    /**
+     * @param serialNumber the serialNumber to set
+     */
+    public void setSerialNumber(String serialNumber) {
+        this.serialNumber = serialNumber;
     }
     
     

@@ -382,7 +382,6 @@ function createServiceOrReturn(caseId, path, dialog, title) {
             if ( caseServiceId && ( Object.keys(saleOrderToSave).length > 0 || withOutSaveOrder === true )) {
                 var promises = [];
 
-                console.log(saleOrderToSave);
                 const productList = getProductsBySaleOrder(saleOrderToSave).then(function(soList) {
                     if ( path === "/lexor_cs/api/case_service" ) {
                         createMasterProduct(caseServiceId, {}).then(function(masterId) {
