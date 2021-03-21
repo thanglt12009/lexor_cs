@@ -1,72 +1,3 @@
-productDatas = {
-    "total" : 2,
-    "footer":[
-	{"price":'<strong>Subtotal</strong>', "wareHouse":"$3000.00"},
-	{"price":'<strong>Restocking Fee</strong>',"wareHouse":"$0.00"},
-        {"price":'<strong>Total</strong>',"wareHouse":'<strong> $0.00</strong>'}
-    ],
-    "rows":[]
-    
-};
-
-servicesData = [{
-    product_name: "Product 003 </br> Serial Number: 123-456-789",
-    under_warranty: "Y",
-    warranty_issue: "25/01/2021",
-    warranty_expire: "25/01/2021",
-    action: '<a href="javascript:void(0)" onClick="addProduct()" class="easyui-linkbutton">Add</a>'
-}];
-
-shippingDatas = {
-    "total" : 2,
-    "rows":[
-        {
-            no: 1,
-            warehouse: "CA",
-            shipping_day: "15/01/2021",
-            shipping_weight: "800",
-            shipping_type: '<input id="shippingOrder" name="shippingOrder" value="">',
-            shipping_cost: "$100.00"    
-        }
-    ],
-    "footer":[
-	{"shipping_type":'<strong>Total Shipping Cost</strong>',"shipping_cost":"$10.00"},
-	{"shipping_type":'<strong>Shipping Discount</strong>',"shipping_cost":"-$<input style='width:100px' value='5.00' />"},
-        {"shipping_type":'<strong>Shipping Fee</strong>',"shipping_cost":'<strong>$5.00</strong>'}
-    ]
-};
-
-isSumFee = {};
-productList = {};
-paymentMethod = 1;
-comboBoxedProduct = {};
-dateBoxProduct = {};
-removeTagProduct = {};
-shippingDetail = {};
-comboBoxedProduct[1] = "Y";
-removeTagProduct[1] = 1;
-comboBoxedProduct[2] = "N";
-removeTagProduct[2] = 2;
-dateBoxProduct[1] = "25/01/2021";
-dateBoxProduct[2] = "25/01/2021";
-
-rmaSO = {};
-discount = 0;
-total = 0;
-totalAmount = 0;
-shippingAmount = 0;
-rmaStatus = 1;
-rmaTempStatus = 1;
-isWarrantyOptions = {1 : "Y", 0: "N"};
-variableOptions = {1 :'CA', 2: 'CB' };
-wareHouseExchange = {'CA' : 1, 'CB': 2 };
-productImages = {
-    1: "<img width='60px' height='60px' src='../../../images/product01.jpg' />",
-    2: "<img width='60px' height='60px' src='../../../images/product02.jpg' />",
-    3: "<img width='60px' height='60px' src='../../../images/product03.jpg' />"
-};
-paymentMethod = 1;
-rmaPayment = {};
 var removedProductList = [];
 $(document).ready(function () {
     loadServices();
@@ -280,10 +211,6 @@ function registerAddSaleOrder(saleOrder = {}) {
     saleOrderToSave = {};
     saleOrders = saleOrder;
 
-    if (saleOrder && saleOrder.withOutSaveOrder === false) {
-        //registerSOCheckbox("withOutSaveOrder", "Without Sale Order");
-    }
-
     $("#addSaleOrder").on("click", function () {
         var name = $("#saleOrderSearch").val();
         if (saleOrders[name] || name.trim() === '') {
@@ -371,17 +298,18 @@ function getProducts() {
                 for ( i = 0; i < data.length; i++ ) {
                     rmaSO[data[i]['SOID']] = data[i]['RMASOID'];
                     comboBoxedProduct[data[i]['productID']] = variableOptions[data[i]['wareHouse']];
+                    data[i]['warehouseName'] = variableOptions[data[i]['wareHouse']];
                     data[i]['no'] = data[i]['productID'];
                     data[i]['quantity'] = data[i]['quantity'];
                     data[i]['reveiver'] = data[i]['reveiver'] ? isWarrantyOptions[data[i]['reveiver']] : isWarrantyOptions[1];
                     data[i]['wareHouse'] = variableOptions[data[i]['wareHouse']] || variableOptions[1];
-                    data[i]['image'] = "<img width='60px' height='60px' src='"+ HOSTNAME + (data[i]['productImage'] || null) + "' />",
+                    data[i]['image'] = "<img width='60px' height='60px' src='"+ getProductImage(data[i]['productImage'] || null) + "' />",
                     data[i]['amount'] = "$" + parseFloat(parseFloat(data[i]['price']) * parseFloat(data[i]['quantity'])).toString();
                     data[i]['price'] = "$" + parseFloat(parseFloat(data[i]['price'])).toString();
                     productDatas.rows.push(data[i]); 
                 }
             }
-            
+
             loadProducts();
         },
         contentType: 'application/json'
@@ -390,6 +318,25 @@ function getProducts() {
 
 productSaleOrder = {};
 function loadProducts() {    
+    let productShippingDetail = {};
+    for(i = 0 ; i < productDatas.rows.length; i++) {
+        var wareHouse = productDatas.rows[i].warehouseName;   
+        
+        productShippingDetail[wareHouse] = {
+            shipping_cost: "$" + shippingPrice[wareHouseExchange[wareHouse]],
+        };
+    }
+    
+    var totalShippingCost = 0;
+    if (productShippingDetail) {
+        for (const shipping in productShippingDetail) {
+            totalShippingCost += parseInt(productShippingDetail[shipping].shipping_cost.replace("$", ''));
+        }
+    }
+
+    shippingFee = (totalShippingCost - discountShipping);
+    totalShippingAmount = totalShippingCost;
+
     reCalculateAmount();
     $('#productGrid').datagrid({
         showFooter: true,
@@ -423,12 +370,17 @@ function resgisterSoList() {
 
 function addProduct(SOID, position) {
     setTimeout(function(){
+        let productIndex = productSaleOrder[SOID].findIndex(function(product, index) {
+                if(product.productID == position) {
+                    return true;
+                }
+        });
         if ( productDatas.rows.find(
                 function(element) {
-                    return element.productID === productSaleOrder[SOID][position].productID;
+                    return element.productID === productSaleOrder[SOID][productIndex].productID;
                 }
             ) === undefined) {
-            let newProduct = productSaleOrder[SOID][position];
+            let newProduct = productSaleOrder[SOID][productIndex];
             let price = "$" + newProduct.price;
             newProduct.price = price;
             productDatas.rows.push(newProduct);
@@ -480,7 +432,7 @@ function registerComboboxAction() {
         comboBoxedProduct[$(this).attr('data-id')] = $(this).val();
         isSumFee[$(this).val()] = 1;
         
-        discount = 20 * Object.keys(isSumFee).length;
+        discount = discountShipping * Object.keys(isSumFee).length;
     });
 }
 
@@ -549,6 +501,7 @@ function getServiceInformation(serviceId) {
             var serviceInformation = $(".case-info__status");
             var text = "RMA {name} - {status}";
             serviceInformation.html(text.replace('{name}', data.RMAID).replace('{status}', status[data.status]));
+            $("#caseNo").html(data.caseID);
         },
         contentType: 'application/json'
    });
@@ -556,6 +509,7 @@ function getServiceInformation(serviceId) {
 
 function reCalculateAmount() {
     let amount = 0;
+    let restockingFee = 0;
     var pattern = /[^0-9.-]+/g;
 
     for( i = 0; i < productDatas.rows.length; i++ ) {
@@ -564,9 +518,13 @@ function reCalculateAmount() {
     
 
     totalAmount = amount;
-    total = totalAmount + discount;
+    if (totalShippingAmount > 0) {
+        restockingFee = totalShippingAmount - discountShipping;
+    }
+   
+    total = totalAmount + restockingFee;
     productDatas.footer[0].wareHouse = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
-    productDatas.footer[1].wareHouse = "<strong>$" + discount.toFixed(2) + " </strong>";
+    productDatas.footer[1].wareHouse = "<strong>$" + restockingFee.toFixed(2) + " </strong>";
     productDatas.footer[2].wareHouse = "<strong>$" + total.toFixed(2) + " </strong>";
 }
 
@@ -583,10 +541,11 @@ function prepareProductToSave() {
 
     var productToSave = [];
     for ( let i = 0; i < products.length; i++ ) {
-        if (products[i].RMAID === false) {
+        if (products[i].SODetail_ID === undefined) {
             products[i].price = parseFloat(products[i].price.replace("$", '')).toFixed(2);
-            products[i].RMAID = $.urlParam("rma_id");
-            products[i].RMASOID = rmaSO[products[i].originalSo];
+            products[i].RMAID = parseInt($.urlParam("rma_id"));
+            products[i].RMASOID = parseInt(rmaSO[products[i].originalSo]);
+            products[i].wareHouse = wareHouseExchange[products[i].wareHouse];
             productToSave.push(products[i]);
         }
     }

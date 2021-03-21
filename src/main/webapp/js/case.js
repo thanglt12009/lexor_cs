@@ -1,86 +1,3 @@
-saleOrders = {};
-saleOrderToSave = {};
-casePriority = {
-    1: "Low",
-    2: "Normal",
-    3: "High",
-    4: "Critical"
-};
-transactionType = {
-    1: "Processing",
-    2: "Closed"
-};
-customerServiceRep = {
-    0: "Auto Rotation",
-    1: "Customer Service Rep 1",
-    2: "Customer Service Rep 2",
-    3: "Customer Service Rep 3",
-    4: "Customer Service Rep 4"
-};
-
-caseTypes = {};
-editCaseType = {};
-caseTypeValue = {};
-newCaseType = {};
-caseToUpdate = {};
-caseType = {};
-selectedSO = {};
-serviceMasterID = {};
-withOutSaveOrder = false;
-productList = {
-    1: [
-        {
-            productID: 1,
-            quantity: 1,
-            soldPrice: 2095.02,
-            amount: 2095.20,
-            totalWeight: 900,
-            isWarranty: 1,
-            serialNumber: "Product 02"
-        },
-        {
-            productID: 2,
-            quantity: 1,
-            soldPrice: 2095.02,
-            amount: 2095.20,
-            totalWeight: 900,
-            isWarranty: 1,
-            serialNumber: "Product 01"
-        }
-    ]
-};
-
-rmaProductList = {
-    1: [
-        {
-            productID: 1,
-            quantity: 1,
-            returnPrice: 2095.02,
-            price: 2095.20,
-            warehouse: 1,
-            receiver: 1
-        },
-        {
-            productID: 2,
-            quantity: 2,
-            returnPrice: 2095.02,
-            price: 2095.20,
-            warehouse: 1,
-            receiver: 1
-        }
-    ]
-};
-
-soList = [
-    {"name": "S0001", "code": "1"}
-];
-
-serviceType = {
-    1: "buyPartCount",
-    2: "serviceCount",
-    3: "returnCount"
-};
-
 $(document).ready(function () {
     loadCase();
     $("#addNew").on("click", function () {
@@ -100,6 +17,7 @@ $(document).ready(function () {
                 });
             }
         });
+        $('#addContactDialog').dialog("move", {top: 100});
     });
 
     $("#editSaleOrder").on("click", function () {
@@ -194,6 +112,7 @@ function getCaseType() {
         },
         contentType: 'application/json'
     });
+    setEditCaseData(caseToUpdate);
 }
 
 function registerEditCaseType(id, isCheck = true) {
@@ -428,8 +347,6 @@ function getCaseInformation(caseId) {
             var caseInformation = $(".case-info__status");
             $("#casePriorityText").textbox({value: casePriority[data.casePriority]});
             caseInformation.html(caseInformation.text().replace('{name}', data.caseID).replace('{status}', status[data.status]));
-            
-            setEditCaseData(caseToUpdate);
             getCaseType();
         },
         contentType: 'application/json'
@@ -462,15 +379,15 @@ function createServiceOrReturn(caseId, path, dialog, title) {
             "status": 1
         }),
         success: function(caseServiceId) {
-            if ( caseServiceId && saleOrderToSave ) {
+            if ( caseServiceId && ( Object.keys(saleOrderToSave).length > 0 || withOutSaveOrder === true )) {
                 var promises = [];
 
-                
+                console.log(saleOrderToSave);
                 const productList = getProductsBySaleOrder(saleOrderToSave).then(function(soList) {
                     if ( path === "/lexor_cs/api/case_service" ) {
                         createMasterProduct(caseServiceId, {}).then(function(masterId) {
                             for (const key in saleOrderToSave) {
-                                if (saleOrderToSave[key]) {
+                                if (saleOrderToSave[key] && saleOrderToSave[key] === true) {
                                     promises.push(createServiceDetails(caseServiceId, key));
                                 }
 
@@ -501,14 +418,14 @@ function createServiceOrReturn(caseId, path, dialog, title) {
                          $('#' + dialog).window('close');
                     });
                 }
-            }
-            createTransaction(caseId, title, "Address");
-            createActivity(caseId, "Create " + title);
-            getCount('case_service', 'serviceCount');
-            getCount('rma', 'returnCount');
-            loadTransaction(caseId);
-            loadActivity(caseId);
             
+                createTransaction(caseId, title, "Address");
+                createActivity(caseId, "Create " + title);
+                getCount('case_service', 'serviceCount');
+                getCount('rma', 'returnCount');
+                loadTransaction(caseId);
+                loadActivity(caseId);
+            }
         },
         contentType: 'application/json'
    });

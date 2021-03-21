@@ -114,18 +114,20 @@ function getProductsBySaleOrder(listOfSO) {
     const promise = [];
 
     for (let key in listOfSO) {
-        const options = {
-            type: "GET",
-            url: '/lexor_cs/api/apiSODetail/' + key,
-            success: function (data) {
-               return data;
-            },
-            contentType: 'application/json'
-        };
-        
-        promise.push(new Promise(function (resolve, reject) {
-            return $.ajax(options).done(resolve).fail(reject);
-        }));
+        if ( listOfSO[key] !== false ) {
+           const options = {
+                type: "GET",
+                url: '/lexor_cs/api/apiSODetail/' + key,
+                success: function (data) {
+                   return data;
+                },
+                contentType: 'application/json'
+            };
+
+            promise.push(new Promise(function (resolve, reject) {
+                return $.ajax(options).done(resolve).fail(reject);
+            }));
+        }
     }
     
     const result = {};
@@ -142,7 +144,7 @@ function getProductsBySaleOrder(listOfSO) {
                     soldPrice: "$" + product['price'],
                     amount: "$" + (product['price'] * product['quantity']),
                     productImage: product['image'], 
-                    image: "<img width='60px' height='60px' src='"+product['image']+"' />",
+                    image: "<img width='60px' height='60px' src='"+ getProductImage(product['image'] || null) +"' />",
                     product_name: product['name'],
                     under_warranty: "Y",
                     warranty_issue: "25/01/2021",
@@ -151,7 +153,7 @@ function getProductsBySaleOrder(listOfSO) {
                     originalSo: results[i].SOID,
                     serviceMasterID: false,
                     totalWeight: 1000,
-                    action: '<a href="javascript:void(0)" onClick="addProduct('+results[i].SOID+', '+i+')" class="easyui-linkbutton">Add</a>'
+                    action: '<a href="javascript:void(0)" onClick="addProduct('+results[i].SOID+', '+ product['productID'] +')" class="easyui-linkbutton">Add</a>'
                 }
             });
         }
@@ -159,4 +161,8 @@ function getProductsBySaleOrder(listOfSO) {
             resolve(result);
         });
     });
+}
+
+function getProductImage(product) {
+    return product !== null ? HOSTNAME + product : '/lexor_cs/images/no-image.png';
 }

@@ -1,57 +1,3 @@
-productDatas = {
-    "total" : 2,
-    "footer":[
-	{"shipingDay":'<strong>Subtotal</strong>', "originalSo":"$0.00"},
-	{"shipingDay":'<strong>Shipping Fee</strong>',"originalSo":"$0.00"},
-        {"shipingDay":'<strong>Manager Discount</strong>',"originalSo":'<strong>-$0.00</strong>'},
-        {"shipingDay":'<strong>Total</strong>',"originalSo":'<strong> $0.00</strong>'}
-    ],
-    "rows":[]
-};
-
-servicesData = [{
-    product_name: "Product 003 </br> Serial Number: 123-456-789",
-    under_warranty: "Y",
-    warranty_issue: "25/01/2021",
-    warranty_expire: "25/01/2021",
-    action: '<a href="javascript:void(0)" onClick="addProduct()" class="easyui-linkbutton">Add</a>'
-}];
-
-discountShiping = 20;
-shippingFee = 0;
-shippingDatas = {
-    "total" : 2,
-    "rows":[
-    ],
-    "footer":[
-	{"shipping_type":'<strong>Total Shipping Cost</strong>',"shipping_cost":"$0.00"},
-	{"shipping_type":'<strong>Shipping Discount</strong>',"shipping_cost":"-$<input style='width:70px' value='"+discountShiping+".00' />"},
-        {"shipping_type":'<strong>Shipping Fee</strong>',"shipping_cost":'<strong>$0.00</strong>'}
-    ]
-};
-
-serviceMaster = {};
-serviceStatus = { 1: 'Closed', 0: "Processing", 2: "Submitted To Production" };
-variableOptions = {1 :'CA', 2: 'CB' };
-wareHouseExchange = {'CA' : 1, 'CB': 2 };
-isWarrantyOptions = {1 : "Y", 0: "N"};
-productImages = {
-    1: "<img width='60px' height='60px' src='../../../images/product01.jpg' />",
-    2: "<img width='60px' height='60px' src='../../../images/product02.jpg' />",
-    3: "<img width='60px' height='60px' src='../../../images/product03.jpg' />"
-};
-paymentMethod = 1;
-comboBoxedProduct = {};
-dateBoxProduct = {};
-removeTagProduct = {};
-shippingDetail = {};
-removeTagProduct[1] = 1;
-removeTagProduct[2] = 2;
-discount = 0;
-total = 0;
-totalAmount = 0;
-shippingAmount = 0;
-oldProduct = {};
 var removedProductList = [];
 var serviceMasterID = 0;
 var caseServiceID = 0;
@@ -222,6 +168,7 @@ function prepareProductToSave() {
             products[i].amount = parseFloat(products[i].amount.replace("$", '')).toFixed(2);
             products[i].soldPrice = parseFloat(products[i].soldPrice.replace("$", '')).toFixed(2);
             products[i].serviceMasterID = serviceMasterID;
+            products[i].wareHouse = wareHouseExchange[products[i].wareHouse];
             productToSave.push(products[i]);
         }
     }
@@ -251,14 +198,17 @@ function getProducts() {
             productDatas.rows = [];
             if ( data ) {
                 for ( i = 0; i < data.length; i++ ) {
-                    dateBoxProduct[data[i]['productID']] = data[i]['shipingDay'];
+                    dateBoxProduct[data[i]['productID']] = data[i]['shipingDay'] || new Date().toISOString().slice(0, 10);console.log(new Date().toISOString().slice(0, 10))
                     comboBoxedProduct[data[i]['productID']] = variableOptions[data[i]['wareHouse']];
                     serviceMasterID = data[i]['serviceMasterID'];
                     data[i]['product_name'] = data[i]['serialnumber'];
+                    data[i]['shipingDay'] = dateBoxProduct[data[i]['productID']];
                     data[i]['no'] = data[i]['productID'];
                     data[i]['isWarranty'] = data[i]['isWarranty'] ? isWarrantyOptions[data[i]['isWarranty']] : isWarrantyOptions[1];
                     data[i]['wareHouse'] = variableOptions[data[i]['wareHouse']] || variableOptions[1];
-                    data[i]['image'] = "<img width='60px' height='60px' src='"+ HOSTNAME + (data[i]['productImage'] || null) + "' />",
+                    data[i]['shippingDate'] = dateBoxProduct[data[i]['productID']];                  
+                    data[i]['warehouseName'] = data[i]['wareHouse'];
+                    data[i]['image'] = "<img width='60px' height='60px' src='"+ getProductImage(data[i]['productImage'] || null) + "' />",
                     data[i]['amount'] = "$" + (parseFloat(data[i]['quantity']) * parseFloat(data[i]['soldPrice'])).toString();
                     data[i]['soldPrice'] = "$" + data[i]['soldPrice'];
                     productDatas.rows.push(data[i]); 
@@ -340,51 +290,51 @@ function refreshProduct() {
 }
 
 function loadProducts() {
-    shippingDetail = [];
+    let productShippingDetail = {};
     productDatas.total = productDatas.rows.length;
     for(i = 0 ; i < productDatas.rows.length; i++) {
-        var wareHouse = productDatas.rows[i].wareHouse;
-        var shipDate = productDatas.rows[i].shipingDay;        
+        var wareHouse = productDatas.rows[i].warehouseName;
+        var shipDate = productDatas.rows[i]. shippingDate;        
         var key = wareHouse + shipDate;
         var weight = 0;
         var id = i + 1;
-        if (shippingDetail[key]) {
-            weight = shippingDetail[key]['shipping_weight'] + parseInt(productDatas.rows[i].totalWeight);
-            id = shippingDetail[key]['no'];
+        if (productShippingDetail[key]) {
+            weight = productShippingDetail[key]['shipping_weight'] + parseInt(productDatas.rows[i].totalWeight);
+            id = productShippingDetail[key]['no'];
         } else {
             weight = parseInt(productDatas.rows[i].totalWeight);
         }
 
-        shippingDetail[key] = {
+        productShippingDetail[key] = {
             no : id,
             wareHouse : wareHouse,
             shipping_type: '<input class="shippingOrder" name="shippingOrder" value="">',
-            shipping_cost: "$20",
+            shipping_cost: "$" + shippingPrice[wareHouseExchange[wareHouse]],
             shipping_weight: weight,
             shipping_day: shipDate
         };
     }
     
-   
     var datas = shippingDatas;
     var totalShippingCost = 0;
-    if (shippingDetail) {
+    if (productShippingDetail) {
         datas.rows = [];
-        for (const shipping in shippingDetail) {
-            datas.rows.push(shippingDetail[shipping]);
-            totalShippingCost += parseInt(shippingDetail[shipping].shipping_cost.replace("$", ''));
+        for (const shipping in productShippingDetail) {
+            datas.rows.push(productShippingDetail[shipping]);
+            totalShippingCost += parseInt(productShippingDetail[shipping].shipping_cost.replace("$", ''));
         }
     }
-    shippingFee = (totalShippingCost - discountShiping);
+
+    shippingFee = (totalShippingCost - discountShipping);
+    totalShippingAmount = totalShippingCost;
     datas.footer[0].shipping_cost = '<strong> $'+totalShippingCost+'.00</strong>';
     datas.footer[2].shipping_cost = '<strong> $'+ (shippingFee) +'.00</strong>';
-    
-    reCalculateAmount();
+    recalculateAmount();
     $('#productGrid').datagrid({
         pagination:true,
         pageSize:20,
         showFooter: true,
-        data: productDatas,
+        data: productWithCalculatedAmount(),
         onLoadSuccess: function() {
             loadShipping(datas);
             initRemove();
@@ -410,12 +360,18 @@ function loadProducts() {
 
 function addProduct(SOID, position) {
     setTimeout(function(){
+        let productIndex = productSaleOrder[SOID].findIndex(function(product, index) {
+                if(product.productID == position) {
+                    return true;
+                }
+        });
         if ( productDatas.rows.find(
                 function(element) {
-                    return element.productID === productSaleOrder[SOID][position].productID;
+                    return element.productID === productSaleOrder[SOID][productIndex].productID;
                 }
             ) === undefined) {
-            let newProduct = productSaleOrder[SOID][position];
+            
+            let newProduct = productSaleOrder[SOID][productIndex];
             let price = "$" + newProduct.price;
             newProduct.price = price;
             productDatas.rows.push(newProduct);
@@ -498,10 +454,18 @@ function reloadList(isCombobox = true, isReSetup = true) {
         if (isCombobox) {
             productDatas.footer[1].originalSo = getEditAmountTemplate(productDatas.footer[1].originalSo);
         } else {
-            productDatas.footer[1].originalSo = '<strong> $'+ (shippingFee) +'.00</strong>';
+            productDatas.footer[1].originalSo = '<strong> $'+ (totalShippingAmount) +'.00</strong>';
         }
     }
     loadProducts();
+}
+
+function recalculateAmount(isCombobox) {
+    if (isCombobox) {
+        productDatas.footer[1].originalSo = getEditAmountTemplate(productDatas.footer[1].originalSo);
+    } else {
+        productDatas.footer[1].originalSo = '<strong> $'+ (totalShippingAmount) +'.00</strong>';
+    }
 }
 
 function reloadShippingAmount(callback) {  
@@ -563,17 +527,21 @@ function getServiceInformation(serviceId) {
     });
 }
 
-function reCalculateAmount() {
+function productWithCalculatedAmount() {
     let amount = 0;
     var pattern = /[^0-9.-]+/g;
 
     for( i = 0; i < productDatas.rows.length; i++ ) {
         amount += parseFloat(productDatas.rows[i].amount.replace(pattern, ''));
-    }
+    }console.log(amount);
     totalAmount = amount;
-    total = totalAmount - discount + parseFloat(shippingAmount) + parseFloat(shippingFee);
+    total = totalAmount - discountShipping + parseFloat(totalShippingAmount);
+
     productDatas.footer[0].originalSo = "<strong>$" + totalAmount.toFixed(2) + " </strong>";
+    productDatas.footer[2].originalSo = "<strong>-$" + discountShipping.toFixed(2) + " </strong>";
     productDatas.footer[3].originalSo = "<strong>$" + total.toFixed(2) + " </strong>";
+ 
+    return productDatas;
 }
 
 function updatePaymentMethod() {
@@ -700,7 +668,6 @@ function saveShippingFee() {
             }),
             contentType: 'application/json',
             success: function() {
-                resolve(true);
             }
         })
     ];

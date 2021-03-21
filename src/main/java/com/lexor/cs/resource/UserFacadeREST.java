@@ -34,6 +34,8 @@ import javax.mail.internet.MimeMessage.RecipientType;
 import javax.mail.internet.MimeMultipart;
 import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
+import java.util.Properties;
+import javax.mail.PasswordAuthentication;
 
 
 @Stateless
@@ -109,19 +111,42 @@ public class UserFacadeREST extends AbstractFacade<ApiUser> {
     @Consumes({MediaType.APPLICATION_JSON})
     public void sendEmail(@PathParam("email") String emailTo, @PathParam("subject") String subject, @PathParam("emailBody") String emailBody) 
             throws NamingException, MessagingException, UnsupportedEncodingException {
-        Message msg = new MimeMessage(mailSession);
-        msg.setSubject(subject);
-        msg.setRecipient(RecipientType.TO, new InternetAddress(emailTo, emailTo)); // 2nd parameter is personal name
-        msg.setFrom(new InternetAddress("emailFromHere", "password")); // set email from and password here        
+        
+        String username = "lexorsmtpmail@gmail.com";
+        String password = "Lexorsmtpmail2021";
+        
+        Properties prop = new Properties();
+        prop.put("mail.smtp.host", "smtp.gmail.com");
+        prop.put("mail.smtp.port", "465");
+        prop.put("mail.smtp.auth", "true");
+        prop.put("mail.smtp.socketFactory.port", "465");
+        prop.put("mail.smtp.socketFactory.class", "javax.net.ssl.SSLSocketFactory");
+        
+        Session session = Session.getInstance(prop,
+                new javax.mail.Authenticator() {
+                    protected PasswordAuthentication getPasswordAuthentication() {
+                        return new PasswordAuthentication(username, password);
+                    }
+                });
 
-        BodyPart messageBodyPart = new MimeBodyPart();
-        messageBodyPart.setText(emailBody);
+        try {
 
-        Multipart multipart = new MimeMultipart();
-        multipart.addBodyPart(messageBodyPart);
+            Message message = new MimeMessage(session);
+            message.setFrom(new InternetAddress("from@gmail.com"));
+            message.setRecipients(
+                    Message.RecipientType.TO,
+                    InternetAddress.parse("to_username_a@gmail.com, to_username_b@yahoo.com")
+            );
+            message.setSubject("Testing Gmail SSL");
+            message.setText("Dear Mail Crawler,"
+                    + "\n\n Please do not spam my email!");
 
-        msg.setContent(multipart);
+            Transport.send(message);
 
-        Transport.send(msg);
+            System.out.println("Done");
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 }

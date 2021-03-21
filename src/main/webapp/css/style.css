@@ -157,3 +157,7 @@ hr {
 #addProductDialogTab .datagrid-view td:nth-child(5){
     width: 100px;
 }
+
+.datagrid-cell img {
+    margin: 1px 0px 0px -7px;
+}
