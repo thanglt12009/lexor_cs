@@ -40,7 +40,7 @@ totalAmount = 0;
 shippingAmount = 0;
 totalShippingAmount = 0;
 oldProduct = {};
-
+serviceSO = {};
 // Shipping warehouse
 discountShipping = 20;  // This is shipping price for default when user has only one warehouse
 variableOptions = {1 :'CA', 2: 'CB' };

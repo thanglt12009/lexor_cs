@@ -27,6 +27,7 @@
     </head>
     <body class="sidebar-mini layout-fixed" style="height: 1500px !important;">
         <div class="wrapper">
+            <div id="editSaleOrderDialog"></div>
             <div id="editServiceDialog" style="display: none;">
                 <form class="height-100">
                     <div id="addProductDialogTab" style="width:100%;">
@@ -217,6 +218,31 @@
                                     </tbody>
                                 </table>
                             </div>
+                             <div title="Service Information" style="overflow:auto;padding:20px;display:none;">
+                                <table id="soGrid" class="easyui-datagrid" pagination="true">
+                                    <thead>
+                                        <tr>
+                                            <th data-options="field:'no', fixed:true, width: 100">#</th>
+                                            <th data-options="field:'so',sortable:true, fixed:true, width: 200">SO Name</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+
+                                    </tbody>
+                                </table>
+                                </br>
+                                <div class="form-group">   
+                                    <div class="col-sm-12">
+                                        <a href="javascript:void(0);" id="editReturn" path="/lexor_cs/api/rma" class="easyui-linkbutton float-right">Add</a>
+                                    </div>
+                                </div>
+    
+                                <div class="form-group">   
+                                    <div class="col-sm-12">
+                                        Create From : <span id="caseNo"></span>
+                                    </div>
+                                </div>
+                            </div>
                             <div title="Send Message" style="overflow:auto;padding:20px;display:none;">
                                 <form id="sendMail">
                                     <div class="form-group">   
@@ -275,6 +301,7 @@
         <script type="text/javascript" src="../../../js/activity.js"></script>
         <script type="text/javascript" src="../../../js/user.js"></script>
         <script type="text/javascript" src="../../../js/service_const.js"></script>
+        <script type="text/javascript" src="../../../js/service_details.js"></script>
         <script type="text/javascript" src="../../../js/service.js"></script>
         <script type="text/javascript" src="../../../js/sendmail.js"></script>
         <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->

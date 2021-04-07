@@ -5,6 +5,13 @@ $(document).ready(function () {
     loadServices();
     loadPaymentMethod();
     registerUpdatePaymentMethod();
+    
+     $("#editReturn").on("click", function () {
+        registerCaseTransactionDialog('editSaleOrderDialog', 'Return', $(this).attr("path"), {
+            withOutSaveOrder: true
+        });
+    });
+    
     $("#editProducts").on("click", function(){
        reloadList();
     });
@@ -623,9 +630,12 @@ function getServiceSO() {
                 for ( let i = 0 ; i < serviceSO.length; i ++) {
                    listSO[serviceSO[i].customerSOID] = serviceSO[i].customerSOID;
                 }
-                getProductsBySaleOrder(listSO).then(function(result) {
+                serviceSO = listSO;
+                resgisterSoList(listSO);
+                getProductsBySaleOrder(listSO).then(function(result) {console.log();
                     productSaleOrder = result;
                 });
+                
            }
         },
         contentType: 'application/json'
@@ -708,4 +718,82 @@ function registerServiceSearch() {
 
 function searchService(keyword) {
    loadService(keyword);
+}
+
+function resgisterSoList(listSO) {console.log(listSO)
+    let data = [];
+    let position = 1;
+    for (let key in listSO) {
+        data.push({
+           no:  position,
+           so: key
+        });
+        position++;
+    }
+    $('#soGrid').datagrid({
+        data: data
+    });
+}
+
+function registerAddSaleOrder(saleOrder = {}) {
+    saleOrderToSave = {};
+    saleOrders = saleOrder;
+
+    $("#addSaleOrder").on("click", function () {
+        var name = $("#saleOrderSearch").val();
+        if (saleOrders[name] || name.trim() === '') {
+            return;
+        }
+
+        registerSOCheckbox(name, name);
+        saleOrders[name] = true;
+        $("#saleOrderSearch").val(null);
+    });
+}
+
+function createServiceOrReturn(caseServiceId, dialog) {
+    const promises = [];
+    const productList = getProductsBySaleOrder(saleOrderToSave).then(function(soList) {
+        for (const key in saleOrderToSave) {
+            if (saleOrderToSave[key] && saleOrderToSave[key] === true) {
+                promises.push(createServiceDetails(caseServiceId, key));
+            }
+
+            if (soList[key]) {
+                for (const soKey in soList[key]) {
+                    promises.push(createProducts(masterId, soList[key][soKey]));
+                }
+            }
+
+            Promise.all(promises).then(function() {
+                $('#' + dialog).window('close');
+            });
+        };
+    });
+}
+
+function createServiceDetails(caseServiceID, customerSOID) {
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/case_service_detail',
+        data: JSON.stringify({
+            "caseServiceID": caseServiceID,
+            "customerSOID": customerSOID
+        }),
+        contentType: 'application/json'
+    });
+}
+
+function createProducts(caseServiceID, products ) {
+    products['serviceMasterID'] = parseInt(caseServiceID);
+    products['productID'] = Math.floor(Math.random() * 1000) + 1;
+    products['soldPrice'] = products['price'];
+    products['totalWeight'] = 1000;
+    products['amount'] =  products['price'] *  products['quantity'];
+    $.post({
+        type: "POST",
+        url: '/lexor_cs/api/serviceDetail',
+        data: JSON.stringify(products),
+        contentType: 'application/json'
+    });
 }
