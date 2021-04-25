@@ -3,113 +3,124 @@ $(document).ready(function () {
     loadServices();
     registerUpdatePaymentMethod();
     loadPaymentMethod();
-    
-    $(".editRMAStatus").on("click", function(){
-         $('#editRMADialog').dialog({
-            title: 'Change RMA Status',
-            width: 400,
-            height: 250,
-            closed: false,
-            cache: false,
-            modal: true,
-            href: 'rma_status.html'
-        });
-        $('#editRMADialog').dialog("move", {top: 100});
-       rmaTempStatus = $(this).attr('data-id');
-    });
-    
-    $("#editReturn").on("click", function () {
-        registerCaseTransactionDialog('editSaleOrderDialog', 'Return', $(this).attr("path"), {
-            withOutSaveOrder: true
-        });
-    });
-    
-    $("#editProducts").on("click", function(){
-       reloadList();
-    });
-    
-    $("#saveProducts").on("click", function(){
-        reloadShippingAmount(function(){
-            reloadList(false);
-        });
-    });
-    
-    $("#addSaleOrder").on("click", function(){
-       $('#editServiceDialog').dialog({
-            title: 'Add Product',
-            width: 700,
-            height: 400,
-            closed: false,
-            cache: false,
-            modal: true,
-            href: 'sale_order.html',
-            onLoad: function() {
-                getSOProductList().then(function(template){
-                    $("#addProductDialogTab").html(template.join(""));
-                    $('#addProductDialogTab').tabs({
-                        border:false
-                    });
-                    for ( let key in productSaleOrder ) {
-                        $('#' + key).datagrid({
-                            pagination:true,
-                            pageSize:20,
-                            showFooter: true,
-                            data: productSaleOrder[key],
-                            columns: [[
-                                {field:'product_name',title:'Product Name',width:200},
-                                {field:'under_warranty',title:'Under Warranty',width:100},
-                                {field:'warranty_issue',title:'Warranty Issued',width:100},
-                                {field:'warranty_expire',title:'Warranty Expired',width:100},
-                                {field:'action',title:'Code',width:100}
-                            ]],
-                            onLoadSuccess: function() {
-                                $(".easyui-linkbutton").linkbutton();
-                            }
-                        }).datagrid('clientPaging');
-                    }
-                });
-            }
-        });
-        $('#editServiceDialog').dialog("move", {top: 100});
-    });
-    $("#editSalon").on("click", function () {
-        $('#editSalonDialog').dialog({
-            title: 'Salon Information',
-            width: 400,
-            height: 400,
-            closed: false,
-            cache: false,
-            modal: true,
-            href: 'salon_information.html'
-        });
-        $('#editSalonDialog').dialog("move", {top: 100});
-    });
-    $("#editProducts").on("click", function () {
-        $("#addSaleOrder").show();
-        $("#saveProducts").show();
-        $(this).hide();
-    });
-    $("#saveProducts").on("click", function () {
-        $("#addSaleOrder").hide();
-        $("#editProducts").show();
-        
-        const promises = saveProduct().concat(editProduct()).concat(removeListProduct()).concat(updateTotal()).concat(createRMAActivity($.urlParam('rma_id'), "Edit product"));
-        Promise.all([
-            saveProduct(),
-            editProduct(),
-            removeListProduct(),
-            updateTotal()
-        ]).then(function() {
-            getProducts();
-            loadRMAActivity($.urlParam('rma_id'));
-        }).catch(function() {
-            getProducts();
-            loadRMAActivity($.urlParam('rma_id'));
-        }); ; 
-        
-        $(this).hide();
-    });
 });
+
+function isEdit() {
+    $.ajax({
+        contentType: 'application/json',
+        url: '/lexor_cs/api/apiService/' + $.urlParam('service_id'),
+        type: 'GET',
+        success : function(data) {
+            if ( data && data.code !== "SHIPPED" || data.code !== "CLOSED" ) {
+                    $(".editRMAStatus").on("click", function(){
+                    $('#editRMADialog').dialog({
+                       title: 'Change RMA Status',
+                       width: 400,
+                       height: 250,
+                       closed: false,
+                       cache: false,
+                       modal: true,
+                       href: 'rma_status.html'
+                   });
+                   $('#editRMADialog').dialog("move", {top: 100});
+                  rmaTempStatus = $(this).attr('data-id');
+               });
+
+               $("#editReturn").on("click", function () {
+                   registerCaseTransactionDialog('editSaleOrderDialog', 'Return', $(this).attr("path"), {
+                       withOutSaveOrder: true
+                   });
+               });
+
+               $("#editProducts").on("click", function(){
+                  reloadList();
+               });
+
+               $("#saveProducts").on("click", function(){
+                   reloadShippingAmount(function(){
+                       reloadList(false);
+                   });
+               });
+
+               $("#addSaleOrder").on("click", function(){
+                  $('#editServiceDialog').dialog({
+                       title: 'Add Product',
+                       width: 700,
+                       height: 400,
+                       closed: false,
+                       cache: false,
+                       modal: true,
+                       href: 'sale_order.html',
+                       onLoad: function() {
+                           getSOProductList().then(function(template){
+                               $("#addProductDialogTab").html(template.join(""));
+                               $('#addProductDialogTab').tabs({
+                                   border:false
+                               });
+                               for ( let key in productSaleOrder ) {
+                                   $('#' + key).datagrid({
+                                       pagination:true,
+                                       pageSize:20,
+                                       showFooter: true,
+                                       data: productSaleOrder[key],
+                                       columns: [[
+                                           {field:'product_name',title:'Product Name',width:200},
+                                           {field:'under_warranty',title:'Under Warranty',width:100},
+                                           {field:'warranty_issue',title:'Warranty Issued',width:100},
+                                           {field:'warranty_expire',title:'Warranty Expired',width:100},
+                                           {field:'action',title:'Code',width:100}
+                                       ]],
+                                       onLoadSuccess: function() {
+                                           $(".easyui-linkbutton").linkbutton();
+                                       }
+                                   }).datagrid('clientPaging');
+                               }
+                           });
+                       }
+                   });
+                   $('#editServiceDialog').dialog("move", {top: 100});
+               });
+               $("#editSalon").on("click", function () {
+                   $('#editSalonDialog').dialog({
+                       title: 'Salon Information',
+                       width: 400,
+                       height: 400,
+                       closed: false,
+                       cache: false,
+                       modal: true,
+                       href: 'salon_information.html'
+                   });
+                   $('#editSalonDialog').dialog("move", {top: 100});
+               });
+               $("#editProducts").on("click", function () {
+                   $("#addSaleOrder").show();
+                   $("#saveProducts").show();
+                   $(this).hide();
+               });
+               $("#saveProducts").on("click", function () {
+                   $("#addSaleOrder").hide();
+                   $("#editProducts").show();
+
+                   const promises = saveProduct().concat(editProduct()).concat(removeListProduct()).concat(updateTotal()).concat(createRMAActivity($.urlParam('rma_id'), "Edit product"));
+                   Promise.all([
+                       saveProduct(),
+                       editProduct(),
+                       removeListProduct(),
+                       updateTotal()
+                   ]).then(function() {
+                       getProducts();
+                       loadRMAActivity($.urlParam('rma_id'));
+                   }).catch(function() {
+                       getProducts();
+                       loadRMAActivity($.urlParam('rma_id'));
+                   }); ; 
+
+                   $(this).hide();
+               });
+            }
+        }
+    });
+}
 
 function createServiceOrReturn(caseServiceId, dialog) {
     const promises = [];

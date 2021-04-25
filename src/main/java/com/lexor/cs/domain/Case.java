@@ -17,7 +17,7 @@ public class Case implements Serializable {
     
     private Short casePriority;
     
-    private Short caseType;
+    private Integer caseType;
     
     private Short status;
     
@@ -80,11 +80,11 @@ public class Case implements Serializable {
         this.casePriority = casePriority;
     }
 
-    public Short getCaseType() {
+    public Integer getCaseType() {
         return caseType;
     }
 
-    public void setCaseType(Short caseType) {
+    public void setCaseType(Integer caseType) {
         this.caseType = caseType;
     }
 

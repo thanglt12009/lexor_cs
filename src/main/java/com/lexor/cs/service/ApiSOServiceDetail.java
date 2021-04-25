@@ -5,6 +5,7 @@ import com.lexor.cs.domain.ApiSaleOrderDetails;
 import com.lexor.cs.domain.CaseInformation;
 import com.lexor.cs.domain.Product;
 import com.lexor.cs.util.APIClient;
+import com.lexor.cs.util.TokenHelper;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -63,7 +64,7 @@ public class ApiSOServiceDetail extends BaseService<CaseInformation> {
             Integer id = (Integer) o;
             APIClient apiClient = new APIClient();
             
-            String result = apiClient.setRoute("qbservice/getOrderInfo/" + id).execute();
+            String result = apiClient.setRoute("qbservice/getOrderInfo/" + id, TokenHelper.getToken()).execute();
             JSONObject object = new JSONObject(result);
             JSONObject salon = object.getJSONObject("customer").getJSONObject("salonInfo");
             JSONArray products = object.getJSONArray("orderDetail");

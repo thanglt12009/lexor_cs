@@ -1,15 +1,21 @@
 package com.lexor.cs.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lexor.cs.beanhandler.ServiceDetailHandler;
 import com.lexor.cs.beanhandler.ServiceMasterHandler;
+import com.lexor.cs.domain.ServiceAPIDetail;
 import com.lexor.cs.domain.ServiceDetail;
 import com.lexor.cs.domain.ServiceMaster;
+import com.lexor.cs.util.APIClient;
+import com.lexor.cs.util.TokenHelper;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.apache.http.entity.StringEntity;
+import org.json.JSONObject;
 
 public class ServiceDetailService extends BaseService<ServiceDetail> {
 
@@ -21,6 +27,27 @@ public class ServiceDetailService extends BaseService<ServiceDetail> {
     @Override
     public int persist(Object o) throws SQLException {
         ServiceDetail c = (ServiceDetail) o;
+        try {
+            APIClient apiClient = new APIClient();
+            ObjectMapper mapper = new ObjectMapper();
+            ServiceAPIDetail serviceAPIDetail = new ServiceAPIDetail(
+                    c.getSerialNumber(), 
+                    c.getQuantity(),
+                    c.getSoldPrice(),
+                    c.getAmount(), 
+                    c.getOriginalSO()
+            );
+            
+            apiClient.setPostRoute(
+                    "servicecase/execOrderService/", 
+                    new StringEntity(mapper.writeValueAsString(serviceAPIDetail)), 
+                    TokenHelper.getToken()
+            ).post();
+            
+        } catch (Exception ex) {
+           throw new SQLException("Api Error");
+        }
+        
         QueryRunner runner = new QueryRunner();
         String query
                 = "INSERT INTO \"ServiceDetail\" (\"ServiceMasterID\", \"ProductID\" , \"Quantity\" , \"SoldPrice\" , \"Amount\", \"TotalWeight\"  , \"SerialNumber\", \"IsWarrantly\", \"WarrantyStartDate\", \"WarrantyEndDate\", \"PaymentType\", \"WareHouse\", \"ShipingDay\", \"ProductImage\" ) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?);";

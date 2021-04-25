@@ -1,8 +1,12 @@
 package com.lexor.cs.service;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.lexor.cs.beanhandler.RMASO_DetailHandler;
 import com.lexor.cs.domain.RMA;
 import com.lexor.cs.domain.RMASO_Detail;
+import com.lexor.cs.domain.ServiceAPIDetail;
+import com.lexor.cs.util.APIClient;
+import com.lexor.cs.util.TokenHelper;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
@@ -11,6 +15,7 @@ import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
+import org.apache.http.entity.StringEntity;
 
 public class RMASO_DetailService extends BaseService<RMASO_Detail> {
 
@@ -22,6 +27,27 @@ public class RMASO_DetailService extends BaseService<RMASO_Detail> {
     @Override
     public int persist(Object o) throws SQLException {
         RMASO_Detail c = (RMASO_Detail) o;
+        try {
+            APIClient apiClient = new APIClient();
+            ObjectMapper mapper = new ObjectMapper();
+            ServiceAPIDetail serviceAPIDetail = new ServiceAPIDetail(
+                    c.getSerialNumber(), 
+                    c.getQuantity(),
+                    c.getPrice(),
+                    (c.getQuantity() * c.getPrice()), 
+                    c.getRMASOID()
+            );
+            
+            apiClient.setPostRoute(
+                    "servicecase/execOrderService/", 
+                    new StringEntity(mapper.writeValueAsString(serviceAPIDetail)), 
+                    TokenHelper.getToken()
+            ).post();
+            
+        } catch (Exception ex) {
+           throw new SQLException("Api Error");
+        }
+        
         QueryRunner runner = new QueryRunner();
         String query
                 = "INSERT INTO \"public\".\"RMASO_Detail\" (\"RMASOID\", \"RMAID\", \"ProductID\",\"Quantity\", \"Price\", \"WareHouse\", \"ProductImage\", \"SerialNumber\" ,\"CreatedDate\", \"UpdatedDate\") VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?);";

@@ -43,3 +43,8 @@
 ## Man hinh Case : integrate voi SO, User API.
 ## Man hinh Service : integrate API SO & Product, tinh toan shipping, update payment, activity
 ## Man hinh RMA : integrate API SO & Product, update payment
+
+## Update service status
+http://localhost:8080/lexor_cs/api/caseService/updateServiceStatus/43
+## Update RMA status 
+http://localhost:8080/lexor_cs/api/caseRMA/updateRMAStatus/43

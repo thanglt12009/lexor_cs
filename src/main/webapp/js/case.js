@@ -392,7 +392,7 @@ function createServiceOrReturn(caseId, path, dialog, title) {
 
                                 if (soList[key]) {
                                     for (const soKey in soList[key]) {
-                                        promises.push(createProducts(masterId, soList[key][soKey]));
+                                        promises.push(createProducts(masterId, soList[key][soKey], soKey));
                                     }
                                 }
                             }
@@ -522,12 +522,13 @@ function createRMAPayment(rmaId) {
     });
 }
 
-function createProducts(caseServiceID, products ) {
+function createProducts(caseServiceID, products, SOID ) {
     products['serviceMasterID'] = parseInt(caseServiceID);
     products['productID'] = Math.floor(Math.random() * 1000) + 1;
     products['soldPrice'] = products['price'];
     products['totalWeight'] = 1000;
     products['amount'] =  products['price'] *  products['quantity'];
+    products['originalSO'] = SOID;
     $.post({
         type: "POST",
         url: '/lexor_cs/api/serviceDetail',

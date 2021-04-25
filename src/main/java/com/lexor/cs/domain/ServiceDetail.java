@@ -41,6 +41,8 @@ public class ServiceDetail implements Serializable {
     
     private String productImage;
 
+    private Integer originalSO;
+    
     public ServiceDetail() {
         
     }
@@ -226,5 +228,19 @@ public class ServiceDetail implements Serializable {
      */
     public void setProductImage(String productImage) {
         this.productImage = productImage;
+    }
+
+    /**
+     * @return the originalSO
+     */
+    public Integer getOriginalSO() {
+        return originalSO;
+    }
+
+    /**
+     * @param originalSO the originalSO to set
+     */
+    public void setOriginalSO(Integer originalSO) {
+        this.originalSO = originalSO;
     }
 }

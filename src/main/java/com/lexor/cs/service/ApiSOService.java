@@ -4,6 +4,7 @@ import com.lexor.cs.beanhandler.CaseInformationHandler;
 import com.lexor.cs.domain.ApiSaleOrder;
 import com.lexor.cs.domain.CaseInformation;
 import com.lexor.cs.util.APIClient;
+import com.lexor.cs.util.TokenHelper;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -19,8 +20,22 @@ import org.json.JSONObject;
 public class ApiSOService extends BaseService<CaseInformation> {
 
     @Override
-    public CaseInformation get(Integer id) {
-        throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+    public ApiSaleOrder get(Integer id) throws SQLException {
+        ApiSaleOrder apiSaleOrder = new ApiSaleOrder();
+        try {
+            APIClient apiClient = new APIClient();
+            String result = apiClient.setRoute("servicecase/getOrderServiceStatus/" + id, TokenHelper.getToken()).execute();
+            JSONObject obj = new JSONObject(result);
+            
+            if ( null != obj.getString("orderServiceStatus") ) {
+                apiSaleOrder.setCode((String)obj.getString("orderServiceStatus"));
+            }
+            
+        } catch (Exception ex) {
+            apiSaleOrder.setCode("Not Found");
+        }
+        
+        return apiSaleOrder;
     }
 
     @Override
@@ -64,8 +79,7 @@ public class ApiSOService extends BaseService<CaseInformation> {
         try {
             Integer id = (Integer) o;
             APIClient apiClient = new APIClient();
-            
-            String result = apiClient.setRoute("reactorder/getOrderSearch/?idOrder=" + id+ "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false").execute();
+            String result = apiClient.setRoute("reactorder/getOrderSearch/?idOrder=" + id + "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false", TokenHelper.getToken()).execute();
             JSONArray jsonData = new JSONArray(result);
             JSONObject obj = jsonData.getJSONObject(0);
             for (Object key : obj.keySet()) {
@@ -95,7 +109,7 @@ public class ApiSOService extends BaseService<CaseInformation> {
             Integer id = (Integer) o;
             APIClient apiClient = new APIClient();
             
-            String result = apiClient.setRoute("reactorder/getOrderSearch/?idOrder=" + id+ "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false").execute();
+            String result = apiClient.setRoute("reactorder/getOrderSearch/?idOrder=" + id+ "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false", TokenHelper.getToken()).execute();
             JSONArray jsonData = new JSONArray(result);
             
             

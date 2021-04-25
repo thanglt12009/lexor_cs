@@ -6,6 +6,7 @@ import com.lexor.cs.domain.ApiUser;
 import com.lexor.cs.domain.CaseInformation;
 import com.lexor.cs.domain.Product;
 import com.lexor.cs.util.APIClient;
+import com.lexor.cs.util.TokenHelper;
 import java.io.IOException;
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -67,7 +68,7 @@ public class ApiUserService extends BaseService<CaseInformation> {
             Integer id = (Integer) o;
             APIClient apiClient = new APIClient();
             
-            String result = apiClient.setRoute("/qbservice/listsales/?idOrder=" + id+ "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false").execute();
+            String result = apiClient.setRoute("/qbservice/listsales/?idOrder=" + id+ "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false", TokenHelper.getToken()).execute();
             JSONObject object = new JSONObject(result);
             JSONArray products = object.getJSONArray("data");
             
@@ -92,7 +93,7 @@ public class ApiUserService extends BaseService<CaseInformation> {
             Integer id = (Integer) o;
             APIClient apiClient = new APIClient();
             
-            String result = apiClient.setRoute("/qbservice/listsales/?idOrder=" + id+ "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false").execute();
+            String result = apiClient.setRoute("/qbservice/listsales/?idOrder=" + id+ "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false", TokenHelper.getToken()).execute();
             JSONObject object = new JSONObject(result);
             JSONArray products = object.getJSONArray("data");
             

@@ -62,13 +62,13 @@
                <nav class="mt-2">
                     <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
                     <li class="nav-item">
-                      <a href="/lexor_cs/pages/cs/purchaseorder/cases.html" class="active nav-link">
+                      <a href="/lexor_cs/pages/cs/purchaseorder/cases.html" class="nav-link">
                         <i class="nav-icon far fa-file text-info"></i>
                         <p>Cases</p>
                       </a>
                     </li>
                      <li class="nav-item">
-                      <a href="/lexor_cs/pages/cs/purchaseorder/cases_lists.html" class="nav-link">
+                      <a href="/lexor_cs/pages/cs/purchaseorder/cases_lists.html" class="active nav-link">
                         <i class="nav-icon far fa-file text-info"></i>
                         <p>Case Lists</p>
                       </a>
@@ -102,25 +102,22 @@
                 <div class="container">
             <form>
                 <div class="form-group row">
-                    <label for="search-box">Please Enter Customer Phone Number:</label>
+                    <label for="search-box">Please Enter Case Information:</label>
                     <div class="col-sm-10">                    
-                        <input class="easyui-textbox" style="width:100%" id="userSearch" data-options="iconCls:'icon-search'">
-                    </div>
-                    <div class="col-sm-2">                    
-                        <a id="addNew" href="javascript:void(0)" class="easyui-linkbutton" data-options="iconCls:'icon-add'">Add new contact</a>
+                        <input class="easyui-textbox" style="width:100%" id="caseSearch" data-options="iconCls:'icon-search'">
                     </div>
                 </div>
                 <div class="form-group">
-                    <table class="easyui-datagrid" id="userGrid" pagination="true">
+                    <table class="easyui-datagrid" id="caseGrid" pagination="true">
                         <thead>
                             <tr>
-                                <th data-options="field:'id', fixed:true, width: 100">Doc Number</th>
-                                <th data-options="field:'id',sortable:true, fixed:true, width: 160">Case Status</th>
-                                <th data-options="field:'name', fixed:true, width: 230">Customer Name</th>
-                                <th data-options="field:'cellPhone', fixed:true, width: 150">Mobile phone</th>
-                                <th data-options="field:'busPhone', fixed:true, width: 150">Business Phone</th>
-                                <th data-options="field:'service_rep_name', sortable:true, fixed:true, width: 200">Customer Service Rep Name</th>
-                                <th data-options="field:'action', fixed:true, width: 130">Action</th>
+                                <th data-options="field:'caseID', fixed:true, width: 200">Case Id</th>
+                                <th data-options="field:'caseType',sortable:true, fixed:true, width: 260">Case Type</th>
+                                <th data-options="field:'customerID', fixed:true, width: 300">Customer Name</th>
+                                <th data-options="field:'customerServiceRep', fixed:true, width: 200">Customer Service Rep</th>
+                                <th data-options="field:'action', fixed:true, width: 110">Action</th>
+                            </tr>        
+                        </thead>
                         <tbody>
                         </tbody>
                     </table>
@@ -147,11 +144,8 @@
     <script type="text/javascript" src="../../../js/jquery.easy-autocomplete.min.js"></script>
     <script type="text/javascript" src="../../../js/datagrid-cellediting.js"></script>
     <script type="text/javascript" src="../../../js/app.js"></script>
-    <script type="text/javascript" src="../../../js/activity.js"></script>
-    <script type="text/javascript" src="../../../js/user.js"></script>
     <script type="text/javascript" src="../../../js/const.js"></script>
-    <script type="text/javascript" src="../../../js/case.js"></script>
-    <script type="text/javascript" src="../../../js/sendmail.js"></script>
+    <script type="text/javascript" src="../../../js/case_list.js"></script>
     <!-- Resolve conflict in jQuery UI tooltip with Bootstrap tooltip -->
     <script>
      $.widget.bridge('uibutton', $.ui.button);

@@ -2,13 +2,17 @@ package com.lexor.cs.service;
 
 import com.lexor.cs.beanhandler.CaseHandler;
 import com.lexor.cs.beanhandler.CaseReturnHandler;
+import com.lexor.cs.beanhandler.CaseServiceHandler;
 import com.lexor.cs.domain.Case;
 import com.lexor.cs.domain.CaseReturn;
+import com.lexor.cs.domain.CaseService;
 import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import org.apache.commons.dbutils.QueryRunner;
 import org.apache.commons.dbutils.ResultSetHandler;
+import org.apache.commons.dbutils.handlers.MapListHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 
 public class CaseReturnService extends BaseService<Case> {
@@ -71,16 +75,27 @@ public class CaseReturnService extends BaseService<Case> {
     
     @Override
     public <T> List<T> findByKeyWord(Object o) throws SQLException {
-        String name = (String) o;
+       String keyword = o.toString();
         QueryRunner queryRunner = new QueryRunner();
-        ResultSetHandler<List<CaseReturn>> resultHandler = new CaseReturnHandler(connection);        
-        String query = "SELECT * FROM \"public\".\"Case\" WHERE CONCAT(\"CaseName\", \" \") LIKE ?;";
-        
-        List<CaseReturn> empList = queryRunner.query(connection, query.toLowerCase() , resultHandler, name);
-        List<T> list = new ArrayList<>();
-        for (CaseReturn case1 : empList) {
-            list.add((T) case1);
+        if ( "all".equals(keyword) ) {
+            keyword = "";
         }
+        
+        String query = "SELECT * FROM \"public\".\"Case\" WHERE CONCAT_WS(' ', \"CaseName\", \"CaseType\", \"CaseID\") ILIKE '%" + keyword + "%' order by CaseID desc;";
+
+        List<Map<String, Object>> empLists = queryRunner.query(connection, query.toLowerCase(), new MapListHandler());
+        List<T> list = new ArrayList<>();
+        
+        for(int i=0; i< empLists.size();i++) {
+            Map<String, Object> mapObj = (Map<String, Object>) empLists.get(i);
+            Case caseObj = new Case();
+            caseObj.setCaseID((Integer)mapObj.get("caseID"));
+            caseObj.setCustomerID((Integer)mapObj.get("customerID"));
+            caseObj.setCaseType((Integer)mapObj.get("caseType"));
+            caseObj.setCustomerServiceRep((Integer)mapObj.get("customerServiceRep"));
+            list.add((T) caseObj);
+        }
+        
         return list; 
     }
     

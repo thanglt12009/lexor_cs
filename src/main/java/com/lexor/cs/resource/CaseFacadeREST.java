@@ -1,6 +1,7 @@
 package com.lexor.cs.resource;
 
 import com.lexor.cs.domain.Case;
+import com.lexor.cs.domain.CaseService;
 import com.lexor.cs.service.CaseReturnService;
 import com.lexor.cs.service.CaseServices;
 import com.lexor.cs.service.Service;
@@ -92,6 +93,13 @@ public class CaseFacadeREST extends AbstractFacade<Case> {
     @Produces(MediaType.TEXT_PLAIN)
     public String countREST(@PathParam("id") Integer id) throws SQLException {
         return String.valueOf(super.count(id));
+    }
+    
+    @GET
+    @Path("/find/{id}")
+    @Produces({MediaType.APPLICATION_JSON})
+    public List<Case> findByKeyWord(@PathParam("id") String id) throws SQLException {        
+        return super.findByKeyWord(id);
     }
     
     @POST  
