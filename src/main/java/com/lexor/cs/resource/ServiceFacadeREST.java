@@ -3,6 +3,8 @@ package com.lexor.cs.resource;
 import com.lexor.cs.domain.ApiSaleOrder;
 import com.lexor.cs.service.ApiSOService;
 import com.lexor.cs.service.Service;
+import com.lexor.cs.service.ServiceAPI;
+import com.lexor.cs.util.TokenHelper;
 import java.sql.SQLException;
 import java.util.List;
 import javax.ejb.Stateless;
@@ -19,12 +21,14 @@ import javax.mail.MessagingException;
 import javax.mail.Session;
 import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
+import javax.ws.rs.CookieParam;
 import javax.ws.rs.NotFoundException;
+import javax.ws.rs.core.Cookie;
 
 
 @Stateless
 @Path("/apiService")
-public class ServiceFacadeREST extends AbstractFacade<ApiSaleOrder> {
+public class ServiceFacadeREST extends AbstractAPIFacade<ApiSaleOrder> {
     
     private ApiSOService service;
         
@@ -36,7 +40,7 @@ public class ServiceFacadeREST extends AbstractFacade<ApiSaleOrder> {
     }
 
     @Override
-    protected Service getService() {
+    protected ServiceAPI getService() {
         return this.service;
     }
 
@@ -64,8 +68,12 @@ public class ServiceFacadeREST extends AbstractFacade<ApiSaleOrder> {
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public ApiSaleOrder find(@PathParam("id") Integer id) throws SQLException {
-        return this.service.get(id);
+    public ApiSaleOrder find(@PathParam("id") Integer id, @CookieParam("x-api-token") Cookie cookie) throws SQLException {
+        String token = TokenHelper.getToken();
+        if (cookie != null) {
+            token = cookie.getValue();
+        }
+        return this.service.get(id, token);
     }
 
     @GET

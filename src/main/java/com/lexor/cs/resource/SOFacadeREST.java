@@ -7,6 +7,8 @@ import com.lexor.cs.service.ApiSOService;
 import com.lexor.cs.service.CaseReturnService;
 import com.lexor.cs.service.CaseServices;
 import com.lexor.cs.service.Service;
+import com.lexor.cs.service.ServiceAPI;
+import com.lexor.cs.util.TokenHelper;
 import java.sql.SQLException;
 import java.util.List;
 import javax.ejb.Stateless;
@@ -32,11 +34,13 @@ import javax.mail.internet.MimeMessage.RecipientType;
 import javax.mail.internet.MimeMultipart;
 import javax.naming.NamingException;
 import java.io.UnsupportedEncodingException;
+import javax.ws.rs.CookieParam;
+import javax.ws.rs.core.Cookie;
 
 
 @Stateless
 @Path("/apiSO")
-public class SOFacadeREST extends AbstractFacade<ApiSaleOrder> {
+public class SOFacadeREST extends AbstractAPIFacade<ApiSaleOrder> {
     
     private ApiSOService service;
         
@@ -48,7 +52,7 @@ public class SOFacadeREST extends AbstractFacade<ApiSaleOrder> {
     }
 
     @Override
-    protected Service getService() {
+    protected ServiceAPI getService() {
         return this.service;
     }
 
@@ -69,16 +73,25 @@ public class SOFacadeREST extends AbstractFacade<ApiSaleOrder> {
     @DELETE
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public int remove(@PathParam("id") Integer id) throws SQLException {
-        ApiSaleOrder entity = super.find(id);
+    public int remove(@PathParam("id") Integer id, @CookieParam("x-api-token") Cookie cookie) throws SQLException {
+        String token = TokenHelper.getToken();
+        if (cookie != null) {
+            token = cookie.getValue();
+        }
+        
+        ApiSaleOrder entity = super.find(id, token);
         return super.remove(entity);
     }
 
     @GET
     @Path("/{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public ApiSaleOrder find(@PathParam("id") Integer id) throws SQLException {
-        return super.find(id);
+    public ApiSaleOrder find(@PathParam("id") Integer id, @CookieParam("x-api-token") Cookie cookie) throws SQLException {
+        String token = TokenHelper.getToken();
+        if (cookie != null) {
+            token = cookie.getValue();
+        }
+        return super.find(id, token);
     }
 
     @GET
@@ -91,8 +104,13 @@ public class SOFacadeREST extends AbstractFacade<ApiSaleOrder> {
     @GET
     @Path("/find/{id}")
     @Produces({MediaType.APPLICATION_JSON})
-    public List<ApiSaleOrder> findByKeyWord(@PathParam("id") Integer id) throws SQLException {        
-        return super.findByKeyWord(id);
+    public List<ApiSaleOrder> findByKeyWord(@PathParam("id") Integer id, @CookieParam("x-api-token") Cookie cookie) throws SQLException {        
+        String token = TokenHelper.getToken();
+        if (cookie != null) {
+            token = cookie.getValue();
+        }
+        
+        return super.findByKeyWord(id, token);
     }
     
     @GET

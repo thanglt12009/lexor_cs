@@ -15,10 +15,10 @@ import org.apache.commons.dbutils.ResultSetHandler;
 import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.json.*;
 
-public class ApiSOServiceDetail extends BaseService<CaseInformation> {
+public class ApiSOServiceDetail extends BaseServiceAPI<CaseInformation> {
 
     @Override
-    public CaseInformation get(Integer id) {
+    public CaseInformation get(Integer id, String token) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
 
@@ -58,13 +58,13 @@ public class ApiSOServiceDetail extends BaseService<CaseInformation> {
     }
 
     @Override
-    public <T> T find(Class<T> type, Object o) throws SQLException {
+    public <T> T find(Class<T> type, Object o, String token) throws SQLException {
         List<T> list = new ArrayList<>();
         try {
             Integer id = (Integer) o;
             APIClient apiClient = new APIClient();
             
-            String result = apiClient.setRoute("qbservice/getOrderInfo/" + id, TokenHelper.getToken()).execute();
+            String result = apiClient.setRoute("qbservice/getOrderInfo/" + id, token).execute();
             JSONObject object = new JSONObject(result);
             JSONObject salon = object.getJSONObject("customer").getJSONObject("salonInfo");
             JSONArray products = object.getJSONArray("orderDetail");
@@ -101,7 +101,7 @@ public class ApiSOServiceDetail extends BaseService<CaseInformation> {
     }
     
     @Override
-    public <T> List<T> findByKeyWord(Object o) throws SQLException {
+    public <T> List<T> findByKeyWord(Object o, String token) throws SQLException {
         String filterStr = (String) o;
         QueryRunner queryRunner = new QueryRunner();
         ResultSetHandler<List<CaseInformation>> resultHandler = new CaseInformationHandler(connection);

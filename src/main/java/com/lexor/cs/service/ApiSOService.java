@@ -17,14 +17,14 @@ import org.apache.commons.dbutils.handlers.ScalarHandler;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
-public class ApiSOService extends BaseService<CaseInformation> {
+public class ApiSOService extends BaseServiceAPI<CaseInformation> {
 
     @Override
-    public ApiSaleOrder get(Integer id) throws SQLException {
+    public ApiSaleOrder get(Integer id, String token) throws SQLException {
         ApiSaleOrder apiSaleOrder = new ApiSaleOrder();
         try {
             APIClient apiClient = new APIClient();
-            String result = apiClient.setRoute("servicecase/getOrderServiceStatus/" + id, TokenHelper.getToken()).execute();
+            String result = apiClient.setRoute("servicecase/getOrderServiceStatus/" + id, token).execute();
             JSONObject obj = new JSONObject(result);
             
             if ( null != obj.getString("orderServiceStatus") ) {
@@ -74,12 +74,12 @@ public class ApiSOService extends BaseService<CaseInformation> {
     }
 
     @Override
-    public <T> T find(Class<T> type, Object o) throws SQLException {
+    public <T> T find(Class<T> type, Object o, String token) throws SQLException {
         ApiSaleOrder apiSaleOrder = null;
         try {
             Integer id = (Integer) o;
             APIClient apiClient = new APIClient();
-            String result = apiClient.setRoute("reactorder/getOrderSearch/?idOrder=" + id + "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false", TokenHelper.getToken()).execute();
+            String result = apiClient.setRoute("reactorder/getOrderSearch/?idOrder=" + id + "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false", token).execute();
             JSONArray jsonData = new JSONArray(result);
             JSONObject obj = jsonData.getJSONObject(0);
             for (Object key : obj.keySet()) {
@@ -102,14 +102,14 @@ public class ApiSOService extends BaseService<CaseInformation> {
     }
     
     @Override
-    public <T> List<T> findByKeyWord(Object o) throws SQLException {
+    public <T> List<T> findByKeyWord(Object o, String token) throws SQLException {
         List<T> list = new ArrayList<>();
         ApiSaleOrder apiSaleOrder = null;
         try {
             Integer id = (Integer) o;
             APIClient apiClient = new APIClient();
             
-            String result = apiClient.setRoute("reactorder/getOrderSearch/?idOrder=" + id+ "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false", TokenHelper.getToken()).execute();
+            String result = apiClient.setRoute("reactorder/getOrderSearch/?idOrder=" + id+ "&currentPage=1&pageLimit=5&orderBy=o.id&asc=desc&idOrderStatus=0&isInquireQuote=false", token).execute();
             JSONArray jsonData = new JSONArray(result);
             
             
