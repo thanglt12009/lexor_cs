@@ -100,13 +100,7 @@ function isEdit() {
                     $("#editProducts").show();
 
                     const promises = saveProduct().concat(editProduct()).concat(removeListProduct()).concat(saveShippingFee()).concat(createServiceActivity($.urlParam('service_id'), "Edit product"));
-                    Promise.all([
-                        saveProduct(),
-                        editProduct(),
-                        removeListProduct(),
-                        saveShippingFee(),
-                        createServiceActivity($.urlParam('service_id'), "Edit product")
-                    ]).then(function() {
+                    Promise.all(promises).then(function() {
                         getProducts();
                         loadServiceActivity($.urlParam('service_id'));
                     }).catch(function() {

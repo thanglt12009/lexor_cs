@@ -3,6 +3,7 @@ $(document).ready(function () {
     loadServices();
     registerUpdatePaymentMethod();
     loadPaymentMethod();
+    isEdit();
 });
 
 function isEdit() {
@@ -102,12 +103,7 @@ function isEdit() {
                    $("#editProducts").show();
 
                    const promises = saveProduct().concat(editProduct()).concat(removeListProduct()).concat(updateTotal()).concat(createRMAActivity($.urlParam('rma_id'), "Edit product"));
-                   Promise.all([
-                       saveProduct(),
-                       editProduct(),
-                       removeListProduct(),
-                       updateTotal()
-                   ]).then(function() {
+                   Promise.all(promises).then(function() {
                        getProducts();
                        loadRMAActivity($.urlParam('rma_id'));
                    }).catch(function() {
